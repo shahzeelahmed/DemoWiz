@@ -1,4 +1,5 @@
 import "./App.css";
+import { Canvas } from "./components/Canvas";
 import Menu from "./components/Menu";
 
 import VideoView from "./components/Video";
@@ -12,7 +13,8 @@ function App() {
    <Menu/>    */}
   {/* <ScreenRecorder/> */}
   
-  <VideoPlayer />
+  {/* <VideoPlayer /> */}
+  <Canvas/>
   </div>
 
  )
