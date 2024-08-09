@@ -1,56 +1,70 @@
-import { useEffect, useRef,useState } from "react"
-export function Canvas(){
 
+import React, { useRef, useEffect } from "react";
 
-    const canvasRef = useRef(null);
-    const videoRef = useRef(null);
-    const [isPlaying, setIsPlaying] = useState(false);
-  
-    useEffect(() => {
-      const canvas = canvasRef.current;
-      const ctx = canvas.getContext('2d');
-      const video = videoRef.current;
-  
-    const handlePlay = () => {
-        const loop = () => {
-          if (!video.paused && !video.ended) {
-            const videoRatio = video.videoWidth / video.videoHeight;
-            const canvasRatio = canvas.width / canvas.height;
-  
-            let scaleX = 1;
-            let scaleY = 1;
-  
-            if (videoRatio > canvasRatio) {
-              scaleY = canvas.width / video.videoWidth;
-              scaleX = scaleY;
-            } else {
-              scaleX = canvas.height / video.videoHeight;
-              scaleY = scaleX;
-            }
-  
-            const x = (canvas.width - video.videoWidth * scaleX) / 2;
-            const y = (canvas.height - video.videoHeight * scaleY) / 2;
-  
-            ctx.drawImage(video, x, y, video.videoWidth * scaleX, video.videoHeight * scaleY);
-            requestAnimationFrame(loop);
-          }
-        };
-        loop();
-      };
-  
-      video.addEventListener('play', handlePlay);
-  
-      return () => {
-        video.removeEventListener('play', handlePlay);
-      };
-    }, [videoRef]);
-  
+const Canvas = () => {
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    videoRef.current = document.createElement('video');
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+    video.src = "src/components/flower.webm";
+    video.autoPlay = true; 
+    video.loop = true; 
+    video.muted = true;
+
+    if (!canvas || !video) {
+      return;
+    }
+
+    const setCanvasSize = () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+    };
+
+    video.addEventListener("loadedmetadata", setCanvasSize);
+
+    return () => video.removeEventListener("loadedmetadata", setCanvasSize);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const video = videoRef.current;
+ 
     
-    return(<div>
-        <canvas ref={canvasRef} width="500" height="400" />
-        <video ref={videoRef} width="320" height="240" muted autoPlay loop>
-          <source src="src/components/flower.webm" type="video/mp4" />
-        </video>
-        
-      </div>)
-}
+
+    if (!canvas || !video) {
+      return;
+    }
+
+    const canvasCtx = canvas.getContext("2d");
+ 
+
+    const grabNextFrame = () => {
+      if (!video.paused && !video.ended) {
+        canvasCtx.drawImage(video, 0, 0);
+        requestAnimationFrame(grabNextFrame);
+      }
+    };
+
+    video.addEventListener("play", grabNextFrame);
+    video.play();
+    return () => {
+      video.removeEventListener("play", grabNextFrame);
+    };
+  }, []);
+
+  return (
+    <div>
+    
+      <canvas ref={canvasRef} style={{width: 300}} >
+ 
+      </canvas>
+    </div>
+  );
+};
+
+export default Canvas;
+
+
