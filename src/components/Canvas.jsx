@@ -1,7 +1,7 @@
 
 import React, { useRef, useEffect } from "react";
 
-const Canvas = () => {
+const Canvas = ({props}) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
@@ -56,12 +56,12 @@ const Canvas = () => {
   }, []);
 
   return (
-    <div>
     
-      <canvas ref={canvasRef} style={{width: 300}} >
+    
+      <canvas ref={canvasRef} className={props} >
  
       </canvas>
-    </div>
+    
   );
 };
 

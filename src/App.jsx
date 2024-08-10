@@ -1,5 +1,6 @@
 import "./App.css";
 import Canvas from "./components/Canvas";
+import VideoPlayer from "./components/VideoPlayer";
 
 
 function App() {
@@ -7,7 +8,7 @@ function App() {
 
   <div>
 
-<Canvas/>
+<VideoPlayer/>
   </div>
 
  )
