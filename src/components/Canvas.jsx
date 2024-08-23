@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect } from "react";
 
 const Canvas = ({props}) => {
@@ -9,10 +8,13 @@ const Canvas = ({props}) => {
     videoRef.current = document.createElement('video');
     const canvas = canvasRef.current;
     const video = videoRef.current;
-    video.src = "src/components/flower.webm";
+    video.src = "src/components/video.webm";
+    video.crossOrigin = "crossorigin"; 
     video.autoPlay = true; 
     video.loop = true; 
     video.muted = true;
+
+   
 
     if (!canvas || !video) {
       return;
@@ -31,6 +33,7 @@ const Canvas = ({props}) => {
   useEffect(() => {
     const canvas = canvasRef.current;
     const video = videoRef.current;
+    
  
     
 
@@ -49,12 +52,45 @@ const Canvas = ({props}) => {
     };
 
     video.addEventListener("play", grabNextFrame);
-    video.play();
+    video.play().then(()=>{
+      console.log('video playing')
+    }).catch((e)=>{
+      console.log(e)
+    });
     return () => {
       video.removeEventListener("play", grabNextFrame);
     };
   }, []);
 
+
+
+  
+  async function getVideoPart2(){
+    const init = {
+      type: "key",
+      data: videoBuffer,
+      timestamp: 23000000,
+      duration: 2000000,
+      transfer: [videoBuffer],
+    };
+    const videoBuffer = new ArrayBuffer(video);
+    chunk = new EncodedVideoChunk(init);
+    const responses = await chunk;
+    try{
+      console.log('decoding...')
+    for (const response of responses) {
+      const chunk = new EncodedVideoChunk({
+        timestamp: response.timestamp,
+        type: response.key ? "key" : "delta",
+        data: new Uint8Array(response.body),
+      });
+      decoder.decode(chunk);
+    }}
+    catch(e){
+      console.log(e);
+    }
+  }
+  getVideoPart2();
   return (
     
     

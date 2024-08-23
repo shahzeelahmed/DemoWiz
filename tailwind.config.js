@@ -10,10 +10,12 @@ export default {
         xs: '2px',
       },
       height:{
-        xl: '80%'
+        xl: '80%',
+        xxl: '85%'
       },
       width:{
-        xl: '75%'
+        xl: '75%',
+        xxl: '85%'
       },
       dropShadow:{
         '4xl': [

@@ -7,7 +7,7 @@ function App() {
  return(
 
   <div>
-
+{/* <Canvas/> */}
 <VideoPlayer/>
   </div>
 

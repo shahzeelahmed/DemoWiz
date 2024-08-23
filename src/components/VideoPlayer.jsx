@@ -10,9 +10,16 @@ export default function VideoPlayer () {
   return (
  <div className='h-screen flex justify-center items-center overflow-hidden'>
   
-  <div className='h-xl w-xl bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center absolute overflow-hidden   ' >
-  <Canvas props='h-xl w-xl absolute z-1  transition ease-in-out drop-shadow-4xl  delay-150  hover:translate-y-40 hover:translate-x-60 hover:scale-150 duration-700 rounded ' />
- 
+  <div className='h-[500px] w-[860px] bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center absolute overflow-hidden   ' >
+  
+  <Canvas props=' h-[440px] w-[720px]  object-cover transition ease-in-out drop-shadow-xl  delay-150  hover:scale-125 hover:translate-y-32 hover:translate-x-32  duration-700 ' />
+  {/* <video  
+  src="src/components/video.mp4"
+  autoPlay
+  loop
+  muted
+  
+  width="620"></video> */}
   </div>
   
  </div>
