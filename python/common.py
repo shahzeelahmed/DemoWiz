@@ -3,7 +3,7 @@ def add_common_args(parser):
         "--fps",
         type=int,
         help="Desired frame rate for recording (default 30)",
-        default=30,
+        default=60,
     )
     parser.add_argument(
         "--x",

@@ -1,4 +1,4 @@
-<!doctype html>
+<!-- <!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -10,5 +10,58 @@
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html> -->
+<!DOCTYPE html>
+<canvas style="outline: 1px solid"></canvas>
+<h1 > hi</h1>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>simple canvas</title>
+  </head>
+  <body>
+    <script src="mp4box.all.js"></script>
+    <script type="module">
+      import {MP4Demuxer} from "./mp4demuxer.js";                                  // wrapper around mp4box.js. A behind this, but none of it WebCodecs
+  let demuxer = new MP4Demuxer("video2.mp4");
+  let trackInfo = await demuxer.getVideoTrackInfo();
+  let hi =  await demuxer.getDuration();
+  var duration = document.querySelector("h1").innerHTML = hi;
+  var canvas = document.querySelector("canvas");                                // we'll use this to paint. VideoFrame is a CanvasImageSource
+  // canvas.width = trackInfo.displayWidth;
+  // canvas.height = trackInfo.displayHeight;
+  canvas.width = 1000;
+  canvas.height = 500;
+  var ctx = canvas.getContext('2d');
+
+  // --- start coding ---
+
+  function paintFrame(frame) {
+    ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+    frame.close();
+  }
+
+  let decoder = new VideoDecoder({
+    output: paintFrame,
+    error: e => console.error(e),
+  });
+
+  let config = {
+    codec: trackInfo.codec,                                                     // choosing the underyling codec impl
+    description: trackInfo.extradata                                            // bytestream formats (avc vs annexb)
+  };
+
+  console.assert(VideoDecoder.isConfigSupported(config))
+  decoder.configure(config);
+
+  // TODO: maybe construct chunk here, that's WebCodecs
+  demuxer.demuxVideo(0, (chunk) => {                                            // paint the whole video, talk about processing model
+    decoder.decode(chunk);
+  });
+
+    </script>
   </body>
 </html>

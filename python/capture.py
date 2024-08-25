@@ -21,7 +21,7 @@ def get_argument_parser():
     parser.add_argument(
         "--output",
         help="Name of video file to save (default 'video.mp4')",
-        default="video2.mp4",
+        default="video3.mp4",
     )
     return parser
 
@@ -33,7 +33,7 @@ def parse_handle(hwnd) -> int:
 
 
 class VideoRecorder:
-    def __init__(self, output: str = "video2.mp4"):
+    def __init__(self, output: str = "video3.mp4"):
         self._thread: Thread | None = None
         self._stop = False
         self._output = output
@@ -115,7 +115,7 @@ def main():
         x, y, w, h = desktop.find(pid)
 
     recorder = VideoRecorder(args.output)
-    recorder.start(x, y, 1920, 1080, args.fps)
+    recorder.start(x, y, 1500, 780, args.fps)
     # recorder.start(x,y,1920,1080,args.fps)
     input("Press ENTER to stop recording...")
     recorder.stop()
