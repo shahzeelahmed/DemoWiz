@@ -74,26 +74,20 @@ let startTime;
 let currentTime = 0;
 let timer;
 let paused = true; // Start in a paused state
-// let demuxerModule = await import('./mp4_pull_demuxer.js');
 
-    // import {mp4box} from './mp4box.all.js'
-      
-      // let duration1 = await new demuxerModule.MP4PullDemuxer();;
-      // // console.log(duration1.duration);
-      // let time = duration1.duration;
       let duration1 = 15;
 function startCount() {
     if (paused) {
         paused = false;
-        startTime = performance.now() - currentTime * 1000; // Adjust startTime to resume from the last paused time
+        startTime = performance.now() - currentTime * 1000; 
         timer = setInterval(() => {
-            currentTime = (performance.now() - startTime) / 1000; // Convert to seconds
+            currentTime = (performance.now() - startTime) / 1000; 
             if (currentTime >= time) {
                 currentTime = time;
-                clearInterval(timer); // Stop the timer when reaching 96 seconds
+                clearInterval(timer); 
             }
-            // console.log(currentTime.toFixed(9)); // Log the time with 9 decimal places
-        }, 10); // Check time every 10 milliseconds for better precision
+           
+        }, 10); 
     }
 }
 

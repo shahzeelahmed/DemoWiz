@@ -53,12 +53,7 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     const type = sample.is_sync ? "key" : "delta";
     const pts_us = (sample.cts * 1000000) / sample.timescale;
     const duration_us = (sample.duration * 1000000) / sample.timescale;
-    // console.log(duration_us)
-    // console.log(sample.timescale)
-    // console.log(sample.duration)
-    // console.log(sample.duration/sample.timescale)
-    // console.log('duration:',sample.cts / sample.timescale)
-    // this.duration = (sample.duration * 1000000) / sample.timescale;
+  
     this.duration = sample.cts/sample.timescale
     console.log(sample.cts/sample.timescale)
     const ChunkType =  EncodedVideoChunk;
