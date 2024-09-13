@@ -14,6 +14,7 @@ duration = 0;
       const reader = response.body.getReader();
       let offset = 0;
       let mp4File = this.file;
+      
 
       function appendBuffers({done, value}) {
         if(done) {
@@ -85,7 +86,7 @@ duration = 0;
       const type = sample.is_sync ? "key" : "delta";
         this.duration = sample.duration;
       const chunk = new EncodedVideoChunk({
-        type: type,
+                type: type,
         timestamp: pts_secs ,
         duration: sample.duration,
         data: sample.data
@@ -137,7 +138,23 @@ export class MP4Demuxer {
   constructor(uri) {
     this.source = new MP4Source(uri);
   }
-  
+  async getNextChunk() {
+    let sample = await this._readSample();
+    const type = sample.is_sync ? "key" : "delta";
+    const pts_us = (sample.cts * 1000000) / sample.timescale;
+    const duration_us = (sample.duration * 1000000) / sample.timescale;
+    const ChunkType =
+      this.streamType == StreamType.AUDIO_STREAM_TYPE
+        ? EncodedAudioChunk
+        : EncodedVideoChunk;
+    return new ChunkType({
+      type: type,
+      timestamp: pts_us,
+      duration: duration_us,
+      data: sample.data,
+    });
+  }
+
 
   getAvcDescription(avccBox) {
     var i;
@@ -183,10 +200,11 @@ export class MP4Demuxer {
 
   async getDuration(){
     duration = this.videoTrack.duration;
-    return (duration/1000)/60;
+    return duration/1000;
   }
   async getVideoTrackInfo() {
     await this.ready();
+    console.log(this.videoTrack.codec)
 
     let config = {
       codec: this.videoTrack.codec,
