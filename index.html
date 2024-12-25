@@ -121,7 +121,7 @@ function resetCount() {
       let mediaWorker = new Worker('./media_worker.js');
       mediaWorker.postMessage({command: 'initialize',
                               //  audioFile: '../data/bbb_audio_aac_frag.mp4',
-                               videoFile: 'video2.mp4',
+                               videoFile: 'jotaro.mp4',
                                canvas: offscreenCanvas},
                               {transfer: [offscreenCanvas]});
       

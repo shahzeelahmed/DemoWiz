@@ -115,7 +115,7 @@ def main():
         x, y, w, h = desktop.find(pid)
 
     recorder = VideoRecorder(args.output)
-    recorder.start(x, y, 1500, 780, args.fps)
+    recorder.start(x, y, 1920, 1080, args.fps)
     # recorder.start(x,y,1920,1080,args.fps)
     input("Press ENTER to stop recording...")
     recorder.stop()

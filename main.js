@@ -1,4 +1,4 @@
-const FILE_URL = 'video2.mp4';
+const FILE_URL = 'sbr.mp4';
 
 const handleAudioEncoding = true;
 

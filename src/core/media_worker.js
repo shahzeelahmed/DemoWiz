@@ -79,12 +79,14 @@ self.addEventListener('message', async function(e) {
       playing = false;
       audioRenderer.pause();
       break;
+      
     case 'update-media-time':
       updateMediaTime(e.data.mediaTimeSecs,
                       e.data.mediaTimeCapturedAtHighResTimestamp);
       break;
     default:
       console.error(`Worker bad message: ${e.data}`);
+      
   }
 
 });

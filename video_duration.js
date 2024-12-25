@@ -18,7 +18,7 @@ function arrayBufferToString(buffer) {
 }
 
 // Load the video file
-fetch('video2.mp4')
+fetch('jotaro.mp4')
     .then(response => response.arrayBuffer())
     .then(buffer => {
         mp4boxfile.onReady = function(info) {
@@ -33,4 +33,4 @@ fetch('video2.mp4')
         mp4boxfile.flush();
     });
 
-
+ 

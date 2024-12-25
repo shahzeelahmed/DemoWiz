@@ -43,8 +43,8 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     
   }
   async getDuration(){
-    // let sample = await this._readSample();
-    // this.duration = console.log('duration:',sample.cts / sample.timescale);
+    let sample = await this._readSample();
+    this.duration = console.log('duration:',sample.cts / sample.timescale);
     // return this.duration = sample.cts/sample.timescale;
   }
 
@@ -54,8 +54,8 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     const pts_us = (sample.cts * 1000000) / sample.timescale;
     const duration_us = (sample.duration * 1000000) / sample.timescale;
   
-    this.duration = sample.cts/sample.timescale
-    console.log(sample.cts/sample.timescale)
+    // this.duration = sample.cts/sample.timescale
+    console.log(duration_us)
     const ChunkType =  EncodedVideoChunk;
     return new ChunkType({
       type: type,
@@ -97,6 +97,9 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     return promise;
 
   }
+ getDuration(){
+  console.log(samples.duration);
+ }
 
   _onSamples(samples) {
     const SAMPLE_BUFFER_TARGET_SIZE = 50;

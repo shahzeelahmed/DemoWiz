@@ -11,7 +11,7 @@ const Canvas = ({props}) => {
     videoRef.current = document.createElement('video');
     const canvas = canvasRef.current;
     const video = videoRef.current;
-    video.src = "src/components/video2.mp4";
+    video.src = "src/components/sbr.mp4";
     video.crossOrigin = "crossorigin"; 
     video.autoPlay = true; 
     video.loop = true; 
@@ -101,7 +101,7 @@ const Canvas = ({props}) => {
      
  
       // </canvas>
-      <VideoDecode videoPath="src/components/1678798893088_24d034f7469b5e79_x3JT9w.mp4"/>
+      <VideoDecode videoPath="src/components/sbr.mp4"/>
     
   );
 };

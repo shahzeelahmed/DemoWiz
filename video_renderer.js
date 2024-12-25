@@ -1,3 +1,4 @@
+import { Application, Assets, TilingSprite } from 'pixi.js';
 import { VIDEO_STREAM_TYPE } from "./pull_demuxer_base.js";
 import { MP4PullDemuxer } from "./mp4_pull_demuxer.js";
 
@@ -14,17 +15,17 @@ function debugLog(msg) {
 // VideoFrames to canvas. Maintains a buffer of FRAME_BUFFER_TARGET_SIZE
 // decoded frames for future rendering.
 export class VideoRenderer {
-  duration1;
+  
 
   
   async initialize(demuxer, canvas) {
     this.frameBuffer = [];
     this.fillInProgress = false;
-
+   
     this.demuxer = demuxer;
     await this.demuxer.initialize(VIDEO_STREAM_TYPE);
     const config = this.demuxer.getDecoderConfig();
-
+    
     this.canvas = canvas;
     this.canvas.width = config.displayWidth;
     this.canvas.height = config.displayHeight;
@@ -56,7 +57,7 @@ export class VideoRenderer {
 
     this.paint(frame);
   }
-
+    
   chooseFrame(timestamp) {
     if (this.frameBuffer.length == 0)
       return null;
@@ -113,15 +114,18 @@ export class VideoRenderer {
       let chunk = await this.demuxer.getNextChunk();
       this.decoder.decode(chunk);
     }
-
+    
     this.fillInProgress = false;
+    
 
     // Give decoder a chance to work, see if we saturated the pipeline.
     setTimeout(this.fillFrameBuffer.bind(this), 0);
   }
 
   frameBufferFull() {
+    console.log(this.frameBuffer.length)
     return this.frameBuffer.length >= FRAME_BUFFER_TARGET_SIZE;
+    
   }
 
   bufferFrame(frame) {
@@ -129,9 +133,34 @@ export class VideoRenderer {
     this.frameBuffer.push(frame);
     
   }
+sprite(){
+   app = new PIXI.Application({
+      view: this.canvas,
+      width: this.videoWidth,
+      height: this.videoHeight,
+      resolution: 1
+  });
 
-  paint(frame) {
+   imgContainer = new PIXI.Container();
+  app.stage.addChild(imgContainer);
+  
+
+   spriteFrame = this.frameBuffer.map(obj => {
+      obj.sprite = PIXI.Sprite.from(obj.img);
+      obj.sprite.x = 0;
+      obj.sprite.y = 0;
+      obj.sprite.width = this.videoWidth;
+      obj.sprite.height = this.videoHeight;
+      obj.sprite.blendMode = PIXI.BLEND_MODES.NORMAL;
+      return obj;
+  }
+)
+}
+   paint(frame) {
+    
     frame != null ?
+   
+    // imgContainer.addChild(sprite)
     this.canvasCtx.drawImage(frame, 0, 0, this.canvas.width, this.canvas.height)
     : console.log('no frames')
   }
