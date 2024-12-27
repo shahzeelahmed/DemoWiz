@@ -42,20 +42,16 @@ export class MP4PullDemuxer extends PullDemuxerBase {
       }
     
   }
-  async getDuration(){
-    let sample = await this._readSample();
-    this.duration = console.log('duration:',sample.cts / sample.timescale);
-    // return this.duration = sample.cts/sample.timescale;
-  }
+
 
   async getNextChunk() {
     let sample = await this._readSample();
     const type = sample.is_sync ? "key" : "delta";
     const pts_us = (sample.cts * 1000000) / sample.timescale;
     const duration_us = (sample.duration * 1000000) / sample.timescale;
-  
+   
     // this.duration = sample.cts/sample.timescale
-    console.log(duration_us)
+    // console.log(duration_us)
     const ChunkType =  EncodedVideoChunk;
     return new ChunkType({
       type: type,
@@ -97,9 +93,7 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     return promise;
 
   }
- getDuration(){
-  console.log(samples.duration);
- }
+
 
   _onSamples(samples) {
     const SAMPLE_BUFFER_TARGET_SIZE = 50;
@@ -125,6 +119,7 @@ class MP4Source {
     this.file.onError = console.error.bind(console);
     this.file.onReady = this.onReady.bind(this);
     this.file.onSamples = this.onSamples.bind(this);
+    this.duration = 0;
 
     debugLog('fetching file');
     fetch(uri).then(response => {
@@ -159,12 +154,19 @@ class MP4Source {
     // TODO: Generate configuration changes.
     this.info = info;
 
+    // console.log(info.duration/info.timescale)
     if (this._info_resolver) {
       this._info_resolver(info);
       this._info_resolver = null;
     }
   }
 
+  getDuration() {
+    this.duration = this.info.duration/this.timescale;
+    console.log(this.info.duration/this.timescale)
+    return;
+  } 
+  
   getInfo() {
     if (this.info)
       return Promise.resolve(this.info);

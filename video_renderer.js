@@ -123,7 +123,7 @@ export class VideoRenderer {
   }
 
   frameBufferFull() {
-    console.log(this.frameBuffer.length)
+    
     return this.frameBuffer.length >= FRAME_BUFFER_TARGET_SIZE;
     
   }
