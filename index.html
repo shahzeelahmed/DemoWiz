@@ -66,16 +66,22 @@
     <label for=volume>Volume</label>
     <input id=volume type=range value=0.8 min=0 max=1.0 step=0.01></input>
   </div>
-  <canvas width=1280 height=720></canvas>
+  <canvas width=720 height=480></canvas>
 </div>
+<script type="module" src="./mp4_pull_demuxer.js"></script>
+<script type="module">
+  
+</script>
 <script type="module" src="./mp4box.all.js"></script>
     <script type="module">
+
+          
 let startTime;
 let currentTime = 0;
 let timer;
 let paused = true; // Start in a paused state
 
-      let duration1 = 15;
+
 function startCount() {
     if (paused) {
         paused = false;

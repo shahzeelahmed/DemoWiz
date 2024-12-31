@@ -36,8 +36,8 @@ export class MP4PullDemuxer extends PullDemuxerBase {
    
       return {
         codec: this.videoTrack.codec,
-        displayWidth: this.videoTrack.track_width/2,
-        displayHeight: this.videoTrack.track_height/2,
+        displayWidth: this.videoTrack.track_width/3,
+        displayHeight: this.videoTrack.track_height/3,
         description: this._getAvcDescription(this.source.getAvccBox())
       }
     
@@ -50,8 +50,7 @@ export class MP4PullDemuxer extends PullDemuxerBase {
     const pts_us = (sample.cts * 1000000) / sample.timescale;
     const duration_us = (sample.duration * 1000000) / sample.timescale;
    
-    // this.duration = sample.cts/sample.timescale
-    // console.log(duration_us)
+    
     const ChunkType =  EncodedVideoChunk;
     return new ChunkType({
       type: type,
@@ -164,7 +163,7 @@ class MP4Source {
   getDuration() {
     this.duration = this.info.duration/this.timescale;
     console.log(this.info.duration/this.timescale)
-    return;
+    return this.duration ;
   } 
   
   getInfo() {
@@ -210,3 +209,4 @@ class MP4Source {
     this._onSamples(samples);
   }
 }
+export default MP4Source
