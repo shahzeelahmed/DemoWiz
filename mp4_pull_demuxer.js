@@ -150,14 +150,17 @@ class MP4Source {
   }
 
   onReady(info) {
-    // TODO: Generate configuration changes.
+ 
     this.info = info;
 
-    // console.log(info.duration/info.timescale)
     if (this._info_resolver) {
       this._info_resolver(info);
       this._info_resolver = null;
     }
+    const durationInSeconds = info.duration / info.timescale;
+    console.log('Duration (seconds):', durationInSeconds);
+    const bitrateInKbps = info.avgFrameRate;
+    console.log('Bitrate (kbps):', bitrateInKbps);
   }
 
   getDuration() {
