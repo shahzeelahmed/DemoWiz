@@ -32,7 +32,7 @@ export class VideoRenderer {
     this.canvasCtx = canvas.getContext('2d');
 
     this.decoder = new VideoDecoder({
-      output: this.bufferFrame.nd(this),
+      output: this.bufferFrame.bind(this),
       error: e => console.error(e),
     });
     console.assert(VideoDecoder.isConfigSupported(config))
