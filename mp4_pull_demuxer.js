@@ -31,9 +31,11 @@ export class MP4PullDemuxer extends PullDemuxerBase {
       this._selectTrack(this.videoTrack);
     
   }
-
+  getBitrate(){
+    const bitRateinKbps = this.videoTrack.bitRateinKbps.math.floor()
+  }
   getDecoderConfig() {
-   
+    console.log(Math.floor(this.videoTrack.bitrate))
       return {
         codec: this.videoTrack.codec,
         displayWidth: this.videoTrack.track_width/3,
@@ -159,14 +161,16 @@ class MP4Source {
     }
     const durationInSeconds = info.duration / info.timescale;
     console.log('Duration (seconds):', durationInSeconds);
-    const bitrateInKbps = info.avgFrameRate;
-    console.log('Bitrate (kbps):', bitrateInKbps);
+    
+      
+    
   }
 
   getDuration() {
-    this.duration = this.info.duration/this.timescale;
-    console.log(this.info.duration/this.timescale)
-    return this.duration ;
+     info = this.info;
+    // this.duration = info.duration/info.timescale;
+    console.log(info.duration/info.timescale)
+    
   } 
   
   getInfo() {
