@@ -1,4 +1,4 @@
-<!-- <!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -11,8 +11,8 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
-</html> -->
-<!DOCTYPE html>
+</html>
+<!-- <!DOCTYPE html>
 
 <style>
   body {
@@ -67,161 +67,10 @@
     <input id=volume type=range value=0.8 min=0 max=1.0 step=0.01></input>
   </div>
   <canvas width=720 height=480></canvas>
-</div>
-<script type="module" src="./mp4_pull_demuxer.js"></script>
-<script type="module">
-  
+</div> -->
+
+<script>
+
 </script>
-<script type="module" src="./mp4box.all.js"></script>
-    <script type="module">
-
-          
-let startTime;
-let currentTime = 0;
-let timer;
-let paused = true; // Start in a paused state
-
-
-function startCount() {
-    if (paused) {
-        paused = false;
-        startTime = performance.now() - currentTime * 1000; 
-        timer = setInterval(() => {
-            currentTime = (performance.now() - startTime) / 1000; 
-            if (currentTime >= time) {
-                currentTime = time;
-                clearInterval(timer); 
-            }
-           
-        }, 10); 
-    }
-}
-
-function pauseCount() {
-    paused = true;
-    clearInterval(timer); // Pause the timer
-}
-
-function resetCount() {
-    paused = true;
-    clearInterval(timer); // Pause and reset
-    currentTime = 0;
-}
-
-
-// Assuming you have MP4Box.js included in your project
-
-
-
-
-      // import { WebAudioController } from "../lib/web_audio_controller.js";
-      
-      // Transfer canvas to offscreen. Painting will be performed by worker without
-      // blocking the Window main thread.
-      window.$ = document.querySelector.bind(document);
-      let canvas = $("canvas");
-      let offscreenCanvas = canvas.transferControlToOffscreen();
-      
-      // Instantiate the "media worker" and start loading the files. The worker will
-      // house and drive the demuxers and decoders.
-      let mediaWorker = new Worker('./media_worker.js');
-      mediaWorker.postMessage({command: 'initialize',
-                              //  audioFile: '../data/bbb_audio_aac_frag.mp4',
-                               videoFile: 'jotaro.mp4',
-                               canvas: offscreenCanvas},
-                              {transfer: [offscreenCanvas]});
-      
-      // Wait for worker initialization. Use metadata to init the WebAudioController.
-      let initResolver = null;
-      let initDone = new Promise(resolver => (initResolver = resolver));
-      // let audioController = new WebAudioController();
-      // mediaWorker.addEventListener('message', (e) => {
-      //   console.assert(e.data.command == 'initialize-done');
-      //   audioController.initialize(e.data.sampleRate, e.data.channelCount,
-      //                       e.data.sharedArrayBuffer);
-      //   initResolver();
-      //   initResolver = null;
-      // });
-      // await initDone;
-      
-      // Set up volume slider.
-      // $('#volume').onchange = (e) => { audioController.setVolume(e.target.value); }
-      
-      // Enable play now that we're loaded
-      let playButton = $('button');
-      let loadingElement = $('#loading');
-      playButton.disabled = false;
-      loadingElement.innerText = 'Ready! Click play.'
-      
-      playButton.onclick = () => {
-        if (playButton.innerText == "Play") {
-          startCount();
-          // console.log(currentTime.toFixed(14));
-          console.log("playback start");
-          mediaWorker.postMessage({
-              command: 'play',
-              mediaTimeSecs: currentTime.toFixed(14),
-              mediaTimeCapturedAtHighResTimestamp:
-                  performance.now() + performance.timeOrigin
-          });
-          // Audio can only start in reaction to a user-gesture.
-          // audioController.play().then(() => console.log('playback started'));
-          // mediaWorker.postMessage({
-          //     command: 'play',
-          //     mediaTimeSecs: audioController.getMediaTimeInSeconds(),
-          //     mediaTimeCapturedAtHighResTimestamp:
-          //         performance.now() + performance.timeOrigin
-          // });
-      
-          sendMediaTimeUpdates(true);
-      
-          playButton.innerText = "Pause";
-      
-        } else {
-          console.log("playback pause");
-          mediaWorker.postMessage({command: 'pause'});
-          pauseCount();
-          // console.log(currentTime.toFixed(14));
-          // Resolves when audio has effectively stopped, this can take some time if
-          // using bluetooth, for example.
-          // audioController.pause().then(() => { console.log("playback paused");
-          //   // Wait to pause worker until context suspended to ensure we continue
-          //   // filling audio buffer while audio is playing.
-          //   mediaWorker.postMessage({command: 'pause'});
-          // });
-      
-          sendMediaTimeUpdates(false);
-      
-          playButton.innerText = "Play"
-        }
-      }
-      
-      // Helper function to periodically send the current media time to the media
-      // worker. Ideally we would instead compute the media time on the worker thread,
-      // but this requires WebAudio interfaces to be exposed on the WorkerGlobalScope.
-      // See https://github.com/WebAudio/web-audio-api/issues/2423
-      let mediaTimeUpdateInterval = null;
-      function sendMediaTimeUpdates(enabled) {
-        if (enabled) {
-          // Local testing shows this interval (1 second) is frequent enough that the
-          // estimated media time between updates drifts by less than 20 msec. Lower
-          // values didn't produce meaningfully lower drift and have the downside of
-          // waking up the main thread more often. Higher values could make av sync
-          // glitches more noticeable when changing the output device.
-          const UPDATE_INTERVAL = 1000;
-          mediaTimeUpdateInterval = setInterval(() => {
-            mediaWorker.postMessage({
-                command: 'update-media-time',
-                mediaTimeSecs: currentTime.toFixed(14),
-                mediaTimeCapturedAtHighResTimestamp:
-                    performance.now() + performance.timeOrigin
-            });
-          }, UPDATE_INTERVAL);
-        } else {
-          clearInterval(mediaTimeUpdateInterval);
-          mediaTimeUpdateInterval = null;
-        }
-      }
-      </script>
 
 </html>
