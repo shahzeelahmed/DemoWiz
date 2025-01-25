@@ -1,5 +1,5 @@
 import "./App.css";
-import Canvas from "./components/Canvas";
+
 import { MP4Clip } from '@webav/av-cliper';
 import { Radio,Button,Divider } from 'antd';
 import { useState } from 'react';
