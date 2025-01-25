@@ -15,12 +15,12 @@ const videos = assetsPrefix({
 let stop = () => {};
 
 async function start(
-  speed: number,
-  videoType: keyof typeof videos,
-  ctx: CanvasRenderingContext2D,
+  speed,
+  videoType,
+  ctx = OffscreenCanvasRenderingContext2D,
 ) {
   const resp1 = await fetch(videos[videoType]);
-  const clip = new MP4Clip(resp1.body!);
+  const clip = new MP4Clip(resp1.body);
   await clip.ready;
 
   stop();
@@ -60,8 +60,9 @@ async function start(
     clip.destroy();
   }
 
-  function timesSpeedDecode(times: number) {
+  function timesSpeedDecode(times) {
     let startTime = performance.now();
+    
 
     const timer = setInterval(async () => {
       const { state, video } = await clip.tick(
@@ -100,19 +101,17 @@ export default createUI(start);
 
 // ---------- 以下是 UI 代码 ---------------
 
-function createUI(start: Function) {
+function createUI(start) {
   return () => {
     const [value, setValue] = useState('bunny.mp4');
     const [speed, setSpeed] = useState(Infinity);
-    const [ctx, setCtx] = useState<null | undefined | CanvasRenderingContext2D>(
-      null,
-    );
+    const [ctx, setCtx] = useState(null | undefined | CanvasRenderingContext2D);
     return (
       <div>
         
         <Button
           onClick={() => {
-            start(speed, value as keyof typeof videos, ctx);
+            start(speed, value , ctx);
           }}
         >
           启动！
@@ -145,7 +144,7 @@ function createUI(start: Function) {
           width={600}
           height={333}
           ref={(c) => {
-            setCtx(c?.getContext('2d'));
+            setCtx(c?.getContext('2d') );
           }}
         />
       </div>

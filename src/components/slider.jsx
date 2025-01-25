@@ -12,12 +12,13 @@ import { useState } from "react";
  * @param {Function} props.onChange 
  * @returns {JSX.Element} 
  */
+
 export default function Slider({ min, max, value, step, onChange }) {
     const [sliderValue, setSliderValue] = useState(value);
 
     /**
      * Handles the change event of the slider.
-     * @param {React.ChangeEvent<HTMLInputElement>} e - The change event object.
+     * @param {React.ChangeEvent<HTMLInputElement>} e.
      */
     const handleChange = (e) => {
         const newValue = parseFloat(e.target.value);
