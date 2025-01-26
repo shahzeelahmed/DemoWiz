@@ -8,8 +8,8 @@ import { assetsPrefix } from "./utils/utils";
 import React from "react";
 
 const videos = assetsPrefix({
-  'bunny.mp4': 'jotaro.mp4',
-  'bear.mp4': 'jotaro.mp4',
+  'bunny.mp4': 'JOTARO VS KIRA 4K 60 FPS MhL_V19Su7o.mp4',
+  'bear.mp4': 'JOTARO VS KIRA 4K 60 FPS MhL_V19Su7o.mp4',
 });
 
 let stop = () => {};

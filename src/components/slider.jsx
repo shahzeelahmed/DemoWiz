@@ -13,6 +13,7 @@ import { useState } from "react";
  * @returns {JSX.Element} 
  */
 
+
 export default function Slider({ min, max, value, step, onChange }) {
     const [sliderValue, setSliderValue] = useState(value);
 
