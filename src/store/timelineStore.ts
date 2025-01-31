@@ -6,7 +6,7 @@ const usePlayerState = create((set) => ({
   existVideo: false,
   playStartFrame: 0,
   playTargetTrackMap: new Map(),
-  isPause: true,
+  isPaused: true,
 
   setState: (updates) => set((state) => ({ ...state, ...updates })),
 }));
