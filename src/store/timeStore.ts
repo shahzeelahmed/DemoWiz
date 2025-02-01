@@ -1,16 +1,28 @@
+import { createStore } from 'zustand';
 import {create} from 'zustand';
 
-type TimeStore = {
+type TimeStoreState = {
     currentTime: number;
-    setCurrentTime: (newTime: number, duration: number)=>void;
+    // duration: number;
+    // newTime: number;
+    // setCurrentTime: (newTime: number, duration: number)=>void;
 };
-
-const useTimeStore = create<TimeStore>((set) => ({
+type updatedTime ={
+    newTime: number;
+    duration: number;
+}
+type TimeStoreActions = {
+    
+    setCurrentTime: (duration: number,time:number) => void
+  }
+  type TimeStore = TimeStoreState & TimeStoreActions  
+const timeStore = create<TimeStore>((set) => ({
     currentTime: 0,
-    setCurrentTime: (duration, newTime) => {
-        const clampedTime = Math.max(0, Math.min(newTime, duration));
+    setCurrentTime: (duration,newTime) => {
+        const clampedTime = Math.max(0, Math.min(duration, newTime));
         set({ currentTime: clampedTime });
     },
 }));
 
-export default useTimeStore;
+export default timeStore;
+
