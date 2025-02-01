@@ -1,16 +1,9 @@
-import { createStore } from 'zustand';
 import {create} from 'zustand';
 
 type TimeStoreState = {
     currentTime: number;
-    // duration: number;
-    // newTime: number;
-    // setCurrentTime: (newTime: number, duration: number)=>void;
+   
 };
-type updatedTime ={
-    newTime: number;
-    duration: number;
-}
 type TimeStoreActions = {
     
     setCurrentTime: (duration: number,time:number) => void
