@@ -1,5 +1,5 @@
 interface PlayheadProps {
-  currentTime: number;
+    currentTime: number;
     duration: number;
     height: number;
     width: number;

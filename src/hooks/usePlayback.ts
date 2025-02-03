@@ -7,10 +7,7 @@ export const usePlayback = (duration: number) => {
     const lastUpdateTimeRef = useRef(0);
     const isDragging = false;
     
-    
-        
-     
-    
+
     useEffect(() => {
         const animate = (timestamp) => {
           if (!isPlaying || isDragging) {
