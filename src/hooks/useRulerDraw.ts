@@ -1,6 +1,6 @@
 import { RefObject, useEffect } from "react";
 import { CanvasSize, DrawConfig } from "../types";
-import { drawLine, drawText, setupContext } from "../utils/utils";
+import { draw, drawLine, drawText, setupContext } from "../utils/utils";
 import { CANVAS_CONSTANTS } from "../utils/helpers";
 
 export const useRulerDraw = (
@@ -19,6 +19,7 @@ export const useRulerDraw = (
     },
     setCanvasSize: (size: CanvasSize) => void
   ) => {
+    
     useEffect(() => {
       const handleResize = () => {
         const canvas = canvasRef.current;
@@ -85,12 +86,13 @@ export const useRulerDraw = (
             );
           }
         }
-  
+        draw(canvasContext, scrollPos, width, props.height);
         canvasContext.restore();
-        setCanvasSize({ width, height: props.height });
+        
       };
-  
+      
       handleResize();
+      
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }, [
@@ -105,6 +107,7 @@ export const useRulerDraw = (
       props.longLineSize, 
       props.shortLineSize, 
       props.textFormat, 
+      
       setCanvasSize
     ]);
   };
