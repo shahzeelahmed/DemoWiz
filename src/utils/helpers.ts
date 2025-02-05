@@ -1,5 +1,5 @@
 import { DrawConfig } from "../types";
-import { PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, TIMELINE_OFFSET_CANVAS_LEFT, TIMELINE_OFFSET_X } from "./constants";
+import { FRAME_INTERVAL, PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, TIMELINE_OFFSET_CANVAS_LEFT, TIMELINE_OFFSET_X } from "./constants";
 
   export const formatTime = (timeInSeconds: number): string => {
     const minutes = Math.floor(timeInSeconds / 60);
@@ -32,3 +32,17 @@ import { PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, TIMELINE_OFFSET_C
     TIMELINE_OFFSET_X,
     ORIGIN_Y: 32,
   } as const;
+  export function timeMsToUnits(timeMs: number, zoom = 1): number {
+    const zoomedFrameWidth = PREVIEW_FRAME_WIDTH * zoom;
+    const frames = timeMs * (60 / 1000);
+  
+    return frames * zoomedFrameWidth;
+  }
+  
+  export function unitsToTimeMs(units: number, zoom = 1): number {
+    const zoomedFrameWidth = PREVIEW_FRAME_WIDTH * zoom;
+  
+    const frames = units / zoomedFrameWidth;
+  
+    return frames * FRAME_INTERVAL;
+  }

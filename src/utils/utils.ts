@@ -116,24 +116,24 @@ export const draw = (
 ) => {
   if (!context) return;
   
-  const  longLineSize = 8,
+  const  longLineSize = 20,
     shortLineSize = 6,
     offsetX = TIMELINE_OFFSET_X,
     textOffsetY = 12, 
     textFormat = formatTimelineUnit;
     
   const initScale: Scale = {
-    unit: 60,
-    zoom: 1 / 90,
-    segments: 5
+    unit: 180,
+    zoom: 1 / 150,
+    segments: 3
   };
   const zoom = initScale.zoom;
   const unit = initScale.unit;
   const segments = initScale.segments;
   context!.clearRect(0, 0, width, height);
   context!.save();
-  context!.strokeStyle = "#71717a";
-  context!.lineWidth = 1;
+  context!.strokeStyle = "#1e1e1e";
+  context!.lineWidth = 1.2;
   context!.font = `${SMALL_FONT_SIZE}px ${SECONDARY_FONT}`;
   context!.textBaseline = "top";
 
@@ -183,9 +183,9 @@ export const draw = (
 
       
       if (lineSize === shortLineSize) {
-        context!.strokeStyle = "#a1a1aa"; 
+        context!.strokeStyle = "#1e1e1e"; 
       } else {
-        context!.strokeStyle = "#d4d4d8"; 
+        context!.strokeStyle = "#3e3e3e"; 
       }
 
       const origin = 32;
