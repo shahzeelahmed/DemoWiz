@@ -251,7 +251,18 @@ export interface UserConfig {
         frameCount: number;
     };
 }
-
+export interface TimelineProps {
+  start?: number;
+  step?: number;
+  scale?: number;
+  focusPosition?: {
+    start: number;
+    end: number;
+  };
+  isDark?: boolean;
+  hideSubMenu?: boolean;
+  onSelectFrame?: (frame: number) => void;
+}
 
 const getGridSize = (scale: number): number => 
   SCALE_GRID_MAP.get(scale) ?? 100;
