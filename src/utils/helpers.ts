@@ -1,11 +1,31 @@
 import { DrawConfig } from "../types";
 import { FRAME_INTERVAL, PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, TIMELINE_OFFSET_CANVAS_LEFT, TIMELINE_OFFSET_X } from "./constants";
 
-  export const formatTime = (timeInSeconds: number): string => {
-    const minutes = Math.floor(timeInSeconds / 60);
-    const seconds = Math.floor(timeInSeconds % 60);
-    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
+  // export const formatTime = (timeInSeconds: number): string => {
+  //   const minutes = Math.floor(timeInSeconds / 60);
+  //   const seconds = Math.floor(timeInSeconds % 60);
+  //   return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  // };
+  export function formatTime(time: number): { s: number; m: number; h: number; str: string } {
+    const totalSeconds = Math.ceil(time / 1000);
+  
+    const seconds = totalSeconds % 60;
+    const minutes = Math.floor(totalSeconds / 60) % 60;
+    const hours = Math.floor(totalSeconds / 3600); // 3600 seconds in an hour
+  
+    const formattedTime = [
+      hours > 0 ? `${hours.toString().padStart(2, '0')}:` : "", // Conditional hours with padding
+      `${minutes.toString().padStart(2, '0')}:`, // Always include minutes with padding
+      seconds.toString().padStart(2, '0'),  // Always include seconds with padding
+    ].join(""); // Join the components
+  
+    return {
+      s: seconds,
+      m: minutes,
+      h: hours,
+      str: formattedTime,
+    };
+  }
 
   export const DEFAULT_DRAW_CONFIG: DrawConfig = {
     shortLineColor: "#a1a1aa",

@@ -64,10 +64,11 @@ export default function App() {
 
 
   return (  
-    
-  <Ruler />
+  <div>
+  <Ruler  />
+  <Playhead/>
+  </div>)
  
-) 
 }
 
 
