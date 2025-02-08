@@ -1,5 +1,5 @@
-import { DrawConfig } from "../types";
-import { FRAME_INTERVAL, PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, TIMELINE_OFFSET_CANVAS_LEFT, TIMELINE_OFFSET_X } from "./constants";
+import { CanvasConfig, DrawConfig, UserConfig } from "../types/types";
+
   export function formatTime(time: number): { s: number; m: number; h: number; str: string } {
     const totalSeconds = Math.ceil(time / 1000);
   
@@ -27,36 +27,92 @@ import { FRAME_INTERVAL, PREVIEW_FRAME_WIDTH, SECONDARY_FONT, SMALL_FONT_SIZE, T
     textColor: "#71717a",
     lineWidth: 1,
   };
+  export const drawTimeLine = (
+    ctx: CanvasRenderingContext2D,
+    userConfig: UserConfig,
+    config: CanvasConfig
+  ): void => {
+    const { width, height, ratio } = config;
+    const { start, step, scale, focusPosition } = userConfig;
   
-  export const DEFAULT_PROPS = {
-    height: 40,
-    longLineSize: 8,
-    shortLineSize: 6,
-    offsetX: TIMELINE_OFFSET_X + TIMELINE_OFFSET_CANVAS_LEFT,
-    textOffsetY: 12,
-    textFormat: (scale: number) => scale.toString(),
-    scrollLeft: 0,
-  } as const;
+
+    ctx.fillStyle = config.bgColor;
+    ctx.fillRect(0, 0, width, height);
   
-  export const CANVAS_CONSTANTS = {
-    PREVIEW_FRAME_WIDTH,
-    SECONDARY_FONT,
-    SMALL_FONT_SIZE,
-    TIMELINE_OFFSET_CANVAS_LEFT,
-    TIMELINE_OFFSET_X,
-    ORIGIN_Y: 32,
-  } as const;
-  export function timeMsToUnits(timeMs: number, zoom = 1): number {
-    const zoomedFrameWidth = PREVIEW_FRAME_WIDTH * zoom;
-    const frames = timeMs * (60 / 1000);
+   
+    const centerY = height / (2 * ratio);
+    const maxFrames = Math.ceil(width / (step * scale * ratio));
+    
+   
+    if (focusPosition.start !== focusPosition.end) {
+      const focusStart = focusPosition.start * step * scale * ratio;
+      const focusEnd = focusPosition.end * step * scale * ratio;
+      ctx.fillStyle = config.focusColor;
+      ctx.fillRect(focusStart, 0, focusEnd - focusStart, height);
+    }
   
-    return frames * zoomedFrameWidth;
-  }
+    for (let i = 0; i <= maxFrames; i++) {
+      const x = i * step * scale * ratio;
+      const frameNumber = start + i;
   
-  export function unitsToTimeMs(units: number, zoom = 1): number {
-    const zoomedFrameWidth = PREVIEW_FRAME_WIDTH * zoom;
+      if (x > width) break;
+        
+      const isMajorMark = frameNumber % 5 === 0;
+      
+      ctx.beginPath();
+      ctx.strokeStyle = isMajorMark ? config.longColor : config.shortColor;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, isMajorMark ? height : height * 0.7);
+      ctx.stroke();
+    
+      if (isMajorMark) {
+        ctx.fillStyle = config.textColor;
+        ctx.font = `${config.textSize * config.ratio * config.textScale}px Arial`;
+        ctx.fillText(
+          frameNumber.toString(),
+          x,
+          centerY
+        );
+      }
+    }
+
+    const drawMarker = (frame: number, color: string) => {
+      const x = (frame - start) * step * scale * ratio;
+      if (x >= 0 && x <= width) {
+        ctx.beginPath();
+        ctx.fillStyle = color;
+        ctx.arc(x, centerY, 3 * ratio, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    };
   
-    const frames = units / zoomedFrameWidth;
+    if (focusPosition.frameCount > 0) {
+      drawMarker(focusPosition.frameCount, config.textColor);
+    }
+
+    ctx.beginPath();
+    ctx.strokeStyle = config.lineColor;
+    ctx.moveTo(0, height - config.lineWidth);
+    ctx.lineTo(width, height - config.lineWidth);
+    ctx.stroke();
+  };
   
-    return frames * FRAME_INTERVAL;
-  }
+  
+  const formatFrameNumber = (frame: number): string => {
+    return frame.toString().padStart(2, '0');
+  };
+  
+  const isMajorFrame = (frame: number): boolean => {
+    return frame % 5 === 0;
+  };
+  export const setupCanvas = (
+    canvas: HTMLCanvasElement,
+    context: CanvasRenderingContext2D,
+    config: CanvasConfig,
+    font: string
+  ): void => {
+    context.font = `${config.textSize * config.ratio}px ${font}`;
+    context.lineWidth = config.lineWidth;
+    context.textBaseline = config.textBaseline;
+    context.textAlign = config.textAlign;
+  };

@@ -1,14 +1,17 @@
-export const PREVIEW_FRAME_WIDTH = 188;
-export const DEFAULT_FRAMERATE = 60;
-export const FRAME_INTERVAL = 1000 / DEFAULT_FRAMERATE;
-export const TIMELINE_OFFSET_X = 40;
-export const TIMELINE_OFFSET_CANVAS_LEFT = 16;
-export const TIMELINE_OFFSET_CANVAS_RIGHT = 80;
-export const DEFAULT_FONT = "Roboto";
-export const DEFAULT_WEIGHT = "Regular";
-export const SECONDARY_FONT = "sans-serif";
+export const FONT = 'Arial';
 
-export const LARGER_FONT_SIZE = 30;
-export const LARGE_FONT_SIZE = 24;
-export const NORMAL_FONT_SIZE = 16;
-export const SMALL_FONT_SIZE = 12;
+export const getCanvasConfig = (isDark: boolean) => ({
+  bgColor: isDark ? '#374151' : '#efefef',
+  ratio: window.devicePixelRatio || 1,
+  textSize: 12,
+  textScale: 0.9,
+  lineWidth: 1,
+  textBaseline: 'middle' as const,
+  textAlign: 'center' as const,
+  longColor: isDark ? '#E5E7EB' : '#3e3e3e',
+  shortColor: isDark ? '#9CA3AF' : '#8f8f8f',
+  textColor: isDark ? '#E5E7EB' : '#374151',
+  subTextColor: isDark ? '#9CA3AF' : '#6B7280',
+  focusColor: isDark ? '#6D28D9' : '#efefef',
+  lineColor: isDark ? '#4B5563' : '#efefef'
+});

@@ -4,6 +4,7 @@ import { CanvasConfig, drawTimeLine } from "../../utils/utils";
 
 
 
+
 const FONT = 'Arial';
 const Timeline = ({
   start = 0,
@@ -20,19 +21,19 @@ const Timeline = ({
   const resizeTimeoutRef = useRef<NodeJS.Timeout>();
 
   const canvasConfigs = useMemo((): Omit<CanvasConfig, 'width' | 'height'> => ({
-    bgColor: isDark ? '#374151' : '#E5E7EB',
+    bgColor: isDark ? '#374151' : '#efefef',
     ratio: window.devicePixelRatio || 1,
     textSize: 12,
-    textScale: 0.83,
+    textScale: 0.9,
     lineWidth: 1,
     textBaseline: 'middle',
     textAlign: 'center',
-    longColor: isDark ? '#E5E7EB' : '#374151',
-    shortColor: isDark ? '#9CA3AF' : '#6B7280',
+    longColor: isDark ? '#E5E7EB' : '#3e3e3e',
+    shortColor: isDark ? '#9CA3AF' : '#8f8f8f',
     textColor: isDark ? '#E5E7EB' : '#374151',
     subTextColor: isDark ? '#9CA3AF' : '#6B7280',
-    focusColor: isDark ? '#6D28D9' : '#C4B5FD',
-    lineColor: isDark ? '#4B5563' : '#D1D5DB'
+    focusColor: isDark ? '#6D28D9' : '#efefef',
+    lineColor: isDark ? '#4B5563' : '#efefef'
   }), [isDark]);
 
   const setCanvasContext = useCallback(() => {

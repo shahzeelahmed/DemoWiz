@@ -1,4 +1,3 @@
-import { TIMELINE_OFFSET_X, TIMELINE_OFFSET_CANVAS_LEFT } from "../utils/constants";
 
 export interface TimelineProps {
     duration: number;
@@ -44,13 +43,33 @@ export interface TooltipProps {
     lineWidth: number;
   }  
   
-  export const DEFAULT_PROPS = {
-    height: 40,
-    longLineSize: 8,
-    shortLineSize: 6,
-    offsetX: TIMELINE_OFFSET_X + TIMELINE_OFFSET_CANVAS_LEFT,
-    textOffsetY: 12,
-    textFormat: (scale: number) => scale.toString(),
-    scrollLeft: 0,
-  } as const;
   
+  
+  export interface CanvasConfig {
+    width: number;
+    height: number;
+    bgColor: string;
+    ratio: number;
+    textSize: number;
+    textScale: number;
+    lineWidth: number;
+    textBaseline: CanvasTextBaseline;
+    textAlign: CanvasTextAlign;
+    longColor: string;
+    shortColor: string;
+    textColor: string;
+    subTextColor: string;
+    focusColor: string;
+    lineColor: string;
+  }
+  
+  export interface UserConfig {
+    start: number;
+    step: number;
+    scale: number;
+    focusPosition: {
+      start: number;
+      end: number;
+      frameCount: number;
+    };
+  }
