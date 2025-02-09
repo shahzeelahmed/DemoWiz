@@ -98,31 +98,3 @@ export interface ImageSource {
   width: number,
   height: number
 }
-export interface PlayerConfig {
-  frameCount: number;
-  playerWidth: number;
-  playerHeight: number;
-}
-
-export interface CanvasOptions {
-  width: number;
-  height: number;
-}
-
-export interface PlayerState {
-  isLoading: boolean;
-  canvasOptions: CanvasOptions;
-  playerConfig: PlayerConfig;
-  hasVideo: boolean;
-  currentFrame: number;
-  targetTracks: Map<string, any>; // Type if you know the structure of the tracks
-  isPaused: boolean;
-
-  setLoading: (loading: boolean) => void;
-  setCanvasOptions: (options: CanvasOptions) => void;
-  setPlayerConfig: (config: PlayerConfig) => void;
-  setHasVideo: (hasVideo: boolean) => void;
-  setCurrentFrame: (frame: number) => void;
-  setTargetTracks: (tracks: Map<string, any>) => void; 
-  setPaused: (paused: boolean) => void;
-}
