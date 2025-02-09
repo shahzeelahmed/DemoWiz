@@ -90,3 +90,11 @@ export interface VideoSource {
   width: number;
   height: number;
 }
+export interface ImageSource {
+  id: string,
+  url: string,
+  name: string,
+  format: string,
+  width: number,
+  height: number
+}
