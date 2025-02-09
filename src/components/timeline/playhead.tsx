@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react'
+import React, { useRef, useState, useEffect, useCallback,  } from 'react'
 import { getGridPixel, getSelectedFrame } from '../../utils/utils'
 import { TrackPlayerProps } from '../../types/types'
 
@@ -111,4 +111,4 @@ const Playhead: React.FC<TrackPlayerProps> = ({
   )
 }
 
-export default React.memo(Playhead)
+export default Playhead
