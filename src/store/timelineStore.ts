@@ -19,4 +19,5 @@ const usePlayerStore = create<PlayerState>((set) => ({
   setPaused: (paused) => set({ isPaused: paused }),
 }));
 
+
 export default usePlayerStore;
