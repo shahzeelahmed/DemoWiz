@@ -81,3 +81,12 @@ export interface TrackPlayerProps {
   onPlayFrameChange?: (frame: number) => void;
   offsetLeft?: number;
 }
+export interface VideoSource {
+  id: string;
+  url: string;
+  name: string;
+  format: string;
+  duration: number;
+  width: number;
+  height: number;
+}
