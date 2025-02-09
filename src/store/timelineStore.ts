@@ -1,33 +1,22 @@
-import { create } from 'zustand';
+import {create} from 'zustand';
+import { PlayerState } from '../types/types';
 
-interface PlayerState {
-    playerConfig: {
-        frameCount: number;
-        playerWidth: number;
-        playerHeight: number;
-    };
-    canvasOptions: {
-        width: number;
-        height: number;
-    };
-    existVideo: boolean;
-    playStartFrame: number;
-    playTargetTrackMap: Map<any, any>;
-    isPaused: boolean;
-    setState: (updates: Partial<PlayerState>) => void;
-}
+const usePlayerStore = create<PlayerState>((set) => ({
+  isLoading: false,
+  canvasOptions: { width: 0, height: 0 },
+  playerConfig: { frameCount: 0, playerWidth: 1080 / 6, playerHeight: 1920 / 6 },
+  hasVideo: false,
+  currentFrame: 0,
+  targetTracks: new Map<string, any>(), 
+  isPaused: true,
 
-const usePlayerState = create<PlayerState>((set) => ({
-    playerConfig: { frameCount: 0, playerWidth: 180, playerHeight: 320 },
-    canvasOptions: { width: 0, height: 0 },
-    existVideo: false,
-    playStartFrame: 0,
-    playTargetTrackMap: new Map(),
-    isPaused: true,
-
-    setState: (updates) => set((state) => ({ ...state, ...updates })),
+  setLoading: (loading) => set({ isLoading: loading }),
+  setCanvasOptions: (options) => set({ canvasOptions: options }),
+  setPlayerConfig: (config) => set({ playerConfig: config }),
+  setHasVideo: (hasVideo) => set({ hasVideo }),
+  setCurrentFrame: (frame) => set({ currentFrame: frame }),
+  setTargetTracks: (tracks) => set({ targetTracks: tracks }),
+  setPaused: (paused) => set({ isPaused: paused }),
 }));
 
-export default usePlayerState;
-
-
+export default usePlayerStore;
