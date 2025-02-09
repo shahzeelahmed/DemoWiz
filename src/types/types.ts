@@ -98,3 +98,10 @@ export interface ImageSource {
   width: number,
   height: number
 }
+export interface AudioSource {
+  id: string,
+  url: string,
+  name: string,
+  format: string,
+  duration: number
+}
