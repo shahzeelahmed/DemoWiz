@@ -1,42 +1,114 @@
-import React from "react";
+import React, { useRef, useState, useEffect, useCallback, useMemo } from 'react'
+import { getGridPixel, getSelectedFrame } from '../../utils/utils'
+import { TrackPlayerProps } from '../../types/types'
 
-const Playhead = () => {
+const Playhead: React.FC<TrackPlayerProps> = ({
+  trackScale,
+  frameCount,
+  initialPlayStartFrame = 0,
+  onPlayFrameChange,
+  offsetLeft = 10
+}) => {
+  const [isDragging, setIsDragging] = useState(false)
+  const [playStartFrame, setPlayStartFrame] = useState(initialPlayStartFrame)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const trackPointRef = useRef<HTMLDivElement>(null)
+  const animationId = useRef<number | null>(null)
 
-  
+  const updateFrame = useCallback(
+    (mouseX: number) => {
+      if (!containerRef.current || !trackPointRef.current) return
+
+      const rect = containerRef.current.getBoundingClientRect()
+      const frame = getSelectedFrame(
+        mouseX - offsetLeft - rect.left,
+        trackScale,
+        30
+      )
+      const newFrame = Math.max(0, Math.min(frame - 1, frameCount))
+
+      if (newFrame !== playStartFrame) {
+        setPlayStartFrame(newFrame)
+        onPlayFrameChange?.(newFrame)
+        trackPointRef.current.style.transform = `translateX(${getGridPixel(
+          trackScale,
+          newFrame
+        )}px)`
+      }
+    },
+    [
+      trackScale,
+      frameCount,
+      offsetLeft,
+      onPlayFrameChange,
+      getSelectedFrame,
+      getGridPixel,
+      playStartFrame
+    ]
+  )
+
+  const onMouseMove = useCallback(
+    (event: MouseEvent) => {
+      if (isDragging) {
+        if (!animationId.current) {
+          animationId.current = requestAnimationFrame(() => {
+            updateFrame(event.pageX)
+            animationId.current = null
+          })
+        }
+      }
+    },
+    [isDragging, updateFrame]
+  )
+
+  const onMouseDown = useCallback((event: React.MouseEvent) => {
+    event.stopPropagation()
+    event.preventDefault()
+    setIsDragging(true)
+  }, [])
+
+  const onMouseUp = useCallback(() => {
+    setIsDragging(false)
+    document.body.style.cursor = ''
+    if (animationId.current) {
+      cancelAnimationFrame(animationId.current)
+      animationId.current = null
+    }
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('mousemove', onMouseMove, { passive: true }) // passive event listener
+    document.addEventListener('mouseup', onMouseUp)
+
+    return () => {
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+      if (animationId.current) {
+        cancelAnimationFrame(animationId.current)
+      }
+    }
+  }, [onMouseMove, onMouseUp])
+
   return (
-    <div
-     
-      style={{
-        position: "absolute",
-        left: 40 ,
-        top: 80,
-        width: 1,
-        height: "calc(100% - 80px)",
-        background: "#d4d4d8",
-        zIndex: 10,
-        cursor: "pointer"
-      }}
-    >
-      <div className="relative h-full">
-        <div className="absolute top-0  transform -translate-x-1/2 w-3 h-full "></div>
-        <div className="absolute top-0  transform -translate-x-1/2 w-0.5 h-full bg-white/50"></div>
-
-        <div
+    <div ref={containerRef} style={{ touchAction: 'none' }}>
+      <div
+        ref={trackPointRef}
+        className={`z-30 absolute -top-5 bottom-0 w-px bg-gray-700 dark:bg-blue-400 transition-transform duration-75 `}
+        onMouseDown={onMouseDown}
+      >
+        <span
+          className='playPoint block border  h-3 w-2.5  sticky top-0 right-0 left-0 cursor-pointer'
           style={{
-            borderRadius: "0 0 20px 20px"
+            transform: 'translateX(-50%)',
+            borderLeft: '5px solid transparent',
+            borderRight: '5px solid transparent',
+            borderTop: '5px solid currentColor',
+            color: 'rgb(75, 85, 99)'
           }}
-          className="absolute transform -translate-x-1/2 px-1.5 h-3"
-        >
-          <svg height="12" viewBox="0 0 12 12" fill="none">
-            <path
-              fill="currentColor"
-              d="M11.6585 7.04881L6.6585 11.4238C6.28148 11.7537 5.71852 11.7537 5.3415 11.4238L0.341495 7.04881C0.12448 6.85892 0 6.58459 0 6.29623V1C0 0.447715 0.447715 0 1 0H11C11.5523 0 12 0.447715 12 1V6.29623C12 6.58459 11.8755 6.85892 11.6585 7.04881Z"
-            ></path>
-          </svg>
-        </div>
+        />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Playhead;
+export default React.memo(Playhead)

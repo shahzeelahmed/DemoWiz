@@ -72,4 +72,12 @@ export interface TooltipProps {
       end: number;
       frameCount: number;
     };
-  }
+  
+}
+export interface TrackPlayerProps {
+  trackScale: number;
+  frameCount: number;
+  initialPlayStartFrame?: number;
+  onPlayFrameChange?: (frame: number) => void;
+  offsetLeft?: number;
+}
