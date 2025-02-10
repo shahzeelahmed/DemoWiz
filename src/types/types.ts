@@ -126,3 +126,15 @@ export interface PlayerState {
   setTargetTracks: (tracks: Map<string, any>) => void; 
   setPaused: (paused: boolean) => void;
 }
+
+interface TrackItem {
+  width: string;
+  left: string;
+}
+
+export interface TrackProps {
+  trackType: string;
+  lineIndex: number;
+  itemIndex: number;
+  trackItem: TrackItem;
+}
