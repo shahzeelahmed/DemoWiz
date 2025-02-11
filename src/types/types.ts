@@ -127,14 +127,77 @@ export interface PlayerState {
   setPaused: (paused: boolean) => void;
 }
 
-interface TrackItem {
-  width: string;
-  left: string;
-}
+
 
 export interface TrackProps {
   trackType: string;
   lineIndex: number;
   itemIndex: number;
   trackItem: TrackItem;
+}
+export type TrackType = 'video' | 'audio' | 'text' | 'image' | 'effect' | 'transition' | 'filter';
+
+interface BaseTractItem {
+  id: string;
+  type: TrackType;
+  name: string;
+  start: number;
+  end: number;
+  frameCount: number;
+  offsetL: number; 
+  offsetR: number; 
+}
+
+export interface VideoTractItem extends BaseTractItem {
+  time: number;
+  format: string;
+  source: string;
+  cover: string;
+  width: number;
+  height: number;
+  fps: number;
+}
+
+export interface AudioTractItem extends BaseTractItem {
+  time: number;
+  format: string;
+  source: string;
+  cover: string;
+}
+
+export interface TextTractItem extends BaseTractItem {
+  cover: string;
+  templateId: number;
+}
+
+export interface ImageTractItem extends BaseTractItem {
+  source: string;
+  format: string;
+  width: number;
+  height: number;
+  sourceFrame: number;
+  cover: string;
+}
+
+export interface EffectTractItem extends BaseTractItem {
+  templateId: number;
+  cover: string;
+}
+
+export interface TransitionTractItem extends BaseTractItem {
+  templateId: number;
+  cover: string;
+}
+
+export interface FilterTractItem extends BaseTractItem {
+  templateId: number;
+  cover: string;
+}
+
+export type TrackItem = VideoTractItem | AudioTractItem | TextTractItem | ImageTractItem | EffectTractItem | TransitionTractItem | FilterTractItem;
+
+export interface TrackLineItem {
+  type: TrackItem['type'];
+  main?: boolean;
+  list: TrackItem[];
 }

@@ -1,4 +1,4 @@
-import { DrawConfig, Scale } from "../types/types";
+import { DrawConfig, Scale, TrackItem } from "../types/types";
 import {  formatTime } from "./helpers";
 
 
@@ -229,3 +229,33 @@ export const drawTimeLine = (
 
     context.setTransform(1, 0, 0, 1, 0, 0);
 };
+export function checkTrackListOverlap(trackList: TrackItem[], checkItem: TrackItem, moveIndex = -1) {
+  const { start: insertStart, end: insertEnd } = checkItem;
+  let overLapIndex = -1;
+  let insertIndex = 0;
+  const hasOverlap = trackList.some((trackItem, index) => {
+      if (moveIndex !== -1 && index === moveIndex) { 
+          return false;
+      }
+      const { start, end } = trackItem;
+     
+      if (
+          (start <= insertStart && end >= insertEnd) 
+          || (start >= insertStart && start < insertEnd) 
+          || (end > insertStart && end <= insertEnd) 
+      ) {
+          overLapIndex = index;
+          return true;
+      } else {
+          if (end <= insertStart) {
+              insertIndex = index + 1;
+          }
+          return false;
+      }
+  });
+  return {
+      hasOverlap,
+      overLapIndex,
+      insertIndex
+  };
+}
