@@ -229,3 +229,20 @@ export const drawTimeLine = (
 
     context.setTransform(1, 0, 0, 1, 0, 0);
 };
+
+export const dragCoords = (x: number, y: number, e: HTMLElement, dragging: boolean) => {
+    if (!dragging) return false;
+    const rect = e.getBoundingClientRect();
+    const point = {
+        x: Math.max(rect.left, Math.min(x, rect.right)),
+        y: Math.max(rect.top, Math.min(y, rect.bottom))
+      };
+      return point.x === x && point.y === y;
+    
+  };
+export const getCoords = (e: MouseEvent) => {
+  return {
+    x: e.clientX,
+    y: e.clientY
+  }
+}
