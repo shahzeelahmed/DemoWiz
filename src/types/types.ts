@@ -190,3 +190,11 @@ export interface TrackRow{
   atTime: number;
   list: TrackItem[];
 }
+export interface DragData{
+  dataInfo: string;
+  dragType: string;
+  dragPoint: {
+    x: number;
+    y: number;
+  }
+}
