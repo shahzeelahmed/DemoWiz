@@ -135,43 +135,37 @@ export interface TrackProps {
   itemIndex: number;
   trackItem: TrackItem;
 }
-export type TrackType = 'video' | 'audio' | 'text' | 'image' | 'effect' | 'transition' | 'filter';
+export type TrackType = 'video' | 'audio' | 'text' | 'image'  | 'transition' | 'filter';
 
-interface BaseTractItem {
+interface BaseTrackItem {
   id: string;
   type: TrackType;
   name: string;
-  start: number;
+  atTime: number;
   end: number;
-  frameCount: number;
-  offsetL: number; 
-  offsetR: number; 
+  duration: number;
+  
 }
-
-export interface VideoTractItem extends BaseTractItem {
-  time: number;
+export interface VideoTrack extends BaseTrackItem {
+  duration: number;
   format: string;
   source: string;
-  cover: string;
   width: number;
   height: number;
   fps: number;
 }
 
-export interface AudioTractItem extends BaseTractItem {
-  time: number;
+export interface AudioTrack extends BaseTrackItem {
+  duration: number;
   format: string;
-  source: string;
-  cover: string;
+  name:string;
 }
 
-export interface TextTractItem extends BaseTractItem {
-  cover: string;
-  templateId: number;
+export interface TextTrack extends BaseTrackItem {
+  name: string;
 }
 
-export interface ImageTractItem extends BaseTractItem {
-  source: string;
+export interface ImageTrack extends BaseTrackItem {
   format: string;
   width: number;
   height: number;
@@ -179,25 +173,20 @@ export interface ImageTractItem extends BaseTractItem {
   cover: string;
 }
 
-export interface EffectTractItem extends BaseTractItem {
-  templateId: number;
-  cover: string;
+export interface TransitionTrack extends BaseTrackItem {
+  name: string;
 }
 
-export interface TransitionTractItem extends BaseTractItem {
-  templateId: number;
-  cover: string;
+export interface FilterTrack extends BaseTrackItem {
+  name: string;
+  filterType: string;
 }
 
-export interface FilterTractItem extends BaseTractItem {
-  templateId: number;
-  cover: string;
-}
+export type TrackItem = VideoTrack | AudioTrack | TextTrack | ImageTrack  | TransitionTrack | FilterTrack;
 
-export type TrackItem = VideoTractItem | AudioTractItem | TextTractItem | ImageTractItem | EffectTractItem | TransitionTractItem | FilterTractItem;
-
-export interface TrackLineItem {
+export interface TrackRow{
+  rowId: string;
   type: TrackItem['type'];
-  main?: boolean;
+  atTime: number;
   list: TrackItem[];
 }
