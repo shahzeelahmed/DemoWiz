@@ -240,7 +240,7 @@ export const dragCoords = (x: number, y: number, e: HTMLElement, dragging: boole
       return point.x === x && point.y === y;
     
   };
-export const getCoords = (e: MouseEvent) => {
+export const getMouseCoords = (e: MouseEvent) => {
   return {
     x: e.clientX,
     y: e.clientY
