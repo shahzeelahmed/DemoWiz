@@ -191,8 +191,8 @@ export interface TrackRow{
   list: TrackItem[];
 }
 export interface DragData{
-  dataInfo: string;
-  dragType: string;
+  dataInfo?: string;
+  dragType?: string;
   dragPoint: {
     x: number;
     y: number;
