@@ -45,6 +45,7 @@ const TrackList: React.FC = () => {
     const handleMouseUp = useCallback(() => { 
 
         setIsDragging(false);
+        setDragElement(null);
        
     },[]);
 
