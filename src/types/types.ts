@@ -186,13 +186,12 @@ export type TrackItem = VideoTrack | AudioTrack | TextTrack | ImageTrack  | Tran
 
 export interface TrackRow{
   rowId: string;
-  type: TrackItem['type'];
-  atTime: number;
+  type: TrackItem;
   list: TrackItem[];
 }
 export interface DragData{
   dataInfo?: string;
-  dragType?: string;
+  dragType?: TrackItem;
   dragPoint: {
     x: number;
     y: number;
