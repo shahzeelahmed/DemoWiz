@@ -69,12 +69,19 @@ const TrackList: React.FC = () => {
   }
 
   //add a new row to the row list
-  function addRow (row: TrackRow) {
+  const addRow = () => {
     const id = nanoid(5)
+    const row: TrackRow = {
+      rowId: id
+    }
     const newRow = { ...row, rowId: id }
     setRow(prevRows => [...prevRows, newRow])
     setRow([...Row, newRow])
     return newRow
+  }
+  
+  const reArrangeRow = () => {
+
   }
 
   //insert item in a row and create a new row if there is no row
@@ -102,10 +109,10 @@ const TrackList: React.FC = () => {
       if (!targetRow) {
         const newRow: TrackRow = {
           rowId: nanoid(5),
-          type: item,
+
           list: [item]
         }
-        const addedRow = addRow(newRow)
+        const addedRow = addRow()
 
         const updatedAddedRow = {
           ...addedRow,
@@ -124,7 +131,7 @@ const TrackList: React.FC = () => {
       } else {
         const rect = targetRow.getBoundingClientRect()
         const insertionX = dragData.dragPoint.x - rect.left
-        const numItemsInRow = Row[targetRowIndex].list.length
+        const numItemsInRow = Row[targetRowIndex].list!.length
 
         let insertIndex = 0
         if (numItemsInRow > 0) {
@@ -137,9 +144,9 @@ const TrackList: React.FC = () => {
         const updatedRow = {
           ...Row[targetRowIndex],
           list: [
-            ...Row[targetRowIndex].list.slice(0, insertIndex),
+            ...Row[targetRowIndex].list!.slice(0, insertIndex),
             item,
-            ...Row[targetRowIndex].list.slice(insertIndex)
+            ...Row[targetRowIndex].list!.slice(insertIndex)
           ]
         }
 
@@ -150,6 +157,25 @@ const TrackList: React.FC = () => {
     }
   }
 
-  return <></>
+  return (
+    <>
+      <button onMouseDown={addRow} className='h-10 w-28 bg-slate-600 '>
+        <p className='flex place-self-center'> add row</p>{' '}
+      </button>
+      <div>
+        {Row.map(item => (
+          <div
+          draggable
+          onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} 
+            key={item.rowId}
+            className='h-10 w-52 flex-row bg-green-500 m-3  '
+          >
+          
+            <p className='flex place-self-center'>{item.rowId} </p>
+          </div>
+        ))}
+      </div>
+    </>
+  )
 }
 export default TrackList

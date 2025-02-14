@@ -186,8 +186,7 @@ export type TrackItem = VideoTrack | AudioTrack | TextTrack | ImageTrack  | Tran
 
 export interface TrackRow{
   rowId: string;
-  type: TrackItem;
-  list: TrackItem[];
+  list?: TrackItem[];
 }
 export interface DragData{
   dataInfo?: string;
