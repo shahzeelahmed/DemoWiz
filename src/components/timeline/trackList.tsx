@@ -79,10 +79,7 @@ const TrackList: React.FC = () => {
     setRow([...Row, newRow])
     return newRow
   }
-  
-  const reArrangeRow = () => {
 
-  }
 
   //insert item in a row and create a new row if there is no row
   function insertItemInRow (item: TrackItem, dragData: DragData) {
@@ -163,15 +160,16 @@ const TrackList: React.FC = () => {
         <p className='flex place-self-center'> add row</p>{' '}
       </button>
       <div>
-        {Row.map(item => (
+        {Row.map(row => (
           <div
           draggable
           onMouseDown={handleMouseDown} onMouseMove={handleMouseMove} onMouseUp={handleMouseUp} 
-            key={item.rowId}
-            className='h-10 w-52 flex-row bg-green-500 m-3  '
+            key={row.rowId}
+            
+            className='h-10 w-52 flex-row bg-green-500 m-6  '
           >
           
-            <p className='flex place-self-center'>{item.rowId} </p>
+            <p className='flex place-self-center'>{row.rowId} </p>
           </div>
         ))}
       </div>
