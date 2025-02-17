@@ -3,9 +3,11 @@ import './App.css'
 import Timeline from './components/timeline/timeLine'
 import Playhead from './components/timeline/playhead'
 import TrackList from './components/timeline/trackList'
+import {DndContext} from '@dnd-kit/core'
 export default function App () {
   return (
-    <div>
+    <DndContext>
+ 
       <TrackList/>
       {/* <Playhead
         trackScale={60}
@@ -19,6 +21,7 @@ export default function App () {
         focusPosition={{ start: 0, end: 100 }}
         isDark={false}
       /> */}
-    </div>
+    
+    </DndContext>
   )
 }
