@@ -197,13 +197,3 @@ export interface DragData{
   }
 }
 
-interface UseDraggableArguments {
-  id: string | number;
-  attributes?: {
-    role?: string;
-    roleDescription?: string;
-    tabIndex?: number;
-  },
-  data?: Record<string, any>;
-  disabled?: boolean;
-}
