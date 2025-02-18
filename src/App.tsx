@@ -7,7 +7,7 @@ import {DndContext} from '@dnd-kit/core'
 export default function App () {
   return (
     <DndContext>
- 
+
       <TrackList/>
       {/* <Playhead
         trackScale={60}

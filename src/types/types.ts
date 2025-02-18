@@ -197,3 +197,4 @@ export interface DragData{
   }
 }
 
+export type acceptableDrops = "IMAGE" | "VIDEO" | "TRANSITION" ;
