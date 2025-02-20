@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { DragData, TrackItem, TrackRow } from '../../types/types'
+import {  DragData, TrackItem, TrackRow } from '../../types/types'
 import { nanoid } from 'nanoid'
 
 const TrackList: React.FC = () => {

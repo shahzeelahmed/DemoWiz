@@ -1,5 +1,6 @@
 import { nanoid } from 'nanoid'
-import { CanvasConfig, DrawConfig, UserConfig } from '../types/types'
+import { DrawConfig } from '../types/types'
+
 
 export function formatTime (time: number): {
   s: number
@@ -33,5 +34,6 @@ export const DEFAULT_DRAW_CONFIG: DrawConfig = {
   textColor: '#71717a',
   lineWidth: 1
 }
+
 
 export const generateId = () => nanoid(5);

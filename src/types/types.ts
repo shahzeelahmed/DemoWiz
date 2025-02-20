@@ -137,7 +137,7 @@ export interface TrackProps {
 }
 export type TrackType = 'video' | 'audio' | 'text' | 'image'  | 'transition' | 'filter';
 
-interface BaseTrackItem {
+export interface BaseTrackItem {
   id: string;
   type: TrackType;
   name: string;
