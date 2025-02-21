@@ -1,4 +1,4 @@
-export type tracksType = 'IMAGE' | 'VIDEO' | 'TEXT' | 'TRANSITION' | 'EFFECT'
+export type tracksType = 'IMAGE' | 'VIDEO' | 'TEXT' | 'TRANSITION' | 'EFFECT' | 'AUDIO'
 export interface MediaAsset {
   id: string
   type: string
@@ -77,4 +77,13 @@ export interface ImageTrack extends BaseTrack {
   width: number
   format: string
 }
+export interface TransitionTrack extends BaseTrack {
+name: string
+
+}
+export interface EffectTrack extends BaseTrack{
+    name: string
+    effectType: string
+}
+
 export type TrackItemType = VideoTrack | ImageTrack | AudioTrack | TextTrack
