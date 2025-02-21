@@ -4,11 +4,12 @@ import Timeline from './components/timeline/timeLine'
 import Playhead from './components/timeline/playhead'
 import TrackList from './components/timeline/trackList'
 import {DndContext} from '@dnd-kit/core'
+import Playground from './components/tracks/trackList'
 export default function App () {
   return (
     <DndContext>
-
-      <TrackList/>
+<Playground/>
+      {/* <TrackList/> */}
       {/* <Playhead
         trackScale={60}
         frameCount={1000}

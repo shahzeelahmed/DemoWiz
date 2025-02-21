@@ -117,7 +117,8 @@ export interface PlayerState {
   currentFrame: number;
   targetTracks: Map<string, any>; 
   isPaused: boolean;
-
+  offset: number;
+  setOffsetX: (offsetX: number) => void;
   setLoading: (loading: boolean) => void;
   setCanvasOptions: (options: CanvasOptions) => void;
   setPlayerConfig: (config: PlayerConfig) => void;

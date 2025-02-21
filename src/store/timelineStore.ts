@@ -9,7 +9,10 @@ const usePlayerStore = create<PlayerState>((set) => ({
   currentFrame: 0,
   targetTracks: new Map<string, any>(), 
   isPaused: true,
-
+  offset: 0,
+ 
+  
+  
   setLoading: (loading) => set({ isLoading: loading }),
   setCanvasOptions: (options) => set({ canvasOptions: options }),
   setPlayerConfig: (config) => set({ playerConfig: config }),
@@ -17,6 +20,7 @@ const usePlayerStore = create<PlayerState>((set) => ({
   setCurrentFrame: (frame) => set({ currentFrame: frame }),
   setTargetTracks: (tracks) => set({ targetTracks: tracks }),
   setPaused: (paused) => set({ isPaused: paused }),
+  setOffsetX: (y:number) => set({ offset: y }),
 }));
 
 
