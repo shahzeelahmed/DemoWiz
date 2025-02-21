@@ -17,7 +17,6 @@ export interface BaseTrack {
   isMuted: boolean
   height: number
   color?: string
-  collapsed: boolean
 }
 
 export interface VideoTrack extends BaseTrack {
@@ -78,3 +77,4 @@ export interface ImageTrack extends BaseTrack {
   width: number
   format: string
 }
+export type TrackItemType = VideoTrack | ImageTrack | AudioTrack | TextTrack
