@@ -9,6 +9,7 @@ export interface MediaAsset {
   }
   fileSize: number
 }
+
 export interface BaseTrack {
   id: string
   name: string
@@ -86,4 +87,4 @@ export interface EffectTrack extends BaseTrack{
     effectType: string
 }
 
-export type TrackItemType = VideoTrack | ImageTrack | AudioTrack | TextTrack
+export type TrackItemType = VideoTrack | ImageTrack | AudioTrack | TextTrack | EffectTrack | TransitionTrack

@@ -130,72 +130,72 @@ export interface PlayerState {
 
 
 
-export interface TrackProps {
-  trackType: string;
-  lineIndex: number;
-  itemIndex: number;
-  trackItem: TrackItem;
-}
-export type TrackType = 'video' | 'audio' | 'text' | 'image'  | 'transition' | 'filter';
+// export interface TrackProps {
+//   trackType: string;
+//   lineIndex: number;
+//   itemIndex: number;
+//   trackItem: TrackItem;
+// }
+// export type TrackType = 'video' | 'audio' | 'text' | 'image'  | 'transition' | 'filter';
 
-export interface BaseTrackItem {
-  id: string;
-  type: TrackType;
-  name: string;
-  atTime: number;
-  end: number;
-  duration: number;
+// export interface BaseTrackItem {
+//   id: string;
+//   type: TrackType;
+//   name: string;
+//   atTime: number;
+//   end: number;
+//   duration: number;
   
-}
-export interface VideoTrack extends BaseTrackItem {
-  duration: number;
-  format: string;
-  source: string;
-  width: number;
-  height: number;
-  fps: number;
-}
+// }
+// export interface VideoTrack extends BaseTrackItem {
+//   duration: number;
+//   format: string;
+//   source: string;
+//   width: number;
+//   height: number;
+//   fps: number;
+// }
 
-export interface AudioTrack extends BaseTrackItem {
-  duration: number;
-  format: string;
-  name:string;
-}
+// export interface AudioTrack extends BaseTrackItem {
+//   duration: number;
+//   format: string;
+//   name:string;
+// }
 
-export interface TextTrack extends BaseTrackItem {
-  name: string;
-}
+// export interface TextTrack extends BaseTrackItem {
+//   name: string;
+// }
 
-export interface ImageTrack extends BaseTrackItem {
-  format: string;
-  width: number;
-  height: number;
-  sourceFrame: number;
-  cover: string;
-}
+// export interface ImageTrack extends BaseTrackItem {
+//   format: string;
+//   width: number;
+//   height: number;
+//   sourceFrame: number;
+//   cover: string;
+// }
 
-export interface TransitionTrack extends BaseTrackItem {
-  name: string;
-}
+// export interface TransitionTrack extends BaseTrackItem {
+//   name: string;
+// }
 
-export interface FilterTrack extends BaseTrackItem {
-  name: string;
-  filterType: string;
-}
+// export interface FilterTrack extends BaseTrackItem {
+//   name: string;
+//   filterType: string;
+// }
 
-export type TrackItem = VideoTrack | AudioTrack | TextTrack | ImageTrack  | TransitionTrack | FilterTrack;
+// export type TrackItem = VideoTrack | AudioTrack | TextTrack | ImageTrack  | TransitionTrack | FilterTrack;
 
-export interface TrackRow{
-  rowId: string;
-  list?: TrackItem[];
-}
-export interface DragData{
-  dataInfo?: string;
-  dragType?: TrackItem;
-  dragPoint: {
-    x: number;
-    y: number;
-  }
-}
+// export interface TrackRow{
+//   rowId: string;
+//   list?: TrackItem[];
+// }
+// export interface DragData{
+//   dataInfo?: string;
+//   dragType?: TrackItem;
+//   dragPoint: {
+//     x: number;
+//     y: number;
+//   }
+// }
 
-export type acceptableDrops = "IMAGE" | "VIDEO" | "TRANSITION" ;
+// export type acceptableDrops = "IMAGE" | "VIDEO" | "TRANSITION" ;
