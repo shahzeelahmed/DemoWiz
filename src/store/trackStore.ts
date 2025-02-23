@@ -7,17 +7,17 @@ import { TrackRow, TrackRowType } from '../types/trackRowTypes'
 interface TrackRowState {
   trackLines: TrackRow[]
   tracks: TrackItemType[]
-  addTrack: (type: TrackItemType, id: string) => void
+  addTrack: (track: TrackItemType, id: string,type:TrackRowType) => void
   removetrack: (id: any) => void
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
   trackLines: [],
   tracks: [],
-  addTrack: (track, id) =>
+  addTrack: (track, id,type) =>
     set(state => {
       const addtrack = state.trackLines.map(row => {
-        if (row.id === id && row.acceptsType === track) {
+        if (row.id === id && row.acceptsType === type) {
           return {
             ...row,
             trackItem: [...row.trackItem, track]

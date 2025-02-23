@@ -11,7 +11,7 @@ export interface TrackRow {
   id: string
   type: TrackRowType
   index: number
-  acceptsType: TrackItemType
+  acceptsType: tracksType
   itemIndex: number
   trackItem: TrackItemType[]
 }

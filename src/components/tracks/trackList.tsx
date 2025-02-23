@@ -1,122 +1,54 @@
-
 import React from 'react'
+import { useTrackStateStore } from '../../store/trackStore'
+import { TrackRow } from '../../types/trackRowTypes'
+import { tracksType, VideoTrack } from '../../types/trackType'
 
-import {
-  DndContext,
-  useDraggable,
-  useDroppable,
-  UniqueIdentifier,
-  DragEndEvent
-} from '@dnd-kit/core'
-import { CSS } from '@dnd-kit/utilities'
-import usePlayerStore from '../../store/timelineStore'
-import { useState } from 'react'
+const mockTrackLines: TrackRow[] = [
+  {
+    id: 'string',
+    type: 'MEDIA',
+    index: 0,
+    acceptsType: 'VIDEO',
+    itemIndex: 0,
+    trackItem: [
+      {
+        name: 'test',
+        index: 0,
+        isVisible: true,
+        isMuted: false,
+        id: 'test1',
+        duration: 100,
+        height: 20,
+        width: 20,
+        format: 'mp4',
+        volume: 1,
+        fps: 30,
+        position: {
+          x: 10,
+          y: 10
+        },
+        transform: {
+          scaleX: 10,
+          scaleY: 0,
+          rotation: 0
+        }
+      }
+    ]
+  }
+]
 
-const Playground = () => {
-  const rows = ['A', 'B', 'C']
-  const [parent, setParent] = useState<UniqueIdentifier | null>(null)
-
-  const item = <Draggable />
-  const offsetX = usePlayerStore(state => state.offset)
+const TrackList = () => {
+  const { tracks, trackLines } = useTrackStateStore()
 
   return (
-    <DndContext onDragEnd={handleDragEnd}>
-      {parent === null ? item : null}
-
-      <ul className='flex flex-col'>
-        {rows.map(id => (
-          <div className='border border-cyan-800 m-10'>
-            {' '}
-            <Droppable key={id} id={id} offset={offsetX}>
-              {parent === id ? item : 'Drop here'}
-            </Droppable>
-          </div>
-        ))}
-      </ul>
-    </DndContext>
-  )
-
-  function handleDragEnd (event: DragEndEvent) {
-    const { over } = event
-
-    setParent(over ? over.id : null)
-  }
-}
-
-function Draggable () {
-  const { attributes, isDragging, transform, setNodeRef, listeners } =
-    useDraggable({
-      id: 'draggable-item'
-    })
-  const offsetX = usePlayerStore(state => state.offset)
-  const setOffsetX = usePlayerStore(state => state.setOffsetX)
-    const getElementX= (element: HTMLElement) =>{
-  const rect = element.getBoundingClientRect();
-  const x = rect.left + window.scrollX;
-  const y = rect.top + window.screenY;
-    }
-  const handleMouseMove = (event: React.MouseEvent) => {
-    if (isDragging) {
-      event.preventDefault()
-    event.stopPropagation()
-      setOffsetX(event.pageX)
-    }
-  }
-
-  const handleMouseDown = (event: React.MouseEvent) => {
-    event.preventDefault()
-    event.stopPropagation()
-    setOffsetX(event.pageX)
-  }
-
-  return (
-    <div
-      ref={setNodeRef}
-      onMouseMove={handleMouseMove}
-      onMouseDown={handleMouseDown}
-      style={{
-        color: 'red',
-        backgroundColor: 'black',
-        width: '400px',
-        transform: CSS.Translate.toString(transform),
-        boxShadow: isDragging
-          ? '-1px 0 15px 0 rgba(34, 33, 81, 0.01), 0px 15px 15px 0 rgba(34, 33, 81, 0.25)'
-          : undefined
-      }}
-      {...attributes}
-      {...listeners}
-    >
-      Drag me
-      <p>coord: {offsetX}</p>
+    <div>
+      {trackLines.map(item => (
+        <div key={item.id}>
+          <p>{item.id}</p>
+        </div>
+      ))}
     </div>
   )
 }
 
-interface DroppableProps {
-  children: React.ReactNode
-  id: string
-  offset: number
-}
-
-function Droppable ({ id, children, offset }: DroppableProps) {
-  const { isOver, setNodeRef } = useDroppable({ id })
-
-  return (
-    <div
-      style={{
-        marginLeft: offset,
-
-        width: Infinity,
-        height: 150,
-        border: '1px solid',
-
-        borderColor: isOver ? '#4c9ffe' : '#EEE'
-      }}
-      ref={setNodeRef}
-    >
-      {children}
-    </div>
-  )
-}
-
-export default Playground
+export default TrackList
