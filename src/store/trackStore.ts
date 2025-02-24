@@ -2,17 +2,22 @@ import { create } from 'zustand'
 
 import { BaseTrack, TrackItemType } from '../types/trackType'
 import { TrackRow, TrackRowType } from '../types/trackRowTypes'
+import { getGridPixel } from '../utils/utils'
 
 //[todo]: add condition for checking overlap b/w tracks
 interface TrackRowState {
   trackLines: TrackRow[]
   tracks: TrackItemType[]
+  gridPixels: number
+  frameCount: number
   addTrack: (track: TrackItemType, id: string,type:TrackRowType) => void
   removetrack: (id: any) => void
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
   trackLines: [],
+  gridPixels: getGridPixel(60,100),
+  frameCount: 0  ,
   tracks: [],
   addTrack: (track, id,type) =>
     set(state => {
@@ -29,9 +34,11 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         }
       })
       return {
+        frameCount: state.frameCount,
         trackLines: addtrack
       }
     }),
+
   removetrack: (trackId: string) =>
     set(state => {
       const removetrack = state.trackLines.map(items => ({
@@ -43,4 +50,5 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         tracks: state.tracks.filter(item => item.id === trackId)
       }
     })
+
 }))
