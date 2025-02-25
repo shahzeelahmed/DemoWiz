@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 
-import { BaseTrack, TrackItemType } from '../types/trackType'
+import { BaseTrack, TrackItemType, tracksType } from '../types/trackType'
 import { TrackRow, TrackRowType } from '../types/trackRowTypes'
 import { getGridPixel } from '../utils/utils'
 
@@ -10,8 +10,8 @@ interface TrackRowState {
   tracks: TrackItemType[]
   gridPixels: number
   frameCount: number
-  addTrack: (track: TrackItemType, id: string,type:TrackRowType) => void
-  removetrack: (id: any) => void
+  addTrack: (track: TrackItemType, id: string,type:tracksType) => void
+  removetrack: (trackId: string,rowId: string) => void
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
@@ -23,15 +23,19 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
     set(state => {
       const addtrack = state.trackLines.map(row => {
         if (row.id === id && row.acceptsType === type) {
+          if(track.name === 'test1'){
+            console.log('track added')
           return {
+            
             ...row,
             trackItem: [...row.trackItem, track]
           }
         }
+        console.log('track not added')
         return {
           addtrack,
           tracks: [...state.tracks, track]
-        }
+        }}
       })
       return {
         frameCount: state.frameCount,
@@ -39,16 +43,32 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       }
     }),
 
-  removetrack: (trackId: string) =>
+  removetrack: (trackId: string,rowId:string) =>
     set(state => {
-      const removetrack = state.trackLines.map(items => ({
-        ...items,
-        trackItem: items.trackItem.filter(track => track.id === trackId)
-      }))
-      return {
-        trackLines: removetrack,
-        tracks: state.tracks.filter(item => item.id === trackId)
+    const removeTrack = state.trackLines.map(
+      row => {
+        if(row.id === rowId){
+          return {
+            ...row,
+            trackItem: row.trackItem.filter(track => track.id !== trackId)
+          }
+        }
+              return row
       }
-    })
-
+    )
+    return {
+      trackLines: removeTrack,
+      tracks: state.tracks.filter(item => item.id !== trackId)
+          }
+    
+})
 }))
+// const removetrack = state.trackLines.map(items => ({
+       
+//   ...items,
+//   trackItem: items.trackItem.filter(track => track.id !== trackId)
+// }))
+// return {
+//   trackLines: removetrack,
+//   tracks: state.tracks.filter(item => item.id !== trackId)
+// 

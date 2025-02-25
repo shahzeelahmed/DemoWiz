@@ -14,14 +14,15 @@ export interface BaseTrack {
   id: string
   name: string
   index: number
-  isVisible: boolean
-  isMuted: boolean
-  height: number
+  isVisible?: boolean
+  isMuted?: boolean
+  height?: number
   color?: string
 }
 
 export interface VideoTrack extends BaseTrack {
   id: string
+  type: string
   duration: number
   height: number
   width: number
@@ -40,9 +41,9 @@ export interface VideoTrack extends BaseTrack {
 }
 export interface AudioTrack extends BaseTrack {
   id: string
+  type:string
+  duration:number
   volume: number
-  height: number
-  width: number
   format: string
 }
 export interface TextTrack extends BaseTrack {
@@ -63,7 +64,7 @@ export interface TextTrack extends BaseTrack {
 }
 export interface ImageTrack extends BaseTrack {
   id: string
-
+  type: string,
   duration: number
   position: {
     x: number

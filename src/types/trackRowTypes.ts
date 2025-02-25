@@ -12,7 +12,6 @@ export interface TrackRow {
   type: TrackRowType
   index: number
   acceptsType: tracksType
-  itemIndex: number
   trackItem: TrackItemType[]
 }
 export interface TrackRowItem {
