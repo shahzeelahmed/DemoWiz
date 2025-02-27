@@ -112,3 +112,75 @@ const Playhead: React.FC<TrackPlayerProps> = ({
 }
 
 export default Playhead
+// import React, { useRef, useState, useEffect, useCallback } from 'react';
+
+// const Playhead = ({ zoom, duration, currentTime, onTimeUpdate }) => {
+//   const [isDragging, setIsDragging] = useState(false);
+//   const playheadRef = useRef(null);
+//   const containerRef = useRef<HTMLDivElement | null>(null);
+//   const animationIdRef  = useRef<number | null>(null);
+
+//   const BASE_TICK_SPACING = 3;
+
+//   const updatePlayheadPosition = useCallback((mouseX) => {
+//     if (!containerRef.current) return;
+
+//     const rect = containerRef.current.getBoundingClientRect();
+//     const relativeX = mouseX - rect.left;
+//     const newTime = Math.max(0, Math.min(relativeX / (BASE_TICK_SPACING * zoom * 10), duration));
+
+//     onTimeUpdate(newTime);
+//   }, [zoom, duration, onTimeUpdate]);
+
+//   const handleMouseMove = useCallback((event) => {
+//     if (isDragging) {
+//       if (!animationIdRef.current) {
+//         animationIdRef.current = requestAnimationFrame(() => {
+//           updatePlayheadPosition(event.clientX);
+//           animationIdRef.current = null;
+//         });
+//       }
+//     }
+//   }, [isDragging, updatePlayheadPosition]);
+
+//   const handleMouseDown = useCallback((event) => {
+//     event.stopPropagation();
+//     setIsDragging(true);
+//   }, []);
+
+//   const handleMouseUp = useCallback(() => {
+//     setIsDragging(false);
+//     if (animationIdRef.current) {
+//       cancelAnimationFrame(animationIdRef.current);
+//       animationIdRef.current = null;
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     document.addEventListener('mousemove', handleMouseMove, { passive: true });
+//     document.addEventListener('mouseup', handleMouseUp);
+
+//     return () => {
+//       document.removeEventListener('mousemove', handleMouseMove);
+//       document.removeEventListener('mouseup', handleMouseUp);
+//       if (animationIdRef.current) {
+//         cancelAnimationFrame(animationIdRef.current);
+//       }
+//     };
+//   }, [handleMouseMove, handleMouseUp]);
+
+//   return (
+//     <div ref={containerRef} className="relative w-full h-10 bg-gray-800">
+//       <div
+//         ref={playheadRef}
+//         className="absolute top-0 h-full w-1 bg-red-500 cursor-ew-resize"
+//         style={{ left: `${currentTime * BASE_TICK_SPACING * zoom * 10}px` }}
+//         onMouseDown={handleMouseDown}
+//       >
+//         <div className="w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-red-500 mx-auto mt-[-4px]"></div>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Playhead;

@@ -15,3 +15,9 @@ export const getCanvasConfig = (isDark: boolean) => ({
   focusColor: isDark ? '#6D28D9' : '#efefef',
   lineColor: isDark ? '#4B5563' : '#efefef'
 });
+
+export const getRulerConfig = () =>({
+   tickSpacing: 3,
+   scrollSpeed: 15,
+   rulerHeight: 40 
+} );

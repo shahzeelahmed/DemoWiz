@@ -77,6 +77,7 @@ const mockVideoTrack = (id: string): VideoTrack => ({
   name: 'video2',
   isMuted: false,
   isVisible: true,
+  frameCount:100,
   index: 0,
   type: 'video',
   duration: Math.floor(Math.random() * 60) + 10,
@@ -98,10 +99,11 @@ const mockVideoTrack = (id: string): VideoTrack => ({
 
 const mockImageTrack = (id: string): ImageTrack => ({
   id,
+  frameCount:100,
   type: 'image',
   name: 'png1',
   isVisible: true,
-  duration: 100,
+  atTime: 50,
   index: 0,
   height: 800,
   width: 600,
@@ -119,6 +121,7 @@ const mockImageTrack = (id: string): ImageTrack => ({
 
 const mockAudioTrack = (id: string): AudioTrack => ({
   id,
+  frameCount:100,
   name: 'audio1',
   type: 'audio',
   index: 0,

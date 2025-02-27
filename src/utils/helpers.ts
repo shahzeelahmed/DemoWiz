@@ -34,6 +34,29 @@ export const DEFAULT_DRAW_CONFIG: DrawConfig = {
   textColor: '#71717a',
   lineWidth: 1
 }
+export const formatHourTime = (tick: number) => {
+  const totalMinutes = tick;
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
+  return `${hours}h:${minutes.toString().padStart(2, '0')}`;
+};
+
+
+export const formatMinuteTime = (tick: number) => {
+  const totalSeconds = Math.floor(tick * 6);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m:${seconds.toString().padStart(2, '0')}`;
+};
+
+// Format time for seconds display (M:SS)
+export const formatSecondTime = (tick: number) => {
+  // Each tick represents 0.1 seconds
+  const seconds = Math.floor(tick / 10);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}:${remainingSeconds.toString()}s`;
+};
 
 
 export const generateId = () => nanoid(5);

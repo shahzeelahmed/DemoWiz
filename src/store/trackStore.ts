@@ -11,6 +11,7 @@ interface TrackRowState {
   frameCount: number
   addTrack: (track: TrackItemType, id: string, type: tracksType) => void
   removetrack: (trackId: string, rowId: string) => void
+
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
@@ -35,7 +36,6 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       })
 
       return {
-        frameCount: state.frameCount,
         trackLines: addtrack
       }
     }),
@@ -55,5 +55,8 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         trackLines: removeTrack,
         tracks: state.tracks.filter(item => item.id !== trackId)
       }
-    })
-}))
+    }),
+   
+})
+
+)
