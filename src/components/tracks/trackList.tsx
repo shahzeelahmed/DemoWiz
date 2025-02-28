@@ -1,7 +1,7 @@
 import { AudioTrack, VideoTrack, ImageTrack } from '../../types/trackType'
 import { TrackRow } from '../../types/trackRowTypes'
 import { useTrackStateStore } from '../../store/trackStore'
-import React from 'react'
+import React, { useState } from 'react'
 const mockTrackLines: TrackRow[] = [
   {
     id: 'string',
@@ -50,23 +50,60 @@ const mockTrackLines: TrackRow[] = [
 
 const TrackList = () => {
   const { addTrack, tracks } = useTrackStateStore()
+  const [dragging, setDragging] = useState(false)
   const mock = mockTrackLines[0].trackItem[0] as VideoTrack
+const [left,setLeft] = useState(0)
+  const handleDrag = (e: React.DragEvent<HTMLDivElement>) => {
+    
+    e.preventDefault()
+    e.stopPropagation()
+    const x = e.clientX
+const y = e.clientY
+console.log("coords",x,y)
+    console.log('dragging')
+   
+    setDragging(true)
+  }
 
+const onDragOver =(e: React.DragEvent) =>{
+  e.preventDefault()
+  e.stopPropagation()
+  const target = e.target as HTMLDivElement
+    const rect = target.getBoundingClientRect().width
+    const id = target.id
+    console.log('element width:', rect)
+    console.log('element id:', id)
+}
+const handleMouseMove = (e: React.DragEvent) => {
+const x = e.clientX
+const y = e.clientY
+console.log("coords",x,y)
+}
+const handleMouseUp = (e: React.DragEvent) => {
+  e.preventDefault()
+  const target = e.target as HTMLDivElement
+  const rect = target.getBoundingClientRect()
+  
+  setDragging(false)
+console.log('mouse up')
+}
   return (
-    <>
-      <div
-        className='h-16 w-24 bg-black flex flex-col place-content-around'
-        onClick={() => {
-          addTrack(mock, 'test1', 'VIDEO'),
-            console.log(tracks.map(tracks => tracks.name))
-        }}
-      ></div>
-      <div className='h-10 w-20 bg-slate-400'>
-        <p color='red'>
-          {tracks === null ? 'no track' : tracks.map(tracks => tracks.name)}
-        </p>
+    <div className='flex flex-col h-full mt-10 ' >
+      <div className='w-44 bg-violet-400 h-10' draggable = 'true'   onDragStart={handleMouseMove} onDragEnd={handleMouseUp}>
+
       </div>
-    </>
+     <div className='bg-green-400 m-5 h-11 ' onDragOver={onDragOver} id='row1' style={{
+      left: `${left}px`,
+     }}>
+      
+    row 1
+      
+     </div>
+     <div className="bg-purple-400 h-11 m-5 " onDragOver={onDragOver} id='row2'>
+     row 2
+     </div>
+     
+    </div>
   )
 }
 
