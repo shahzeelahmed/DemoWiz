@@ -2,6 +2,7 @@ import { AudioTrack, VideoTrack, ImageTrack } from '../../types/trackType'
 import { TrackRow } from '../../types/trackRowTypes'
 import { useTrackStateStore } from '../../store/trackStore'
 import React, { useState } from 'react'
+import { TrackItem } from './trackItem'
 const mockTrackLines: TrackRow[] = [
   {
     id: 'string',
@@ -87,11 +88,16 @@ const handleMouseUp = (e: React.DragEvent) => {
   setDragging(false)
 console.log('mouse up')
 }
+const getRandomColor = Math.floor(Math.random()*16777215).toString(16).toUpperCase();
+  
+const color = `#${getRandomColor}`
+
   return (
     <div className='flex flex-col h-full mt-10 ' >
       <div className='w-44 bg-violet-400 h-10' draggable = 'true'   onDragStart={handleMouseMove} onDragEnd={handleMouseUp}>
 
       </div>
+      <TrackItem width={20} color= {color}/>
      <div className='bg-green-400 m-5 h-11 ' onDragOver={onDragOver} id='row1' style={{
       left: `${left}px`,
      }}>
