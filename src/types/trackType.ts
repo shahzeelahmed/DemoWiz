@@ -23,8 +23,11 @@ export interface BaseTrack {
   isVisible?: boolean
   atTime?: number
   isMuted?: boolean
+  duration: number
   height?: number
   color?: string
+  startTime: number
+  endTime: number
 }
 //[todo]: instead of getting end and start from [BaseTrack] it can calculate it from trackrow start to end in a given row
 export interface VideoTrack extends BaseTrack {
@@ -50,8 +53,8 @@ export interface VideoTrack extends BaseTrack {
 export interface AudioTrack extends BaseTrack {
   id: string
   type: string
-  startTime?: number
-  endTime?: number
+  // startTime?: number
+  // endTime?: number
   frameCount: number
   duration: number
   volume: number
@@ -60,8 +63,8 @@ export interface AudioTrack extends BaseTrack {
 export interface TextTrack extends BaseTrack {
   id: string
   height: number
-  startTime?: number
-  endTime?: number
+  // startTime?: number
+  // endTime?: number
   frameCount: number
   text: string
   width: number
@@ -80,8 +83,8 @@ export interface ImageTrack extends BaseTrack {
   id: string
   type: string
   frameCount: number
-  startTime?: number
-  endTime?: number
+  // startTime?: number
+  // endTime?: number
   position: {
     x: number
     y: number
@@ -102,6 +105,7 @@ export interface EffectTrack extends BaseTrack {
   name: string
   effectType: string
 }
+
 
 export type TrackItemType =
   | VideoTrack

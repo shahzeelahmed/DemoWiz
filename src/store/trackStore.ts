@@ -10,7 +10,9 @@ interface TrackRowState {
   gridPixels: number
   frameCount: number
   addTrack: (track: TrackItemType, id: string, type: tracksType) => void
+  addRow: (row:TrackRow) => void
   removetrack: (trackId: string, rowId: string) => void
+  removeRow: (rowId: string) => void
 
 }
 
@@ -26,7 +28,7 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
           console.log('track added')
           return {
             ...row,
-            trackItem: [...row.trackItem, track]
+            // trackItem: [...row.trackItem, track]
           }
         }
         return {
@@ -39,14 +41,27 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         trackLines: addtrack
       }
     }),
-
+addRow(row) {
+  set(state => {
+    return {
+      trackLines: [...state.trackLines, row]
+    }
+  })
+},
+removeRow(rowId) {
+  set(state => {
+    return {
+      trackLines: state.trackLines.filter(row => row.id !== rowId)
+    }
+  })
+},
   removetrack: (trackId: string, rowId: string) =>
     set(state => {
       const removeTrack = state.trackLines.map(row => {
         if (row.id === rowId) {
           return {
             ...row,
-            trackItem: row.trackItem.filter(track => track.id !== trackId)
+            // trackItem: row.trackItem.filter(track => track.id !== trackId)
           }
         }
         return row

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react'
 import { getRulerConfig } from '../../utils/constants'
+import useTimeLineStore from "../../store/timelineStore"
 import {
   formatHourTime,
   formatMinuteTime,
@@ -28,65 +29,80 @@ const TimeLine: React.FC<TimeLineProps> = ({
 
   const tickSpacing = CONSTANTS.tickSpacing * zoom
   const playheadPosition = currentTime * tickSpacing * 10
-
+  const zoomStore = useTimeLineStore()
+  
+  //TODO: add more zoom levels
   const getTickConfig = () => {
+  
+    
     if (zoom < 0.5) {
       return {
         ticksPerSecond: 1 / 60,
         smallTickInterval: 5,
         largeTickInterval: 60,
-        timeFormatter: formatHourTime
+        timeFormatter: formatHourTime,
+        zoom: zoomStore.setZoom(zoom)
+        
       }
     } else if (zoom < 0.6) {
       return {
         ticksPerSecond: 1 / 6,
         smallTickInterval: 5,
         largeTickInterval: 90,
-        timeFormatter: formatMinuteTime
+        timeFormatter: formatMinuteTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     } else if (zoom < 0.7) {
       return {
         ticksPerSecond: 1 / 6,
         smallTickInterval: 5,
         largeTickInterval: 60,
-        timeFormatter: formatMinuteTime
+        timeFormatter: formatMinuteTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     } else if (zoom < 0.8) {
       return {
         ticksPerSecond: 1 / 3,
         smallTickInterval: 5,
         largeTickInterval: 60,
-        timeFormatter: formatMinuteTime
+        timeFormatter: formatMinuteTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     } else if (zoom < 0.9) {
       return {
         ticksPerSecond: 1 / 6,
         smallTickInterval: 5,
         largeTickInterval: 50,
-        timeFormatter: formatMinuteTime
+        timeFormatter: formatMinuteTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     } else if (zoom < 1) {
       return {
         ticksPerSecond: 1 / 2,
         smallTickInterval: 4,
         largeTickInterval: 60,
-        timeFormatter: formatMinuteTime
+        timeFormatter: formatMinuteTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     } else {
       return {
         ticksPerSecond: 5,
         smallTickInterval: 5,
         largeTickInterval: 50,
-        timeFormatter: formatSecondTime
+        timeFormatter: formatSecondTime,
+        zoom: zoomStore.setZoom(zoom)
       }
     }
+
+  
   }
 
   const {
     ticksPerSecond,
     smallTickInterval,
     largeTickInterval,
-    timeFormatter
+    timeFormatter,
+    
   } = getTickConfig()
   const totalTicks = Math.ceil(duration * ticksPerSecond)
 
