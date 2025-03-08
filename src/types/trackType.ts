@@ -1,111 +1,91 @@
-export type tracksType =
+export type TrackType =
   | 'IMAGE'
   | 'VIDEO'
   | 'TEXT'
   | 'TRANSITION'
   | 'EFFECT'
-  | 'AUDIO'
+  | 'AUDIO';
+
 export interface MediaAsset {
-  id: string
-  type: string
-  format: string
+  id: string;
+  type: string;
+  format: string;
   metadata: {
-    createdAt: Date
-    modifiedAt: Date
-  }
-  fileSize: number
+    createdAt: Date;
+    modifiedAt: Date;
+  };
+  fileSize: number;
 }
 
 export interface BaseTrack {
-  id: string
-  name: string
-  index: number
-  isVisible?: boolean
-  atTime?: number
-  isMuted?: boolean
-  duration: number
-  height?: number
-  color?: string
-  startTime: number
-  endTime: number
-}
-//[todo]: instead of getting end and start from [BaseTrack] it can calculate it from trackrow start to end in a given row
-export interface VideoTrack extends BaseTrack {
-  id: string
-  type: string
-  duration: number
-  height: number
-  width: number
-  format: string
-  volume: number
-  frameCount: number
-  fps: number
-  position: {
-    x: number
-    y: number
-  }
-  transform: {
-    scaleX: number
-    scaleY: number
-    rotation: number
-  }
-}
-export interface AudioTrack extends BaseTrack {
-  id: string
-  type: string
-  // startTime?: number
-  // endTime?: number
-  frameCount: number
-  duration: number
-  volume: number
-  format: string
-}
-export interface TextTrack extends BaseTrack {
-  id: string
-  height: number
-  // startTime?: number
-  // endTime?: number
-  frameCount: number
-  text: string
-  width: number
-  format: string
-  position: {
-    x: number
-    y: number
-  }
-  transform: {
-    scaleX: number
-    scaleY: number
-    rotation: number
-  }
-}
-export interface ImageTrack extends BaseTrack {
-  id: string
-  type: string
-  frameCount: number
-  // startTime?: number
-  // endTime?: number
-  position: {
-    x: number
-    y: number
-  }
-  transform: {
-    scaleX: number
-    scaleY: number
-    rotation: number
-  }
-  height: number
-  width: number
-  format: string
-}
-export interface TransitionTrack extends BaseTrack {
-  name: string
-}
-export interface EffectTrack extends BaseTrack {
-  name: string
-  effectType: string
+  id: string;
+  name: string;
+  index: number;
+  type: TrackType;
+  isVisible?: boolean;
+  isMuted?: boolean;
+  duration: number;
+  height?: number;
+  color?: string;
+  startTime: number;
+  endTime: number;
+  inRowId: string;
+  atTime?: number;
 }
 
+export interface PositionableTrack {
+  position: {
+    x: number;
+    y: number;
+  };
+  transform: {
+    scaleX: number;
+    scaleY: number;
+    rotation: number;
+  };
+}
+
+export interface MediaTrack extends BaseTrack {
+  format: string;
+  frameCount: number;
+}
+
+export interface VideoTrack extends MediaTrack, PositionableTrack {
+  type: 'VIDEO';
+  height: number;
+  width: number;
+  volume: number;
+  fps: number;
+}
+
+export interface AudioTrack extends MediaTrack {
+  type: 'AUDIO';
+  volume: number;
+}
+
+export interface TextTrack extends BaseTrack, PositionableTrack {
+  type: 'TEXT';
+  height: number;
+  width: number;
+  frameCount: number;
+  text: string;
+  format: string;
+}
+
+export interface ImageTrack extends MediaTrack, PositionableTrack {
+  type: 'IMAGE';
+  height: number;
+  width: number;
+}
+
+export interface TransitionTrack extends BaseTrack {
+  type: 'TRANSITION';
+}
+
+export interface EffectTrack extends BaseTrack {
+  type: 'EFFECT';
+  effectType: string;
+}
 
 export type TrackItemType =
   | VideoTrack
@@ -113,4 +93,4 @@ export type TrackItemType =
   | AudioTrack
   | TextTrack
   | EffectTrack
-  | TransitionTrack
+  | TransitionTrack;

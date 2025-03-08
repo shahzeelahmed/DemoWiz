@@ -1,14 +1,19 @@
 import React, { useState } from 'react'
 import useTimeLineStore from '../../store/timelineStore'
-import { TrackItemType, tracksType } from '../../types/trackType'
+import { AudioTrack, TrackItemType, TrackType, VideoTrack,ImageTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
+const acceptedTypes = {
+  AudioTrack: 'audio',
+  VideoTrack: 'video',
+  ImageTrack: 'image'
+}
 
 const draggableTrack = (item: TrackItemType, target: HTMLDivElement) => {
   const zoomStore = useTimeLineStore()
   const trackStore = useTrackStateStore()
   const width = zoomStore.zoom
   const id = item.id
-
+  const trackRows = trackStore.trackLines
   const [draggedItem, setDraggedItem] = useState('')
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const timeLinetracks = trackStore.tracks
@@ -26,14 +31,19 @@ const draggableTrack = (item: TrackItemType, target: HTMLDivElement) => {
     }
     return false
   }
-  const handleDragStart = (e: React.DragEvent, id: string, type = item) => {
+  const handleLibraryDragStart = (e: React.DragEvent) =>{
+
+  }
+  const handleTimeLineDragStart = (e: React.DragEvent,  type = item) => {
+   
     const target = e.target as HTMLElement
     e.dataTransfer.setData('id', item.id)
     e.dataTransfer.setData('type', type.toString())
-    e.dataTransfer.setData('itemId', item.id)
+    e.dataTransfer.setData('startTime', item.startTime.toString())
+    e.dataTransfer.setData('rowId',item.inRowId )
     e.dataTransfer.setData('itemType', item.toString())
     e.dataTransfer.setData('duration', item.duration.toString())
-
+    const isMedia =  
     setDraggedItem(item.id)
 
     setTimeout(() => {
@@ -50,8 +60,11 @@ const draggableTrack = (item: TrackItemType, target: HTMLDivElement) => {
   const hanleDrop = (e: React.DragEvent, targetRow) => {
     e.preventDefault()
     const id = e.dataTransfer.getData('id')
+    const trackRow = trackRows.find(tr => tr.id === item.id);
+    if (!trackRow) return;
+    
   }
-  const handleDragEnd = e => {
+  const handleDragEnd = (e) => {
     e.target.style.opacity = '1'
     setDraggedItem('')
   }

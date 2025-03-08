@@ -1,4 +1,4 @@
-import { MediaAsset, TrackItemType, tracksType } from './trackType'
+import { MediaAsset, TrackItemType, TrackType } from './trackType'
 
 
 export interface TrackRowList {
@@ -9,8 +9,9 @@ export type TrackRowType = "MEDIA" | "TRANSITION" | "EFFECT" | "TEXT"
 export interface TrackRow {
     
   id: string
-  acceptsType: tracksType
-  // trackItem : TrackItemType[]
+  acceptsType: TrackType
+  trackItem : TrackItemType[]
+
 }
 export interface TrackRowItem {
   id: string
