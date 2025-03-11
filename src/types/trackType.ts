@@ -20,6 +20,7 @@ export interface MediaAsset {
 export interface BaseTrack {
   id: string;
   name: string;
+  source?: string;
   index: number;
   type: TrackType;
   isVisible?: boolean;

@@ -1,3 +1,5 @@
+import { Ref } from "react";
+
 export interface TimeLineProps {
     duration: number;
     zoom?: number;

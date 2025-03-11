@@ -50,6 +50,7 @@ addRow(row) {
 removeRow(rowId) {
   set(state => {
     return {
+      tracks: state.tracks.filter(track => track.inRowId !== rowId),
       trackLines: state.trackLines.filter(row => row.id !== rowId)
     }
   })

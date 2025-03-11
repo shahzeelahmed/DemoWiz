@@ -9,7 +9,7 @@ export type TrackRowType = "MEDIA" | "TRANSITION" | "EFFECT" | "TEXT"
 export interface TrackRow {
     
   id: string
-  acceptsType: TrackType
+  acceptsType: TrackRowType
   trackItem : TrackItemType[]
 
 }
