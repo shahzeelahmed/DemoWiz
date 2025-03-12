@@ -8,53 +8,55 @@ interface TrackRowState {
   trackLines: TrackRow[]
   tracks: TrackItemType[]
   frameCount: number
-  addTrack: (track: TrackItemType, id: string, type: TrackType) => void
-  addRow: (row:TrackRow) => void
+  addTrack: (tracks: TrackItemType[]) => void
+  addRow: (row: TrackRow) => void
+  updateTrack: (updatedTrack: TrackItemType[]) => void
   removetrack: (trackId: string, rowId: string) => void
   removeRow: (rowId: string) => void
-
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
   trackLines: [],
- 
+
   frameCount: 0,
   tracks: [],
-  addTrack: (track: TrackItemType, id: string, type: TrackType) =>
+  addTrack: (tracks: TrackItemType[]) =>
+    set(state => ({
+      tracks: [...state.tracks, ...tracks],
+      trackLines: state.trackLines.map(row => ({
+        ...row,
+        trackItem: [...row.trackItem, ...tracks]
+      }))
+    })),
+  updateTrack: (updatedTracks: TrackItemType[]) =>
+    set(state => ({
+      tracks: state.tracks.map(track => {
+        const updatedTrack = updatedTracks.find(t => t.id === track.id)
+        return updatedTrack ? { ...track, ...updatedTrack } : track
+      }),
+      trackLines: state.trackLines.map(row => ({
+        ...row,
+        trackItem: row.trackItem.map(track => {
+          const updatedTrack = updatedTracks.find(t => t.id === track.id)
+          return updatedTrack ? { ...track, ...updatedTrack } : track
+        })
+      }))
+    })),
+  addRow (row) {
     set(state => {
-      const addtrack = state.trackLines.map(row => {
-        if (row.id === id && row.acceptsType === type) {
-        
-          return {
-            ...row,
-            trackItem: [...row.trackItem, track]
-          }
-        }
-        return {
-          addtrack,
-          tracks: [...state.tracks, track]
-        }
-      })
-
       return {
-        trackLines: addtrack
+        trackLines: [...state.trackLines, row]
       }
-    }),
-addRow(row) {
-  set(state => {
-    return {
-      trackLines: [...state.trackLines, row]
-    }
-  })
-},
-removeRow(rowId) {
-  set(state => {
-    return {
-      tracks: state.tracks.filter(track => track.inRowId !== rowId),
-      trackLines: state.trackLines.filter(row => row.id !== rowId)
-    }
-  })
-},
+    })
+  },
+  removeRow (rowId) {
+    set(state => {
+      return {
+        tracks: state.tracks.filter(track => track.inRowId !== rowId),
+        trackLines: state.trackLines.filter(row => row.id !== rowId)
+      }
+    })
+  },
   removetrack: (trackId: string, rowId: string) =>
     set(state => {
       const removeTrack = state.trackLines.map(row => {
@@ -70,8 +72,5 @@ removeRow(rowId) {
         trackLines: removeTrack,
         tracks: state.tracks.filter(item => item.id !== trackId)
       }
-    }),
-   
-})
-
-)
+    })
+}))
