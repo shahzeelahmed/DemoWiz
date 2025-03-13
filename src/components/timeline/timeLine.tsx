@@ -3,10 +3,10 @@ import React, {
   useEffect,
   useState,
   useRef,
-  forwardRef
+  
 } from 'react'
 import { getRulerConfig } from '../../utils/constants'
-import useTimeLineStore from '../../store/timelineStore'
+
 import {
   formatHourTime,
   formatMinuteTime,
@@ -14,18 +14,14 @@ import {
 } from '../../utils/helpers'
 import { TimeLineProps } from '../../types/timeLine'
 
-const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
-  (
-    {
-      duration,
-      zoom = 1,
-      currentTime = 0,
-      totalWidth = 10000,
-      onTimeUpdate = () => {},
-      onScroll = () => {}
-    },
-    ref
-  ) => {
+const TimeLine: React.FC<TimeLineProps> = ({ 
+  duration, 
+  zoom = 1, 
+  currentTime = 0, 
+  totalWidth = 10000, 
+  onTimeUpdate = () => {}, 
+  onScroll = () => {} 
+}) => {
     const rulerContainerRef = useRef<HTMLDivElement | null>(null)
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const [isDragging, setIsDragging] = useState(false)
@@ -39,7 +35,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
 
     const tickSpacing = CONSTANTS.tickSpacing * zoom
     const playheadPosition = currentTime * tickSpacing * 10
-    const zoomStore = useTimeLineStore()
+   
 
     //TODO: add more zoom levels
     const getTickConfig = () => {
@@ -49,7 +45,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 60,
           timeFormatter: formatHourTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else if (zoom < 0.6) {
         return {
@@ -57,7 +53,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 90,
           timeFormatter: formatMinuteTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else if (zoom < 0.7) {
         return {
@@ -65,7 +61,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 60,
           timeFormatter: formatMinuteTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else if (zoom < 0.8) {
         return {
@@ -73,7 +69,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 60,
           timeFormatter: formatMinuteTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else if (zoom < 0.9) {
         return {
@@ -81,7 +77,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 50,
           timeFormatter: formatMinuteTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else if (zoom < 1) {
         return {
@@ -89,7 +85,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 4,
           largeTickInterval: 60,
           timeFormatter: formatMinuteTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       } else {
         return {
@@ -97,7 +93,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
           smallTickInterval: 5,
           largeTickInterval: 50,
           timeFormatter: formatSecondTime,
-          zoom: zoomStore.setZoom(zoom)
+          // zoom: zoomStore.setZoom(zoom)
         }
       }
     }
@@ -297,7 +293,7 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
     }, [handleDragPlayhead, stopDragPlayhead])
 
     return (
-      <div className='time-ruler' ref={ref}>
+      <div className='time-ruler' >
         <div
           className='ticks-container'
           ref={rulerContainerRef}
@@ -351,5 +347,9 @@ const TimeLine = forwardRef<HTMLDivElement, TimeLineProps>(
       </div>
     )
   }
-)
+
 export default TimeLine
+
+// setZoom	@	timelineStore.ts:9
+// getTickConfig	@	timeLine.tsx:88
+// TimeLine	@	timeLine.tsx:106

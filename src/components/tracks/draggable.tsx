@@ -1,21 +1,20 @@
 //[todo]: implement drop preview
 import React, { useRef, useState } from 'react'
-import useTimeLineStore from '../../store/timelineStore'
+
 import { TrackItemType, VideoTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
 import { nanoid } from 'nanoid'
 import { randInt } from 'three/src/math/MathUtils.js'
 
 const DraggableTrack = () => {
-  const zoomStore = useTimeLineStore()
+ 
   const trackStore = useTrackStateStore()
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const timeLinetracks = trackStore.tracks
   const itemStore = trackStore.tracks
-
-  const rowRef = useRef(null)
+  const rowRef = useRef<HTMLDivElement | null>(null)
   const checkOverlap = (
     trackId: string,
     startTime: number,
@@ -190,6 +189,7 @@ const DraggableTrack = () => {
 
   return (
     <>
+    
       <div className='flex-1 bg-white rounded-lg border border-gray-300'>
         <div className='flex'>
           <div className='w-32 p-2 border-r border-gray-300'>
