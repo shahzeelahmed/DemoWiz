@@ -1,31 +1,18 @@
 //[todo]: implement drop preview
 import React, { useRef, useState } from 'react'
 import useTimeLineStore from '../../store/timelineStore'
-import {
-  AudioTrack,
-  TrackItemType,
-  TrackType,
-  VideoTrack,
-  ImageTrack
-} from '../../types/trackType'
+import { TrackItemType, VideoTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
-import TimeLine from '../timeline/timeLine'
-import { TrackRow } from '../../types/trackRowTypes'
 import { nanoid } from 'nanoid'
-import { TrackItem } from './trackItem'
 import { randInt } from 'three/src/math/MathUtils.js'
 
 const DraggableTrack = () => {
   const zoomStore = useTimeLineStore()
   const trackStore = useTrackStateStore()
-  const width = zoomStore.zoom
-
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
-  const [draggedItem, setDraggedItem] = useState('')
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
   const timeLinetracks = trackStore.tracks
-  const timeLineRef = useRef(null)
   const itemStore = trackStore.tracks
 
   const rowRef = useRef(null)
@@ -137,7 +124,6 @@ const DraggableTrack = () => {
     const trackJson = JSON.stringify(item)
     e.dataTransfer.setData('app/json', trackJson)
 
-    setDraggedItem(item.id)
     console.log(item.name)
 
     setTimeout(() => {
@@ -145,7 +131,6 @@ const DraggableTrack = () => {
     }, 0)
     e.stopPropagation()
   }
-
 
   const handleDrop = (e: React.DragEvent, rowId: string) => {
     e.preventDefault()
@@ -171,9 +156,8 @@ const DraggableTrack = () => {
       const existingItemIndex = itemStore.findIndex(
         item => item.id === trackItem.id
       )
-      
+
       if (existingItemIndex >= 0) {
-    
         const validStartTime = findValidPosition(
           rowId,
           rawStartTime,
@@ -194,17 +178,15 @@ const DraggableTrack = () => {
       }
     }
   }
-  const handleDragEnd = (e) => {
+  const handleDragEnd = e => {
     e.target.style.opacity = '1'
-    setDraggedItem('')
     e.stopPropagation()
   }
-  
+
   const handleDragOver = e => {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
   }
-  
 
   return (
     <>
@@ -242,7 +224,6 @@ const DraggableTrack = () => {
               overflowX: 'auto'
             }}
           >
-       
             <div>
               {trackRows.map(track => (
                 <div
@@ -256,7 +237,6 @@ const DraggableTrack = () => {
                   onDragOver={handleDragOver}
                   onDrop={e => handleDrop(e, track.id)}
                 >
-                  
                   {itemStore
                     .filter(item => item.inRowId === track.id)
                     .map(item => (
@@ -270,7 +250,6 @@ const DraggableTrack = () => {
                           width: `${item.duration * 10}px`,
                           height: `${60}px`
                         }}
-                        
                         onDragStart={e => handleTimeLineDragStart(e, item)}
                         onDragEnd={handleDragEnd}
                         className={`${item.type} bg-black text-white rounded p-1 overflow-hidden flex flex-col relative`}
