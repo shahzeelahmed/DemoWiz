@@ -207,6 +207,9 @@ const DraggableTrack = () => {
                 loadFile
             </button>
         </div>
+        <div>
+            
+        </div>
         <div className='flex'>
           <div className='w-32 p-2 border-r border-gray-300'>
             <div className='font-bold' onClick={addTrackRows}>

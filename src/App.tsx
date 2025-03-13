@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import TrackList from './components/tracks/trackList'
 import DraggableTrack from './components/tracks/draggable'
 import TimeLine from './components/timeline/timeLine'
+import OffscreenCanvasComponent from './components/player/offscreenCanvas'
 
 
 export default function App () {
@@ -36,6 +37,7 @@ export default function App () {
            Zoom Out
          </button>
        </div>
+       <OffscreenCanvasComponent/>
        <DraggableTrack/>
      </div>
    )
