@@ -15,6 +15,7 @@ const DraggableTrack = () => {
   const timeLinetracks = trackStore.tracks
   const itemStore = trackStore.tracks
   const rowRef = useRef<HTMLDivElement | null>(null)
+  const [duration,setDuration] = useState(0)
   const checkOverlap = (
     trackId: string,
     startTime: number,
@@ -35,6 +36,7 @@ const DraggableTrack = () => {
     }
     return false
   }
+
   //[todo]: add snap condition for snapping to grid
   const findValidPosition = (
     rowId: string,
@@ -80,6 +82,7 @@ const DraggableTrack = () => {
     const trackId = nanoid(5)
     const rowId = nanoid(5)
     const start = randInt(0, 100)
+    const dur = randInt (0,100)
     const newTrack: VideoTrack[] = [
       {
         id: trackId,
@@ -89,7 +92,7 @@ const DraggableTrack = () => {
         type: 'VIDEO',
         isVisible: true,
         isMuted: false,
-        duration: 30,
+        duration: dur,
         height: 720,
         width: 1280,
         color: '#3498db',
@@ -145,6 +148,8 @@ const DraggableTrack = () => {
     const dropX = e.clientX - rowRect.left - dragOffset.x
 
     let rawStartTime = dropX / 10
+    let endTime = rawStartTime + trackItem.duration; 
+    setDuration(endTime)
 
     const existingItemIndex = itemStore.findIndex(
       item => item.id === trackItem.id
@@ -195,6 +200,9 @@ const DraggableTrack = () => {
           <div className='w-32 p-2 border-r border-gray-300'>
             <div className='font-bold' onClick={addTrackRows}>
               Tracks
+            </div>
+            <div>
+               duration:` ${duration}`
             </div>
           </div>
 
