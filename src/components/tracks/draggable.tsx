@@ -16,6 +16,12 @@ const DraggableTrack = () => {
   const itemStore = trackStore.tracks
   const rowRef = useRef<HTMLDivElement | null>(null)
   const [duration,setDuration] = useState(0)
+  async function loadFile(accept: Record<string, string[]>) {
+    const [fileHandle] = await window.showOpenFilePicker({
+      types: [{ accept }],
+    });
+    return (await fileHandle.getFile()) as File;
+  }
   const checkOverlap = (
     trackId: string,
     startTime: number,
@@ -196,6 +202,11 @@ const DraggableTrack = () => {
     <>
     
       <div className='flex-1 bg-white rounded-lg border border-gray-300'>
+        <div>
+            <button onClick={async() => { (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()}}>
+                loadFile
+            </button>
+        </div>
         <div className='flex'>
           <div className='w-32 p-2 border-r border-gray-300'>
             <div className='font-bold' onClick={addTrackRows}>
