@@ -11,9 +11,11 @@ function OffscreenCanvasComponent ({ width = 720, height = 480 }) {
     try {
       const bitmap = offscreenCanvas.transferToImageBitmap()
       const visibleCtx = visibleCanvas.getContext('bitmaprenderer')
+      //@ts-ignore
       visibleCtx.transferFromImageBitmap(bitmap)
     } catch (e) {
       const visibleCtx = visibleCanvas.getContext('2d')
+       //@ts-ignore
       visibleCtx.drawImage(offscreenCanvas, 0, 0)
     }
   }, [width, height])

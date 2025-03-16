@@ -15,6 +15,8 @@ const Playhead: React.FC<TrackPlayerProps> = ({
   const trackPointRef = useRef<HTMLDivElement>(null)
   const animationId = useRef<number | null>(null)
 
+  
+
   const updateFrame = useCallback(
     (mouseX: number) => {
       if (!containerRef.current || !trackPointRef.current) return

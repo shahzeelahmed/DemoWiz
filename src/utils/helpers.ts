@@ -57,6 +57,11 @@ export const formatSecondTime = (tick: number) => {
   const remainingSeconds = seconds % 60;
   return `${minutes}:${remainingSeconds.toString()}s`;
 };
-
+export async function loadFile(accept: Record<string, string[]>) {
+  const [fileHandle] = await window.showOpenFilePicker({
+    types: [{ accept }],
+  });
+  return (await fileHandle.getFile()) as File;
+}
 
 export const generateId = () => nanoid(5);

@@ -5,6 +5,7 @@ import { TrackItemType, VideoTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
 import { nanoid } from 'nanoid'
 import { randInt } from 'three/src/math/MathUtils.js'
+import { loadFile } from '../../utils/helpers'
 
 const DraggableTrack = () => {
  
@@ -16,12 +17,7 @@ const DraggableTrack = () => {
   const itemStore = trackStore.tracks
   const rowRef = useRef<HTMLDivElement | null>(null)
   const [duration,setDuration] = useState(0)
-  async function loadFile(accept: Record<string, string[]>) {
-    const [fileHandle] = await window.showOpenFilePicker({
-      types: [{ accept }],
-    });
-    return (await fileHandle.getFile()) as File;
-  }
+  
   const checkOverlap = (
     trackId: string,
     startTime: number,
@@ -208,7 +204,7 @@ const DraggableTrack = () => {
             </button>
         </div>
         <div>
-            
+
         </div>
         <div className='flex'>
           <div className='w-32 p-2 border-r border-gray-300'>
