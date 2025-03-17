@@ -1,3 +1,4 @@
+
 self.onmessage = function (e,) {
     let { position, isPlaying } = e.data;
     let lastTime = performance.now();
