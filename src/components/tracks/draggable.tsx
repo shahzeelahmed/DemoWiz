@@ -102,6 +102,7 @@ const DraggableTrack = () => {
 
     return lastItem ? lastItem.startTime + lastItem.duration : 0
   }
+
   const addTrackRows = () => {
     const trackId = nanoid(5)
     const rowId = nanoid(5)

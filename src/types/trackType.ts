@@ -21,7 +21,7 @@ export interface BaseTrack {
   id: string;
   name: string;
   source?: string;
-  index: number;
+  index?: number;
   type: TrackType;
   isVisible?: boolean;
   isMuted?: boolean;
