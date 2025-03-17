@@ -1,5 +1,5 @@
 //[todo]: implement drop preview
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { TrackItemType, VideoTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
@@ -39,6 +39,28 @@ const DraggableTrack = () => {
     return false
   }
 
+  useEffect(() => {
+    const getDuration = () => {
+      if (itemStore && itemStore.length > 0) { 
+        let maxEndTime = 0; 
+
+        for (const item of itemStore) {
+          if (item && typeof item.endTime === 'number' && item.endTime > maxEndTime) {
+            maxEndTime = item.endTime;
+          }
+        }
+
+        setDuration(maxEndTime);
+        console.log('maxDur', maxEndTime);
+      } else {
+       
+        setDuration(0); 
+        console.log('error');
+      }
+    };
+
+    getDuration();
+  }, [itemStore,duration]); 
   //[todo]: add snap condition for snapping to grid
   const findValidPosition = (
     rowId: string,
@@ -151,7 +173,7 @@ const DraggableTrack = () => {
 
     let rawStartTime = dropX / 10
     let endTime = rawStartTime + trackItem.duration; 
-    setDuration(endTime)
+    
 
     const existingItemIndex = itemStore.findIndex(
       item => item.id === trackItem.id
@@ -177,7 +199,8 @@ const DraggableTrack = () => {
         updatedItems[existingItemIndex] = {
           ...updatedItems[existingItemIndex],
           inRowId: rowId,
-          startTime: validStartTime
+          startTime: validStartTime,
+          endTime: endTime
         }
 
         trackStore.updateTrack(updatedItems)

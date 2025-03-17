@@ -82,7 +82,7 @@ export default function Playhead() {
         event.preventDefault()
       if (isDragging.current && playheadRef.current) {
         const rect = playheadRef.current.parentElement!.getBoundingClientRect();
-        const newX = Math.min(Math.max(event.clientX - rect.left, 0), 500);
+        const newX = Math.min(Math.max(event.clientX - rect.left, 0), 1000);
         setPosition(newX);
       }
     };
@@ -101,8 +101,9 @@ export default function Playhead() {
     }, []);
   return (
     <div className="relative w-full h-16 bg-[#efefef] flex items-center px-4 border-t border-gray-700">
-      <button onClick={togglePlay } className="mr-4 p-2 bg-[#e6e6e6] text-white rounded hover:bg-gray-700">
-        
+
+      <button onClick={togglePlay } className="mr-4 p-2 h-6 w-6 bg-[#e6e6e6] text-white rounded hover:bg-gray-700">
+     
       </button>
       <div className="relative w-full h-1 bg-gray-50 rounded">
         <div
