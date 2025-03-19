@@ -15,6 +15,7 @@ import { nanoid } from 'nanoid';
 import { TrackRow } from './types/trackRowTypes';
 import { TrackItemType } from './types/trackType';
 import { loadFile } from './utils/helpers';
+import SideBar from './frappe-ui/sideBar';
 
 
 export default function App() {
@@ -93,30 +94,9 @@ console.log('rate',spr.time.playbackRate)
     console.log('items',items.map((e) => e.id))
   },[items])
   return (
-    <>
-       <div className="canvas-wrap ">
-      <div className='h-[400px]'  ref={(el) => setCvsWrapEl(el)}></div>
-      </div>
-        <button
-        className="mx-[10px]"
-        onClick={async () => {
-          const stream = (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()
-            
-          const spr = new VisibleSprite(
-            new MP4Clip(stream, {
-              
-            }),
-          );
-          setClip(stream[0])
-          await avCanvas?.addSprite(spr);
-          const id = nanoid(5);
-          addSprite2Track(id, spr, 'video');
-        }}
-      >
-        + add media
-      </button>
-   <DraggableTrack/>
-   </>
+  <SideBar/>
+   
   );
 }
 
+  
