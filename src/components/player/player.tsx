@@ -7,9 +7,11 @@ const Player = () => {
   const spriteMap = new Map<string, VisibleSprite>()
   const playerStore = usePlayerStore()
   const isPaused = playerStore.isPaused
+  const [time, setTime] = useState(0)
   const currentTime = playerStore.currentTime
   const [avCanvas, setAvCanvas] = useState<AVCanvas | null>(null)
   const [cvsWrapEl, setCvsWrapEl] = useState<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (cvsWrapEl == null) return
     avCanvas?.destroy()
@@ -21,13 +23,15 @@ const Player = () => {
     setAvCanvas(cvs)
     cvs.on('timeupdate', time => {
       if (time == null) return
-      playerStore.setCurrentTime(time / 1e6)
+      setTime(time / 1e6)
     })
     cvs.on('playing', () => {
       playerStore.setPaused(false)
+      playerStore.setCurrentTime(time)
     })
     cvs.on('paused', () => {
       playerStore.setPaused(true)
+      setTime(time / 1e6)
     })
 
     return () => {
