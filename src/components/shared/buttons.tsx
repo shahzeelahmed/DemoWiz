@@ -49,7 +49,7 @@ interface buttonProps {
     ...props
   }) => {
     const baseClasses =
-      'inline-flex items-center justify-center font-medium  focus:outline-none '
+      'inline-flex items-center justify-center font-medium  focus:outline-hidden '
     const variantClasses = buttonVariants[variant] || buttonVariants.solid
     const sizeClasses = buttonSizes[size] || buttonSizes.md
     const widthClass = fullWidth ? 'w-xl' : ''
@@ -98,7 +98,7 @@ interface buttonProps {
   
   const ButtonTest = () => {
     return (
-      <div className='space-y-8 p-6 bg-[#ffffff] rounded '>
+      <div className='space-y-8 p-6 bg-[#ffffff] rounded-sm '>
         <div className='space-y-2'>
           <h2 className='text-lg font-semibold'>Button Variants</h2>
           <div className='flex flex-wrap gap-2'>

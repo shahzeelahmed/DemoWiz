@@ -217,7 +217,9 @@ const DraggableTrack = () => {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
   }
-
+useEffect(() =>{
+  itemStore
+},[itemStore])
   return (
     <>
     
@@ -249,7 +251,7 @@ const DraggableTrack = () => {
               <div
                 key={track.id}
                 className='p-2 border-t border-r border-gray-300 flex flex-col'
-                style={{ height: `${100}px` }}
+                style={{ height: `${70}px` }}
               >
                 <div className='flex justify-between items-center'>
                   <span>{track.id}</span>
@@ -267,6 +269,47 @@ const DraggableTrack = () => {
             }}
           >
             <div>
+  {trackRows.map(track => {
+    const isSelected = trackStore.selectedRowId === track.id;
+
+    return (
+      <div
+        ref={rowRef}
+        key={track.id}
+        className={`border-t border-gray-300 relative cursor-pointer ${
+          isSelected ? 'bg-blue-200' : ''
+        }`}
+        style={{
+          height: `${70}px`,
+          width: `${1000 * 10}px`
+        }}
+        onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
+        onDragOver={handleDragOver}
+        onDrop={e => handleDrop(e, track.id)}
+      >
+        {itemStore
+          .filter(item => item.inRowId === track.id)
+          .map(item => (
+            <div
+              key={item.id}
+              draggable
+              style={{
+                position: 'absolute',
+                left: `${item.startTime * 10}px`,
+                top: '4px',
+                width: `${item.duration * 10}px`,
+                height: `${60}px`
+              }}
+              onDragStart={e => handleTimeLineDragStart(e, item)}
+              onDragEnd={handleDragEnd}
+              className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
+            ></div>
+          ))}
+      </div>
+    );
+  })}
+</div>
+            {/* <div>
               {trackRows.map(track => (
                 <div
                   ref={rowRef}
@@ -294,12 +337,12 @@ const DraggableTrack = () => {
                         }}
                         onDragStart={e => handleTimeLineDragStart(e, item)}
                         onDragEnd={handleDragEnd}
-                        className={`${item.type} bg-black text-white rounded p-1 overflow-hidden flex flex-col relative`}
+                        className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
                       ></div>
                     ))}
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

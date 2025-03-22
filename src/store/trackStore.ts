@@ -8,16 +8,18 @@ interface TrackRowState {
   trackLines: TrackRow[]
   tracks: TrackItemType[]
   frameCount: number
+  selectedRowId: string | null
   addTrack: (tracks: TrackItemType[]) => void
   addRow: (row: TrackRow) => void
   updateTrack: (updatedTrack: TrackItemType[]) => void
   removetrack: (trackId: string, rowId: string) => void
   removeRow: (rowId: string) => void
+  selectRow: (rowId: string) => void
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
   trackLines: [],
-
+  selectedRowId: null,
   frameCount: 0,
   tracks: [],
   addTrack: (tracks: TrackItemType[]) =>
@@ -57,6 +59,12 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       }
     })
   },
+  selectRow: rowId =>
+    set(state =>
+      state.selectedRowId === rowId
+        ? { selectedRowId: null }
+        : { selectedRowId: rowId }
+    ),
   removetrack: (trackId: string, rowId: string) =>
     set(state => {
       const removeTrack = state.trackLines.map(row => {
