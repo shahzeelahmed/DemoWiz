@@ -48,7 +48,8 @@ const Player = () => {
       playerStore.setCurrentTime(time - 1 / 1e6)
     })
     avCanvas.previewFrame(currentTime)
-  }, [currentTime, isPaused, cvsWrapEl])
+  }, [currentTime, isPaused])
+  
   const nextFrame = useCallback(() => {
     if (avCanvas === null) return
     if (!isPaused) {
@@ -59,6 +60,6 @@ const Player = () => {
       playerStore.setCurrentTime(time + 1 / 1e6)
     })
     avCanvas.previewFrame(currentTime)
-  }, [currentTime, isPaused, cvsWrapEl])
+  }, [currentTime, isPaused])
 }
 export default Player
