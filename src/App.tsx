@@ -61,7 +61,6 @@ export default function App () {
   const [time, setTime] = useState(0)
   const items = rowStore.tracks
   const [cvsWrapEl, setCvsWrapEl] = useState<HTMLDivElement | null>(null)
-  const workerRef = useRef<Worker | null>(null);
   useEffect(() => {
     if (cvsWrapEl == null) return
     avCanvas?.destroy()

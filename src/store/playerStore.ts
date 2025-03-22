@@ -16,6 +16,7 @@ type playerState = {
   hasVideo: boolean
   currentFrame: number
   targetTrack: Map<string, any>
+  currentTime: number
 }
 type playerActions = {
   setLoading: (loading: boolean) => void
@@ -25,24 +26,27 @@ type playerActions = {
   setHasVideo: (hasVideo: boolean) => void
   setCurrentFrame: (frame: number) => void
   setTargetTrack: (track: Map<string, any>) => void
+  setCurrentTime: (time: number) => void
 }
 
 const usePlayerStore = create<playerState & playerActions>(set => ({
+  
   isLoading: false,
   canvasInfo: { width: 0, height: 0 },
   playerInfo: { frameCount: 0, playerWidth: 1080 / 6, playerHeight: 1920 / 6 },
   hasVideo: false,
   currentFrame: 0,
   targetTrack: new Map<string, any>(),
+  currentTime: 0, 
   isPaused: true,
-
   setLoading: loading => set({ isLoading: loading }),
   setCanvasInfo: info => set({ canvasInfo: info }),
   setPlayerInfo: info => set({ playerInfo: info }),
   setHasVideo: hasVideo => set({ hasVideo }),
   setCurrentFrame: frame => set({ currentFrame: frame }),
   setTargetTrack: tracks => set({ targetTrack: tracks }),
-  setPaused: paused => set({ isPaused: paused })
+  setPaused: paused => set({ isPaused: paused }),
+  setCurrentTime: time => set({currentTime: time}),
 }))
 
 export default usePlayerStore
