@@ -1,4 +1,4 @@
-// credits: https://github.com/WebAV-Tech/WebAV/blob/6dcbcb325800e92f7ed73c91af4fb1e8527741a2/packages/av-cliper/src/chromakey.ts
+// adapted from [WebAv/av-cliper/chromakey.ts] 
 const vertexShaderSource = `
   attribute vec2 position;
   varying vec2 vUv;

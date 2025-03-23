@@ -24,11 +24,12 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
   tracks: [],
   addTrack: (tracks: TrackItemType[]) =>
     set(state => ({
-      tracks: [...state.tracks, ...tracks],
+      
+      tracks: [...state.tracks, ...tracks], 
       trackLines: state.trackLines.map(row => ({
         ...row,
-        trackItem: [...row.trackItem, ...tracks]
-      }))
+        trackItem: row.trackItem ? [...row.trackItem, ...tracks] : [...tracks],
+      })),
     })),
   updateTrack: (updatedTracks: TrackItemType[]) =>
     set(state => ({

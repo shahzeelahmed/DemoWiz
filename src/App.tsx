@@ -62,48 +62,9 @@ export default function App () {
   const [time, setTime] = useState(0)
   const items = rowStore.tracks
   const [cvsWrapEl, setCvsWrapEl] = useState<HTMLDivElement | null>(null)
-  useEffect(() => {
-    if (cvsWrapEl == null) return
-    avCanvas?.destroy()
-    const cvs = new AVCanvas(cvsWrapEl, {
-      bgColor: '#000',
-      width: 1080,
-      height: 720
-    })
-    setAvCanvas(cvs)
-    cvs.on('timeupdate', time => {
-      if (time == null) return
-      setTime(time / 1e6)
-    })
-    cvs.on('playing', () => {
-      setPlaying(true)
-    })
-    cvs.on('paused', () => {
-      setPlaying(false)
-    })
 
-    return () => {
-      cvs.destroy()
-    }
-  }, [cvsWrapEl])
-  async function testClip () {
-    const clip = new MP4Clip(
-      (await fetch('src/assets/JOTARO VS KIRA 4K 60 FPS MhL_V19Su7o.mp4')).body!
-    )
-    const chromakey = createChromakey({
-      similarity: 0.4,
-      smoothness: 0.1,
-      spill: 0.1
-    })
-    clip.tickInterceptor = async (_, tickRet) => {
-      if (tickRet.video == null) return tickRet
-      return {
-        ...tickRet,
-        video: await chromakey(tickRet.video)
-      }
-    }
-  }
-  async function addSpriteToRow (atTime: number, type: TrackRowType) {
+
+  async function addSpriteToRow (atTime: number, type: TrackRowType,spr: VisibleSprite) {
     const isSelected = rowStore.selectedRowId
     console.log('Selected Row:', isSelected)
     console.log('clip: ', clip)
@@ -199,9 +160,6 @@ export default function App () {
 
   return (
     <>
-      {/* <div className="h-[400px]" ref={el => setCvsWrapEl(el)}></div> */}
-
-      <div className='h-[400px]' ref={el => setCvsWrapEl(el)}></div>
       <Button
         className='mx-[10px]'
         onClick={async () => {
