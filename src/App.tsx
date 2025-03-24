@@ -23,34 +23,10 @@ import { Button } from './components/ui/button'
 import Slider from './components/ui/slider'
 import { randInt } from 'three/src/math/MathUtils.js'
 import { createZoomBlurShader } from './effects/createMotionBlur'
-const worker = new Worker(new URL('./avcanvasWorker.ts', import.meta.url), {
-  type: 'module'
-})
-const workerScript = `
-
-  self.onmessage = async (event) => {
-    const { type, payload } = event.data;
-
-    if (type === "addSprite") {
-      console.log("Worker received ArrayBuffer:", payload.byteLength, "bytes");
-
-      const videoBlob = new Blob([payload]);
-      console.log("Created Blob:", videoBlob.size, "bytes");
-
-      const track = new MP4Clip(videoBlob);
-      const { duration, height, width } = await track.ready;
-
-      const spr = new VisibleSprite(track);
-      await avCanvas.addSprite(spr);
-
-      self.postMessage({ type: "spriteAdded", payload: { duration, height, width } });
-    }
-  };
-`
-const createWorker = () => {
-  const blob = new Blob([workerScript], { type: 'application/javascript' })
-  return new Worker(URL.createObjectURL(blob), { type: 'module' })
-}
+import Player from './components/player/player'
+import TimeLine from './components/timeline/timeLine'
+import usePlayerStore from './store/playerStore'
+import SideBar from './frappe-ui/sideBar'
 
 export default function App () {
   const [avCanvas, setAvCanvas] = useState<AVCanvas | null>(null)
@@ -62,6 +38,7 @@ export default function App () {
   const [time, setTime] = useState(0)
   const items = rowStore.tracks
   const [cvsWrapEl, setCvsWrapEl] = useState<HTMLDivElement | null>(null)
+  const totalDuration = usePlayerStore().duration
 
 
   async function addSpriteToRow (atTime: number, type: TrackRowType,spr: VisibleSprite) {
@@ -142,25 +119,19 @@ export default function App () {
     )
   }
 
-  useEffect(() => {
-    worker.onmessage = e => {
-      if (e.data.type === 'spriteAdded') {
-        console.log('Sprite added successfully!', e.data.payload)
-        setDuration(e.data.payload.duration)
-      }
-    }
 
-    return () => worker.terminate()
-  }, [])
-
-  const handlePlayPause = () => {
-    if (!worker) return
-    worker.postMessage({ type: playing ? 'pause' : 'play', payload: time })
-  }
 
   return (
-    <>
-      <Button
+    <div className='flex h-screen  '>
+    
+    <SideBar />
+  
+    <div className="flex-1 flex flex-col overflow-hidden">
+    <Player />
+ 
+  
+    
+      {/* <Button
         className='mx-[10px]'
         onClick={async () => {
           const stream = (
@@ -204,8 +175,11 @@ export default function App () {
         }}
       >
         {playing ? 'pause' : 'play'}
-      </Button>
-      <DraggableTrack />
-    </>
+      </Button> */}
+  <div className="relative w-full h-full overflow-auto">
+                <DraggableTrack />
+            </div>
+      </div>
+    </div>
   )
 }

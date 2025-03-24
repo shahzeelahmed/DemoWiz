@@ -6,9 +6,12 @@ import { useTrackStateStore } from '../../store/trackStore'
 import { nanoid } from 'nanoid'
 import { randInt } from 'three/src/math/MathUtils.js'
 import { loadFile } from '../../utils/helpers'
+import usePlayerStore from '../../store/playerStore'
+import TimeLine from '../timeline/timeLine'
+import { Button } from '../ui/button'
+import PlayheadNew from '../timeline/playheadtest'
 
 const DraggableTrack = () => {
- 
   const trackStore = useTrackStateStore()
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
@@ -16,98 +19,270 @@ const DraggableTrack = () => {
   const timeLinetracks = trackStore.tracks
   const itemStore = trackStore.tracks
   const rowRef = useRef<HTMLDivElement | null>(null)
-  const [duration,setDuration] = useState(0)
-  
-  const checkOverlap = (
-    trackId: string,
-    startTime: number,
-    duration: number,
-    itemId: string
-  ) => {
-    for (const item of itemStore) {
-      if (item.id === itemId) continue
+  const [duration, setDuration] = useState(0)
+  const playerStore = usePlayerStore()
+  const totalDuration = playerStore.duration
+  const [zoom, setZoom] = useState(1)
+  // const checkOverlap = (
+  //   trackId: string,
+  //   startTime: number,
+  //   duration: number,
+  //   itemId: string
+  // ) => {
+  //   for (const item of itemStore) {
+  //     if (item.id === itemId) continue
 
-      if (item.inRowId !== trackId) continue
+  //     if (item.inRowId !== trackId) continue
 
-      const itemEnd = item.startTime + item.duration
-      const newItemEnd = startTime + duration
+  //     const itemEnd = item.startTime + item.duration
+  //     const newItemEnd = startTime + duration
 
-      if (startTime < itemEnd && newItemEnd > item.startTime) {
-        return true
-      }
-    }
-    return false
-  }
+  //     if (startTime < itemEnd && newItemEnd > item.startTime) {
+  //       return true
+  //     }
+  //   }
+  //   return false
+  // }
 
   useEffect(() => {
     const getDuration = () => {
-      if (itemStore && itemStore.length > 0) { 
-        let maxEndTime = 0; 
+      if (itemStore && itemStore.length > 0) {
+        let maxEndTime = 0
 
         for (const item of itemStore) {
-          if (item && typeof item.endTime === 'number' && item.endTime > maxEndTime) {
-            maxEndTime = item.endTime;
+          if (
+            item &&
+            typeof item.endTime === 'number' &&
+            item.endTime > maxEndTime
+          ) {
+            maxEndTime = item.endTime
           }
         }
 
-        setDuration(maxEndTime);
-        console.log('maxDur', maxEndTime);
+        setDuration(maxEndTime)
+        playerStore.setDuration(maxEndTime)
+        console.log('maxDur', maxEndTime)
       } else {
-       
-        setDuration(0); 
-        console.log('error');
+        setDuration(0)
+        playerStore.setDuration(0)
+        console.log('error')
       }
-    };
+    }
 
-    getDuration();
-  }, [itemStore,duration]); 
+    getDuration()
+  }, [itemStore, duration])
   //[todo]: add snap condition for snapping to grid
-  const findValidPosition = (
-    rowId: string,
-    rawStartTime: number,
+//   const findValidPosition = (
+//     rowId: string,
+//     rawStartTime: number,
+//     duration: number,
+//     itemId: string,
+//     itemStore: any[] // Assuming itemStore is accessible
+// ) => {
+//     let startTime = Math.max(0, rawStartTime);
+
+//     if (!checkOverlap(rowId, startTime, duration, itemId, itemStore)) {
+//         return startTime;
+//     }
+
+//     let forwardPos = startTime;
+//     let backwardPos = startTime;
+//     const timeIncrement = 1; // Define a small unit of time for searching
+//     const maxAttempts = 100;
+//     let attempts = 0;
+
+//     while (attempts < maxAttempts) {
+//         attempts++;
+
+//         forwardPos += timeIncrement;
+//         if (!checkOverlap(rowId, forwardPos, duration, itemId, itemStore)) {
+//             return forwardPos;
+//         }
+
+//         backwardPos -= timeIncrement;
+//         if (
+//             backwardPos >= 0 &&
+//             !checkOverlap(rowId, backwardPos, duration, itemId, itemStore)
+//         ) {
+//             return backwardPos;
+//         }
+//     }
+
+//     const lastItem = itemStore
+//         .filter(item => item.inRowId === rowId)
+//         .sort((a, b) => (a.startTime + a.duration) - (b.startTime + b.duration))
+//         .pop();
+
+//     return lastItem ? lastItem.startTime + lastItem.duration : 0;
+// };
+//new
+const checkOverlap = (
+    trackId: string,
+    startTime: number,
     duration: number,
-    itemId: string
-  ) => {
-    let startTime = Math.max(0, rawStartTime)
+    itemId: string,
+  
+) => {
+    for (const item of itemStore) {
+        if (item.id === itemId) continue;
 
-    if (!checkOverlap(rowId, startTime, duration, itemId)) {
-      return startTime
+        if (item.inRowId !== trackId) continue;
+
+        const itemEnd = item.startTime + item.duration;
+        const newItemEnd = startTime + duration;
+
+        if (startTime < itemEnd && newItemEnd > item.startTime) {
+            return true;
+        }
     }
-    let forwardPos = startTime
-    let backwardPos = startTime
+    return false;
+};
+//new
+const findValidPosition = (
+  rowId: string,
+  rawStartTime: number,
+  duration: number,
+  itemId: string,
+  snapThreshold: number = 1
+) => {
+  let startTime = Math.max(0, rawStartTime);
+  let snappedTime = startTime;
+  let isSnapped = false;
 
-    const maxAttempts = 100
-    let attempts = 0
-
-    while (attempts < maxAttempts) {
-      attempts++
-
-      forwardPos += 0
-      if (!checkOverlap(rowId, forwardPos, duration, itemId)) {
-        return forwardPos
+ 
+  for (const otherItem of itemStore) {
+      if (otherItem.id === itemId || otherItem.inRowId !== rowId) {
+          continue;
       }
-      backwardPos = backwardPos
-      if (
-        backwardPos >= 0 &&
-        !checkOverlap(rowId, backwardPos, duration, itemId)
-      ) {
-        return backwardPos
+
+      const otherItemStart = otherItem.startTime;
+      const otherItemEnd = otherItem.startTime + otherItem.duration;
+
+    
+      if (Math.abs(startTime - otherItemStart) <= snapThreshold) {
+          snappedTime = otherItemStart;
+          isSnapped = true;
+          break; 
       }
-    }
 
-    const lastItem = itemStore
-      .filter(item => item.inRowId === rowId)
-      .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
-      .pop()
+    
+      if (Math.abs(startTime - otherItemEnd) <= snapThreshold) {
+          snappedTime = otherItemEnd;
+          isSnapped = true;
+          break;
+      }
 
-    return lastItem ? lastItem.startTime + lastItem.duration : 0
+      
+      const newItemEnd = startTime + duration;
+      const snappedNewItemEnd = snappedTime + duration;
+
+      if (Math.abs(newItemEnd - otherItemStart) <= snapThreshold) {
+          snappedTime = otherItemStart - duration;
+          isSnapped = true;
+          break;
+      }
+
+      if (Math.abs(newItemEnd - otherItemEnd) <= snapThreshold) {
+          snappedTime = otherItemEnd - duration;
+          isSnapped = true;
+          break;
+      }
   }
+
+  if (isSnapped) {
+      if (!checkOverlap(rowId, snappedTime, duration, itemId, )) {
+          return snappedTime;
+      }
+    
+      let pos = snappedTime;
+      while (checkOverlap(rowId, pos, duration, itemId, ) && pos < Number.MAX_SAFE_INTEGER) {
+          pos += 0.1; 
+      }
+      return pos;
+  }
+
+  
+  if (!checkOverlap(rowId, startTime, duration, itemId, )) {
+      return startTime;
+  }
+
+  let forwardPos = startTime;
+  let backwardPos = startTime;
+  const timeIncrement = 0.1;
+  const maxAttempts = 200;
+  let attempts = 0;
+
+  while (attempts < maxAttempts) {
+      attempts++;
+
+      forwardPos += timeIncrement;
+      if (!checkOverlap(rowId, forwardPos, duration, itemId, )) {
+          return forwardPos;
+      }
+
+      backwardPos -= timeIncrement;
+      if (
+          backwardPos >= 0 &&
+          !checkOverlap(rowId, backwardPos, duration, itemId, )
+      ) {
+          return backwardPos;
+      }
+  }
+
+  const lastItem = itemStore
+      .filter(item => item.inRowId === rowId)
+      .sort((a, b) => (a.startTime + a.duration) - (b.startTime + b.duration))
+      .pop();
+
+  return lastItem ? lastItem.startTime + lastItem.duration : 0;
+};
+
+  // const findValidPosition = (
+  //   rowId: string,
+  //   rawStartTime: number,
+  //   duration: number,
+  //   itemId: string
+  // ) => {
+  //   let startTime = Math.max(0, rawStartTime)
+
+  //   if (!checkOverlap(rowId, startTime, duration, itemId)) {
+  //     return startTime
+  //   }
+  //   let forwardPos = startTime
+  //   let backwardPos = startTime
+
+  //   const maxAttempts = 100
+  //   let attempts = 0
+
+  //   while (attempts < maxAttempts) {
+  //     attempts++
+
+  //     forwardPos += 0
+  //     if (!checkOverlap(rowId, forwardPos, duration, itemId)) {
+  //       return forwardPos
+  //     }
+  //     backwardPos = backwardPos
+  //     if (
+  //       backwardPos >= 0 &&
+  //       !checkOverlap(rowId, backwardPos, duration, itemId)
+  //     ) {
+  //       return backwardPos
+  //     }
+  //   }
+
+  //   const lastItem = itemStore
+  //     .filter(item => item.inRowId === rowId)
+  //     .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
+  //     .pop()
+
+  //   return lastItem ? lastItem.startTime + lastItem.duration : 0
+  // }
 
   const addTrackRows = () => {
     const trackId = nanoid(5)
     const rowId = nanoid(5)
     const start = randInt(0, 100)
-    const dur = randInt (0,100)
+    const dur = randInt(0, 100)
     const newTrack: VideoTrack[] = [
       {
         id: trackId,
@@ -173,8 +348,7 @@ const DraggableTrack = () => {
     const dropX = e.clientX - rowRect.left - dragOffset.x
 
     let rawStartTime = dropX / 10
-    let endTime = rawStartTime + trackItem.duration; 
-    
+    let endTime = rawStartTime + trackItem.duration
 
     const existingItemIndex = itemStore.findIndex(
       item => item.id === trackItem.id
@@ -217,136 +391,150 @@ const DraggableTrack = () => {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'move'
   }
-useEffect(() =>{
-  itemStore
-},[itemStore])
-  return (
-    <>
+  useEffect(() => {
+    itemStore
+  }, [itemStore])
+
+//   return (
+
+// //     <div className="bg-white rounded-sm border border-gray-300 w-full h-full relative">
+  
+// //   <div className="absolute top-0 left-0 w-full bg-white z-10 p-2 flex gap-2 border-b border-gray-300">
+// //     <Button className="font-bold" onClick={addTrackRows}>
+// //       Tracks
+// //     </Button>
+// //     <Button onClick={() => { zoom === 1 ?  zoom : setZoom(zoom + 0.1); }}>
+// //       Zoom In
+// //     </Button>
+// //     <Button onClick={() => { zoom === 0.10000000000000014 ? zoom : setZoom(zoom - 0.1); }}>
+// //       Zoom Out
+// //     </Button>
+// //   </div>
+
+
+// //   <div className="overflow-auto w-full h-full pt-12 ">
     
-      <div className='flex-1 bg-white rounded-lg border border-gray-300'>
-        <div>
-            <button onClick={async() => { (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()}}>
-                loadFile
-            </button>
-        </div>
-        <div>
+// //     <TimeLine duration={1000} zoom={zoom} />
+   
+// //     <div className="flex flex-col min-w-max min-h-max space-y-4 overflow-auto"></div>
 
-        </div>
-        <div className='flex'>
-          <div className='w-32 p-2 border-r border-gray-300'>
-            <div className='font-bold' onClick={addTrackRows}>
-              Tracks
-            </div>
-            <div>
-               duration:` ${duration}`
-            </div>
-          </div>
+// //     <div className="flex">
+// //       <div className="flex-1 relative" style={{ width: `${totalDuration}px` }}>
+// //         <div>
+// //           {trackRows.map(track => {
+// //             const isSelected = trackStore.selectedRowId === track.id;
+// //             return (
+// //               <div
+// //                 ref={rowRef}
+// //                 key={track.id}
+// //                 className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? 'bg-blue-200' : ''}`}
+// //                 style={{ height: `70px`, width: `${1000 * 10}px` }}
+// //                 onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
+// //                 onDragOver={handleDragOver}
+// //                 onDrop={e => handleDrop(e, track.id)}
+// //               >
+// //                 {itemStore.filter(item => item.inRowId === track.id).map(item => (
+// //                   <div
+// //                     key={item.id}
+// //                     draggable
+// //                     style={{
+// //                       position: 'absolute',
+// //                       left: `${item.startTime * 10}px`,
+// //                       top: '4px',
+// //                       width: `${item.duration * 10}px`,
+// //                       height: `60px`,
+// //                     }}
+// //                     onDragStart={e => handleTimeLineDragStart(e, item)}
+// //                     onDragEnd={handleDragEnd}
+// //                     className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
+// //                   ></div>
+// //                 ))}
+// //               </div>
+// //             );
+// //           })}
+// //         </div>
+// //       </div>
+// //     </div>
+// //   </div>
+// // </div>
 
-          <div className='flex-1 relative' style={{ height: '30px' }}></div>
-        </div>
 
-        <div className='flex'>
-          <div className='w-32 flex flex-col '>
-            {trackStore.trackLines.map(track => (
-              <div
-                key={track.id}
-                className='p-2 border-t border-r border-gray-300 flex flex-col'
-                style={{ height: `${70}px` }}
-              >
-                <div className='flex justify-between items-center'>
-                  <span>{track.id}</span>
-                </div>
-                <div className='text-xs text-gray-500'></div>
-              </div>
-            ))}
-          </div>
+//   )
 
-          <div
-            className='flex-1 relative'
-            style={{
-              width: `${10000}px`,
-              overflowX: 'auto'
-            }}
-          >
-            <div>
-  {trackRows.map(track => {
-    const isSelected = trackStore.selectedRowId === track.id;
+const timelineRef = useRef<HTMLDivElement>(null);
+const trackContainerRef = useRef<HTMLDivElement>(null);
 
-    return (
-      <div
-        ref={rowRef}
-        key={track.id}
-        className={`border-t border-gray-300 relative cursor-pointer ${
-          isSelected ? 'bg-blue-200' : ''
-        }`}
-        style={{
-          height: `${70}px`,
-          width: `${1000 * 10}px`
-        }}
-        onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
-        onDragOver={handleDragOver}
-        onDrop={e => handleDrop(e, track.id)}
-      >
-        {itemStore
-          .filter(item => item.inRowId === track.id)
-          .map(item => (
+const syncScroll = () => {
+  if (timelineRef.current && trackContainerRef.current) {
+    timelineRef.current.scrollLeft = trackContainerRef.current.scrollLeft;
+  }
+};
+
+return (
+ 
+  <div className="bg-white rounded-sm border border-gray-300 w-full h-full relative">
+    <div className="absolute top-0 left-0 w-full bg-white z-10 p-2 flex gap-2 border-b border-gray-300 overflow-hidden">
+      <button className="font-bold" onClick={addTrackRows}>
+        Tracks
+      </button>
+      <button onClick={() => setZoom(zoom + 0.1)}>
+        Zoom In
+      </button>
+      <button onClick={() => setZoom(zoom - 0.1)}>
+        Zoom Out
+      </button>
+    </div>
+
+    {/* Timeline ruler - Scrollable only in X direction */}
+   
+    <div ref={timelineRef} className=" w-full pt-12 ">
+   
+      <TimeLine duration={1000} zoom={zoom} />
+    </div>
+
+    {/* Tracks container - Scrollable in both X and Y */}
+    <div
+      ref={trackContainerRef}
+      className="overflow-auto w-full h-full"
+      onScroll={syncScroll}
+    >
+      <div className="min-w-max">
+        {trackRows.map((track) => {
+          const isSelected = trackStore.selectedRowId === track.id;
+          return (
             <div
-              key={item.id}
-              draggable
-              style={{
-                position: 'absolute',
-                left: `${item.startTime * 10}px`,
-                top: '4px',
-                width: `${item.duration * 10}px`,
-                height: `${60}px`
-              }}
-              onDragStart={e => handleTimeLineDragStart(e, item)}
-              onDragEnd={handleDragEnd}
-              className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
-            ></div>
-          ))}
+            ref={rowRef}
+              key={track.id}
+              className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""}`}
+              style={{ height: `50px`, width: `${1000 * 10}px` }}
+              onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
+              onDragOver={handleDragOver}
+              onDrop={(e) => handleDrop(e, track.id)}
+            >
+              {itemStore
+                .filter((item) => item.inRowId === track.id)
+                .map((item) => (
+                  <div
+                    key={item.id}
+                    draggable
+                    style={{
+                      position: "absolute",
+                      left: `${item.startTime * 10}px`,
+                      top: "4px",
+                      width: `${item.duration * 10}px`,
+                      height: `38px`,
+                    }}
+                    onDragStart={(e) => handleTimeLineDragStart(e, item)}
+                    onDragEnd={handleDragEnd}
+                    className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
+                  ></div>
+                ))}
+            </div>
+          );
+        })}
       </div>
-    );
-  })}
-</div>
-            {/* <div>
-              {trackRows.map(track => (
-                <div
-                  ref={rowRef}
-                  key={track.id}
-                  className={`border-t border-gray-300 relative `}
-                  style={{
-                    height: `${100}px`,
-                    width: `${1000 * 10}px`
-                  }}
-                  onDragOver={handleDragOver}
-                  onDrop={e => handleDrop(e, track.id)}
-                >
-                  {itemStore
-                    .filter(item => item.inRowId === track.id)
-                    .map(item => (
-                      <div
-                        key={item.id}
-                        draggable
-                        style={{
-                          position: 'absolute',
-                          left: `${item.startTime * 10}px`,
-                          top: '4px',
-                          width: `${item.duration * 10}px`,
-                          height: `${60}px`
-                        }}
-                        onDragStart={e => handleTimeLineDragStart(e, item)}
-                        onDragEnd={handleDragEnd}
-                        className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
-                      ></div>
-                    ))}
-                </div>
-              ))}
-            </div> */}
-          </div>
-        </div>
-      </div>
-    </>
-  )
+    </div>
+  </div>
+);
 }
 export default DraggableTrack

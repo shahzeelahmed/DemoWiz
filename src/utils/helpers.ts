@@ -1,7 +1,5 @@
 import { nanoid } from 'nanoid'
 import { DrawConfig } from '../types/types'
-
-
 export function formatTime (time: number): {
   s: number
   m: number
@@ -34,34 +32,113 @@ export const DEFAULT_DRAW_CONFIG: DrawConfig = {
   textColor: '#71717a',
   lineWidth: 1
 }
-export const formatHourTime = (tick: number) => {
-  const totalMinutes = tick;
-  const hours = Math.floor(totalMinutes / 60);
-  const minutes = totalMinutes % 60;
-  return `${hours}h:${minutes.toString().padStart(2, '0')}`;
-};
+// export const formatHourTime = (tick: number) => {
+//   const totalMinutes = tick;
+//   const hours = Math.floor(totalMinutes / 60);
+//   const minutes = totalMinutes % 60;
+//   return `${hours}h:${minutes.toString().padStart(2, '0')}`;
+// };
 
-
-export const formatMinuteTime = (tick: number) => {
-  const totalSeconds = Math.floor(tick * 6);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}m:${seconds.toString().padStart(2, '0')}`;
-};
-
-// Format time for seconds display (M:SS)
-export const formatSecondTime = (tick: number) => {
-  // Each tick represents 0.1 seconds
-  const seconds = Math.floor(tick / 10);
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString()}s`;
-};
-export async function loadFile(accept: Record<string, string[]>) {
-  const [fileHandle] = await window.showOpenFilePicker({
-    types: [{ accept }],
-  });
-  return (await fileHandle.getFile()) as File;
+// export const formatMinuteTime = (tick: number) => {
+//   const totalSeconds = Math.floor(tick * 6);
+//   const minutes = Math.floor(totalSeconds / 60);
+//   const seconds = totalSeconds % 60;
+//   return `${minutes}m:${seconds.toString().padStart(2, '0')}`;
+// };
+export const formatHourTime = (tick: number): string => {
+  const minutes = tick
+  const hours = Math.floor(minutes / 60)
+  const remainingMinutes = minutes % 60
+  return `${hours}h:${remainingMinutes.toString().padStart(2, '0')}m`
 }
 
-export const generateId = () => nanoid(5);
+export const formatMinuteTime = (tick: number): string => {
+  const seconds = tick
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}m:${remainingSeconds.toString().padStart(2, '0')}s`
+}
+
+// Format time for seconds display (M:SS)
+// export const formatSecondTime = (tick: number) => {
+//   // Each tick represents 0.1 seconds
+//   const seconds = Math.floor(tick / 10);
+//   const minutes = Math.floor(seconds / 60);
+//   const remainingSeconds = seconds % 60;
+//   return `${minutes}:${remainingSeconds.toString()}s`;
+// };
+export const formatSecondTime = (tick: number): string => {
+  const seconds = tick // tick now represents one second
+  const minutes = Math.floor(seconds / 60)
+  const remainingSeconds = seconds % 60
+  return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
+export async function loadFile (accept: Record<string, string[]>) {
+  const [fileHandle] = await window.showOpenFilePicker({
+    types: [{ accept }]
+  })
+  return (await fileHandle.getFile()) as File
+}
+
+export const generateId = () => nanoid(5)
+export const getPlayheadSpeed = (zoom: number): number => {
+  const mapping: { [key: number]: { timeInSec: number; pixels: number } } = {
+    1.0: { timeInSec: 5, pixels: 50 },
+    0.9: { timeInSec: 5, pixels: 45 },
+    0.8: { timeInSec: 5, pixels: 40 },
+    0.7: { timeInSec: 10, pixels: 70 },
+    0.6: { timeInSec: 10, pixels: 60 },
+    0.5: { timeInSec: 10, pixels: 50 },
+    0.4: { timeInSec: 3600, pixels: 240 },
+    0.3: { timeInSec: 3840, pixels: 180 }
+  }
+  const key = Math.round(zoom * 10) / 10
+  if (mapping[key] !== undefined) {
+    const { timeInSec, pixels } = mapping[key]
+    return pixels / timeInSec
+  }
+  return 10
+}
+export const getSecondsPerPixel = (zoom: number): number => {
+  const mapping: { [key: number]: { timeInSec: number; pixels: number } } = {
+    1.0: { timeInSec: 5, pixels: 50 },
+    0.9: { timeInSec: 5, pixels: 45 },
+    0.8: { timeInSec: 5, pixels: 40 },
+    0.7: { timeInSec: 10, pixels: 70 },
+    0.6: { timeInSec: 10, pixels: 60 },
+    0.5: { timeInSec: 10, pixels: 50 },
+    0.4: { timeInSec: 3600, pixels: 240 },
+    0.3: { timeInSec: 3840, pixels: 180 }
+  }
+
+  const key = Math.round(zoom * 10) / 10
+
+  if (mapping[key] !== undefined) {
+    const { timeInSec, pixels } = mapping[key]
+    return timeInSec / pixels
+  }
+  return 0.1
+}
+export const convertPixelsToSeconds = (
+  zoom: number,
+  pixels: number
+): number => {
+  const mapping: { [key: number]: { timeSec: number; pixels: number } } = {
+    1.0: { timeSec: 5, pixels: 50 },
+    0.9: { timeSec: 5, pixels: 45 },
+    0.8: { timeSec: 5, pixels: 40 },
+    0.7: { timeSec: 10, pixels: 70 },
+    0.6: { timeSec: 10, pixels: 60 },
+    0.5: { timeSec: 10, pixels: 50 },
+    0.4: { timeSec: 3600, pixels: 240 },
+    0.3: { timeSec: 3840, pixels: 180 }
+  }
+  const key = Math.round(zoom * 10) / 10
+
+  if (mapping[key] !== undefined) {
+    const { timeSec, pixels: mappedPixels } = mapping[key]
+    const secondsPerPixel = timeSec / mappedPixels
+    return pixels * secondsPerPixel
+  }
+  return pixels * 0.1
+}
