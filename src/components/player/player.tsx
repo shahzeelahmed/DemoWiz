@@ -4,11 +4,12 @@ import usePlayerStore from '../../store/playerStore'
 import { AVCanvas } from '@webav/av-canvas'
 import React from 'react'
 import { useTrackStateStore } from '../../store/trackStore'
-import { TrackItemType, TrackType } from '../../types/trackType'
+import { TrackItemType, TrackType, VideoTrack } from '../../types/trackType'
 import { TrackRowList } from '../../types/trackRowTypes'
 import { loadFile } from '../../utils/helpers'
 import { nanoid } from 'nanoid'
 import { Button } from '../ui/button'
+import { randInt } from 'three/src/math/MathUtils.js'
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -68,23 +69,45 @@ const addVideoSprite = async () =>{
     const clip = new MP4Clip(stream)
     const spr = new VisibleSprite(clip)
     const {duration} = await clip.ready
-    const itemToAdd = {
-        id: nanoid(5),
-        name: 'track',
-        startTime: time,
-        endTime: time + duration / 1e6,
-        duration: duration / 1e6,
+    const trackId = nanoid(5)
+    const rowId = nanoid(5)
+
+    const newTrack: VideoTrack[] = [
+      {
+        id: trackId,
+        name: 'track:' + `${trackId}`,
+        index: 0,
         type: 'VIDEO',
-        
-    } as TrackItemType
-   
+        isVisible: true,
+        isMuted: false,
+        duration: duration / 1e6,
+        height: 720,
+        width: 1280,
+        color: '#3498db',
+        startTime: currentTime ,
+        endTime: currentTime + duration,
+        inRowId: rowId,
+        atTime: 0,
+        volume: 1,
+        fps: 30
+      }
+    ]
+
+    
+    trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
+    trackStore.addTrack(newTrack)
 
     console.log('duration',duration/1e6)
-    spriteMap.current.set(itemToAdd.id, spr)
     console.log('sprites count', totalSprites)
-    
+
+    spr.rect.fixedScaleCenter = true
+    spr.rect.fixedAspectRatio = true
     avCanvas!.addSprite(spr)
 }
+//[todo] implement on z-index change and sprite position changer
+useEffect(()=>{
+
+})
   useEffect(() => {
     if (cvsWrapEl == null) return
     avCanvas?.destroy()
@@ -126,7 +149,12 @@ const addVideoSprite = async () =>{
       cvs.destroy()
     }
   }, [cvsWrapEl])
-
+useEffect(()=>{
+    if(isPaused === false) return;
+    if(isPaused){
+        avCanvas?.previewFrame(currentTime * 1e6)
+    }
+},[isPaused,currentTime])
   const activeSPrite = (item: TrackItemType | null) => {
     if(avCanvas==null)return;
     if (!item) return avCanvas.activeSprite = null

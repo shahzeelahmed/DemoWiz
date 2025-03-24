@@ -121,6 +121,15 @@ export default function App () {
 
 
 
+  function setZoom(arg0: number): void {
+    throw new Error('Function not implemented.')
+  }
+
+  function addTrackRows(event): void {
+    throw new Error('Function not implemented.')
+  }
+  const zoom = 0;
+
   return (
     <div className='flex h-screen  '>
     
@@ -130,54 +139,16 @@ export default function App () {
     <Player />
  
   
-    
-      {/* <Button
-        className='mx-[10px]'
-        onClick={async () => {
-          const stream = (
-            await loadFile({ 'video/*': ['.mp4', '.mov'] })
-          ).stream()
-          setClip(stream)
-          const targetClip = new MP4Clip(stream)
-       
-          const spr = new VisibleSprite(new MP4Clip(stream, {}))
-    
-          const motion = createZoomBlurShader(
-            {
-              zoomCoords: [1,1],
-              zoomDepth: 4.0
-            }
-          )
-          targetClip.tickInterceptor = async (_, tickRet) => {
-            if (tickRet.video == null) return tickRet
-            return {
-              ...tickRet,
-              video: await motion(tickRet.video)
-            }
-          }
-          const targetSpr = new VisibleSprite(targetClip)
-          await targetSpr.ready
-          await avCanvas?.addSprite(targetSpr)
-        }}
-      >
-        + Add Video
-      </Button>
+  
+  <div className=" w-full h-full ">
 
-      <Button
-        onClick={async () => {
-          if (avCanvas == null) return
-          if (playing) {
-            avCanvas.pause()
-          } else {
-            avCanvas.play({ start: time * 1e6 })
-          }
-          avCanvas
-        }}
-      >
-        {playing ? 'pause' : 'play'}
-      </Button> */}
-  <div className="relative w-full h-full overflow-auto">
+    
+      <div className='ml-2 z-10 absolute '>
+      
+      </div>
+      <div className='w-full h-full  '>
                 <DraggableTrack />
+                </div>
             </div>
       </div>
     </div>

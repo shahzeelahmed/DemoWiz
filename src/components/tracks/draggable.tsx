@@ -472,69 +472,51 @@ const syncScroll = () => {
 
 return (
  
-  <div className="bg-white rounded-sm border border-gray-300 w-full h-full relative">
-    <div className="absolute top-0 left-0 w-full bg-white z-10 p-2 flex gap-2 border-b border-gray-300 overflow-hidden">
-      <button className="font-bold" onClick={addTrackRows}>
-        Tracks
-      </button>
-      <button onClick={() => setZoom(zoom + 0.1)}>
-        Zoom In
-      </button>
-      <button onClick={() => setZoom(zoom - 0.1)}>
-        Zoom Out
-      </button>
-    </div>
+  <div className="bg-white rounded-sm border border-gray-600 w-full h-full flex flex-col">
+    
+      <div className='flex-1 overflow-x-scroll overflow-y-auto flex-col shrink-0 grow relative'>
+    <TimeLine duration={100}/>
 
-    {/* Timeline ruler - Scrollable only in X direction */}
-   
-    <div ref={timelineRef} className=" w-full pt-12 ">
-   
-      <TimeLine duration={1000} zoom={zoom} />
-    </div>
 
-    {/* Tracks container - Scrollable in both X and Y */}
-    <div
-      ref={trackContainerRef}
-      className="overflow-auto w-full h-full"
-      onScroll={syncScroll}
-    >
-      <div className="min-w-max">
-        {trackRows.map((track) => {
-          const isSelected = trackStore.selectedRowId === track.id;
-          return (
-            <div
+  <div className="flex-1">
+    <div className="min-w-max">
+      {trackRows.map((track) => {
+        const isSelected = trackStore.selectedRowId === track.id;
+        return (
+          <div
             ref={rowRef}
-              key={track.id}
-              className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""}`}
-              style={{ height: `50px`, width: `${1000 * 10}px` }}
-              onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, track.id)}
-            >
-              {itemStore
-                .filter((item) => item.inRowId === track.id)
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    draggable
-                    style={{
-                      position: "absolute",
-                      left: `${item.startTime * 10}px`,
-                      top: "4px",
-                      width: `${item.duration * 10}px`,
-                      height: `38px`,
-                    }}
-                    onDragStart={(e) => handleTimeLineDragStart(e, item)}
-                    onDragEnd={handleDragEnd}
-                    className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
-                  ></div>
-                ))}
-            </div>
-          );
-        })}
-      </div>
+            key={track.id}
+            className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""}`}
+            style={{ height: `50px`, width: `${1000 * 10}px` }}
+            onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, track.id)}
+          >
+            {itemStore
+              .filter((item) => item.inRowId === track.id)
+              .map((item) => (
+                <div
+                  key={item.id}
+                  draggable
+                  style={{
+                    position: "absolute",
+                    left: `${item.startTime * 10}px`,
+                    top: "4px",
+                    width: `${item.duration * 10}px`,
+                    height: `38px`,
+                  }}
+                  onDragStart={(e) => handleTimeLineDragStart(e, item)}
+                  onDragEnd={handleDragEnd}
+                  className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
+                ></div>
+              ))}
+          </div>
+        );
+      })}
+    </div>
     </div>
   </div>
+</div>
 );
 }
 export default DraggableTrack

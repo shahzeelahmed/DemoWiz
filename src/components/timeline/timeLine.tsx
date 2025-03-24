@@ -49,9 +49,18 @@ const TimeLine: React.FC<TimeLineProps> = ({
         largeTickInterval: 20,
         timeFormatter: formatMinuteTime
       }
-    } else {
+     } 
+    //else {
+    //   return {
+    //     ticksPerSecond: 10,
+    //     smallTickInterval: 1,
+    //     largeTickInterval: 5,
+    //     timeFormatter: formatSecondTime
+    //   }
+    // }
+    else {
       return {
-        ticksPerSecond: 10,
+        ticksPerSecond: 1/6,
         smallTickInterval: 1,
         largeTickInterval: 5,
         timeFormatter: formatSecondTime
@@ -301,7 +310,7 @@ console.log(zoom)
   }, [handleDragPlayhead, stopDragPlayhead])
 
   return (
-    <div className='time-ruler relative'>
+    <div className='time-ruler  sticky'>
       <div className='absolute top-0 left-0 w-full h-full'>
         
       </div>

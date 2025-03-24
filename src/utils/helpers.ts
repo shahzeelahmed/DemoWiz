@@ -68,7 +68,8 @@ export const formatMinuteTime = (tick: number): string => {
 //   return `${minutes}:${remainingSeconds.toString()}s`;
 // };
 export const formatSecondTime = (tick: number): string => {
-  const seconds = tick // tick now represents one second
+  //tick is in seconds [tick = 1s]
+  const seconds = tick 
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`

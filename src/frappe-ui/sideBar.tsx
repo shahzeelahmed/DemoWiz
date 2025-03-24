@@ -38,7 +38,7 @@ const SideBar = () => {
           }`}
           onClick={() => setSelected('gallery')}
         >
-          <img src={galleryIcon} alt='Gallery' />
+          <img src={galleryIcon} alt='Gallery' height={30} width={30} />
         </button>
         <button
           className={`p-1 rounded-md ${

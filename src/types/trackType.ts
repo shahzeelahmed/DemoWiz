@@ -30,16 +30,16 @@ export interface BaseTrack {
   color?: string;
   startTime: number;
   endTime: number;
-  inRowId: string;
+  inRowId?: string;
   atTime?: number;
 }
 
 export interface PositionableTrack {
-  position: {
+  position?: {
     x: number;
     y: number;
   };
-  transform: {
+  transform?: {
     scaleX: number;
     scaleY: number;
     rotation: number;
@@ -47,8 +47,8 @@ export interface PositionableTrack {
 }
 
 export interface MediaTrack extends BaseTrack {
-  format: string;
-  frameCount: number;
+  format?: string;
+  frameCount?: number;
 }
 
 export interface VideoTrack extends MediaTrack, PositionableTrack {
@@ -56,7 +56,7 @@ export interface VideoTrack extends MediaTrack, PositionableTrack {
   height: number;
   width: number;
   volume: number;
-  fps: number;
+  fps?: number;
 }
 
 export interface AudioTrack extends MediaTrack {
