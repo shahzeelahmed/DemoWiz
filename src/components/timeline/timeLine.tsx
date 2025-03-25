@@ -313,8 +313,10 @@ console.log(zoom)
     <div className='time-ruler  sticky'>
       <div className='absolute top-0 left-0 w-full h-full'>
         
+      </div >
+    <div className='z-30'>
+      <PlayheadNew  />
       </div>
-      <PlayheadNew />
       <div
         className='ticks-container ml-[4px]'
         ref={rulerContainerRef}

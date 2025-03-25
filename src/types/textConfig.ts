@@ -1,0 +1,42 @@
+export interface TextConfig {
+    content: string;
+    fontSize: number;
+    fontFamily: string;
+    fontStyle: "normal" | "italic" | "oblique";
+    textDecoration: "none" | "underline" | "line-through" | "overline";
+    fontWeight: number;
+    bold: boolean;
+    italic: boolean;
+    color: string;
+    animationSpeed: number;
+    verticalAlign: "top" | "middle" | "bottom";
+    bgColor: string;
+    opacity: number;
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    lineSpacing: number;
+    letterSpacing: number;
+    align: "left" | "center" | "right";
+    backgroundColor: string;
+    backgroundOpacity: number;
+    borderColor: string;
+    borderWidth: number;
+    borderRadius: number;
+    padding: number;
+    margin: number;
+    showShadow: boolean;
+    shadowColor: string;
+    shadowBlur: number;
+    shadowOffsetX: number;
+    shadowOffsetY: number;
+    shadowOpacity: number;
+    showStroke: boolean;
+    strokeColor: string;
+    strokeWidth: number;
+    strokeOpacity: number;
+    strokeDasharray: number[];
+    strokeDashoffset: number;
+  }
+  

@@ -1,4 +1,322 @@
-// adapted from [WebAv/av-cliper/chromakey.ts] 
+// adapted from [WebAv/av-cliper/chromakey.ts] \
+
+
+// const vertexShaderSource = `
+//   attribute vec2 position;
+//   varying vec2 vUv;
+//   void main() {
+//     vUv = vec2(0.5 * (position.x + 1.0), 0.5 * (1.0 - position.y));
+//     gl_Position = vec4(position, 0.0, 1.0);
+//   }
+// `
+
+// const fragmentShaderSource = `
+//   precision highp float;
+//   varying vec2 vUv;
+//   uniform vec2 resolution;
+//   uniform float time;
+//   uniform vec2 zoomCoords;
+//   uniform sampler2D inputTexture;
+//   const float ZOOM_DURATION = 0.8;
+//   const float HOLD_DURATION = 2.0;
+//   const float MAX_ZOOM = 3.0;
+//   const float MOTION_BLUR_STRENGTH = 5.0;
+//   const int MOTION_BLUR_SAMPLES = 100;
+  
+//   float easeInOutSine(float t) {
+//     float eased = 0.5 * (1.0 - cos(3.141592653589793 * pow(t, 0.95)));
+//     return eased + (sin(t * 3.141592653589793) * 0.02 * (1.0 - t));
+//   }
+  
+//   void getZoomParams(float animTime, out float zoomLevel, out vec2 focalPoint) {
+//     float totalDuration = ZOOM_DURATION * 2.0 + HOLD_DURATION;
+//     float cyclicTime = mod(animTime, totalDuration);
+//     if (cyclicTime < ZOOM_DURATION) {
+//       float t = cyclicTime / ZOOM_DURATION;
+//       zoomLevel = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       focalPoint = zoomCoords;
+//     } else if (cyclicTime < ZOOM_DURATION + HOLD_DURATION) {
+//       zoomLevel = MAX_ZOOM;
+//       focalPoint = zoomCoords;
+//     } else {
+//       float t = (cyclicTime - ZOOM_DURATION - HOLD_DURATION) / ZOOM_DURATION;
+//       zoomLevel = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       focalPoint = zoomCoords;
+//     }
+//   }
+  
+//   vec4 sampleWithMotionBlur(vec2 uv, float animTime) {
+//     float totalDuration = ZOOM_DURATION * 2.0 + HOLD_DURATION;
+//     float cyclicTime = mod(animTime, totalDuration);
+//     bool isZooming = cyclicTime < ZOOM_DURATION || cyclicTime > ZOOM_DURATION + HOLD_DURATION;
+//     if (!isZooming) {
+//       return texture2D(inputTexture, uv);
+//     }
+//     float zoomSpeed;
+//     if (cyclicTime < ZOOM_DURATION) {
+//       float t = cyclicTime / ZOOM_DURATION;
+//       float dt = 0.01;
+//       float z1 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       float z2 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//       zoomSpeed = (z2 - z1) / dt;
+//     } else {
+//       float t = (cyclicTime - ZOOM_DURATION - HOLD_DURATION) / ZOOM_DURATION;
+//       float dt = 0.01;
+//       float z1 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       float z2 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//       zoomSpeed = (z2 - z1) / dt;
+//     }
+//     vec4 color = vec4(0.0);
+//     float blurAmount = abs(zoomSpeed) * MOTION_BLUR_STRENGTH / float(MOTION_BLUR_SAMPLES);
+//     for (int i = 0; i < MOTION_BLUR_SAMPLES; i++) {
+//       float t = float(i) / float(MOTION_BLUR_SAMPLES - 1);
+//       float zoomFactor = 1.0 + (zoomSpeed * blurAmount * (t - 0.5));
+//       vec2 offsetUV = zoomCoords + (uv - zoomCoords) * zoomFactor;
+//       color += texture2D(inputTexture, offsetUV);
+//     }
+//     return color / float(MOTION_BLUR_SAMPLES);
+//   }
+  
+//   void main() {
+//     vec2 uv = vUv;
+//     float zoomLevel;
+//     vec2 focalPoint;
+//     getZoomParams(time, zoomLevel, focalPoint);
+//     vec2 zoomedUV = focalPoint + (uv - focalPoint) / zoomLevel;
+//     vec4 color = sampleWithMotionBlur(zoomedUV, time);
+//     gl_FragColor = color;
+//   }
+//`
+// const vertexShaderSource = `
+//   attribute vec2 position;
+//   varying vec2 vUv;
+//   void main() {
+//     vUv = vec2(0.5 * (position.x + 1.0), 0.5 * (1.0 - position.y));
+//     gl_Position = vec4(position, 0.0, 1.0);
+//   }
+// `;
+
+// const fragmentShaderSource = `
+//   precision highp float;
+//   varying vec2 vUv;
+//   uniform vec2 resolution;
+//   uniform float time;
+//   uniform float startTime; 
+//   uniform float holdDuration; 
+//   uniform vec2 zoomCoords;
+//   uniform sampler2D inputTexture;
+
+//   const float ZOOM_DURATION = 0.8;
+//   const float MAX_ZOOM = 3.0;
+//   const float MOTION_BLUR_STRENGTH = 5.0;
+//   const int MOTION_BLUR_SAMPLES = 100;
+
+//   float easeInOutSine(float t) {
+//     return 0.5 * (1.0 - cos(3.141592653589793 * pow(t, 0.95))) + (sin(t * 3.141592653589793) * 0.02 * (1.0 - t));
+//   }
+
+//   void getZoomParams(float animTime, out float zoomLevel, out vec2 focalPoint) {
+//     float startTimeSec = startTime / 1000.0; // Convert ms to seconds
+//     if (animTime < startTimeSec) {
+//       zoomLevel = 1.0;
+//       focalPoint = vec2(0.5, 0.5);
+//       return;
+//     }
+
+//     float adjustedTime = animTime - startTimeSec;
+//     float holdDurationSec = holdDuration / 1000.0;
+//     float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+//     float cyclicTime = mod(adjustedTime, totalDuration);
+
+//     if (cyclicTime < ZOOM_DURATION) {
+//       float t = cyclicTime / ZOOM_DURATION;
+//       zoomLevel = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       focalPoint = zoomCoords;
+//     } else if (cyclicTime < ZOOM_DURATION + holdDurationSec) {
+//       zoomLevel = MAX_ZOOM;
+//       focalPoint = zoomCoords;
+//     } else {
+//       float t = (cyclicTime - ZOOM_DURATION - holdDurationSec) / ZOOM_DURATION;
+//       zoomLevel = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       focalPoint = zoomCoords;
+//     }
+//   }
+
+//   vec4 sampleWithMotionBlur(vec2 uv, float animTime) {
+//     float startTimeSec = startTime / 1000.0; // Convert ms to seconds
+//     if (animTime < startTimeSec) {
+//       return texture2D(inputTexture, uv);
+//     }
+
+//     float adjustedTime = animTime - startTimeSec;
+//     float totalDuration = ZOOM_DURATION * 2.0 + holdDuration;
+//     float cyclicTime = mod(adjustedTime, totalDuration);
+//     bool isZooming = cyclicTime < ZOOM_DURATION || cyclicTime > ZOOM_DURATION + holdDuration;
+
+//     if (!isZooming) {
+//       return texture2D(inputTexture, uv);
+//     }
+
+//     float zoomSpeed;
+//     if (cyclicTime < ZOOM_DURATION) {
+//       float t = cyclicTime / ZOOM_DURATION;
+//       float dt = 0.01;
+//       float z1 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       float z2 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//       zoomSpeed = (z2 - z1) / dt;
+//     } else {
+//       float t = (cyclicTime - ZOOM_DURATION - holdDuration) / ZOOM_DURATION;
+//       float dt = 0.01;
+//       float z1 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//       float z2 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//       zoomSpeed = (z2 - z1) / dt;
+//     }
+
+//     vec4 color = vec4(0.0);
+//     float blurAmount = abs(zoomSpeed) * MOTION_BLUR_STRENGTH / float(MOTION_BLUR_SAMPLES);
+
+//     for (int i = 0; i < MOTION_BLUR_SAMPLES; i++) {
+//       float t = float(i) / float(MOTION_BLUR_SAMPLES - 1);
+//       float zoomFactor = 1.0 + (zoomSpeed * blurAmount * (t - 0.5));
+//       vec2 offsetUV = zoomCoords + (uv - zoomCoords) * zoomFactor;
+//       color += texture2D(inputTexture, offsetUV);
+//     }
+
+//     return color / float(MOTION_BLUR_SAMPLES);
+//   }
+
+//   void main() {
+//     vec2 uv = vUv;
+//     float zoomLevel;
+//     vec2 focalPoint;
+//     getZoomParams(time, zoomLevel, focalPoint);
+//     vec2 zoomedUV = focalPoint + (uv - focalPoint) / zoomLevel;
+//     vec4 color = sampleWithMotionBlur(zoomedUV, time);
+//     gl_FragColor = color;
+//   }
+// `;
+
+
+// const vertexShaderSource = `
+//  attribute vec2 position;
+//  varying vec2 vUv;
+//  void main() {
+//   vUv = vec2(0.5 * (position.x + 1.0), 0.5 * (1.0 - position.y));
+//   gl_Position = vec4(position, 0.0, 1.0);
+//  }
+// `;
+
+// const fragmentShaderSource = `
+//  precision highp float;
+//  varying vec2 vUv;
+//  uniform vec2 resolution;
+//  uniform float time;
+//  uniform float startTime;
+//  uniform float holdDuration;
+//  uniform vec2 zoomCoords;
+//  uniform sampler2D inputTexture;
+
+//  const float ZOOM_DURATION = 0.8;
+//  const float MAX_ZOOM = 3.0;
+//  const float MOTION_BLUR_STRENGTH = 5.0;
+//  const int MOTION_BLUR_SAMPLES = 100;
+
+//  float easeInOutSine(float t) {
+//   return 0.5 * (1.0 - cos(3.141592653589793 * pow(t, 0.95))) + (sin(t * 3.141592653589793) * 0.02 * (1.0 - t));
+//  }
+
+//  void getZoomParams(float animTime, out float zoomLevel, out vec2 focalPoint) {
+//   float startTimeSec = startTime / 1000.0; // Convert ms to seconds
+//   if (animTime < startTimeSec) {
+//    zoomLevel = 1.0;
+//    focalPoint = vec2(0.5, 0.5);
+//    return;
+//   }
+
+//   float adjustedTime = animTime - startTimeSec;
+//   float holdDurationSec = holdDuration / 1000.0;
+//   float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+//   float cyclicTime = mod(adjustedTime, totalDuration);
+
+//   if (cyclicTime < ZOOM_DURATION) {
+//    float t = cyclicTime / ZOOM_DURATION;
+//    zoomLevel = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//    focalPoint = zoomCoords;
+//   } else if (cyclicTime < ZOOM_DURATION + holdDurationSec) {
+//    zoomLevel = MAX_ZOOM;
+//    focalPoint = zoomCoords;
+//   } else {
+//    float t = (cyclicTime - ZOOM_DURATION - holdDurationSec) / ZOOM_DURATION;
+//    zoomLevel = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//    focalPoint = zoomCoords;
+//   }
+//  }
+
+//  vec4 sampleWithMotionBlur(vec2 uv, float animTime) {
+//   float startTimeSec = startTime / 1000.0; // Convert ms to seconds
+//   if (animTime < startTimeSec) {
+//    return texture2D(inputTexture, uv);
+//   }
+
+//   float adjustedTime = animTime - startTimeSec;
+//   float holdDurationSec = holdDuration / 1000.0;
+//   float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+//   float cyclicTime = mod(adjustedTime, totalDuration);
+//   bool isZooming = cyclicTime < ZOOM_DURATION || cyclicTime > ZOOM_DURATION + holdDurationSec;
+
+//   if (!isZooming) {
+//    return texture2D(inputTexture, uv);
+//   }
+
+//   float zoomSpeed;
+//   if (cyclicTime < ZOOM_DURATION) {
+//    float t = cyclicTime / ZOOM_DURATION;
+//    float dt = 0.01;
+//    float z1 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//    float z2 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//    zoomSpeed = (z2 - z1) / dt;
+//   } else {
+//    float t = (cyclicTime - ZOOM_DURATION - holdDurationSec) / ZOOM_DURATION;
+//    float dt = 0.01;
+//    float z1 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
+//    float z2 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
+//    zoomSpeed = (z2 - z1) / dt;
+//   }
+
+//   vec4 color = vec4(0.0);
+//   float blurAmount = abs(zoomSpeed) * MOTION_BLUR_STRENGTH / float(MOTION_BLUR_SAMPLES);
+
+//   for (int i = 0; i < MOTION_BLUR_SAMPLES; i++) {
+//    float t = float(i) / float(MOTION_BLUR_SAMPLES - 1);
+//    float zoomFactor = 1.0 + (zoomSpeed * blurAmount * (t - 0.5));
+//    vec2 offsetUV = zoomCoords + (uv - zoomCoords) * zoomFactor;
+//    color += texture2D(inputTexture, offsetUV);
+//   }
+
+//   return color / float(MOTION_BLUR_SAMPLES);
+//  }
+
+//  void main() {
+//   float startTimeSec = startTime / 1000.0;
+//   float holdDurationSec = holdDuration / 1000.0;
+//   float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+
+//   if (time < startTimeSec || time >= startTimeSec + totalDuration)
+
+//     {
+//    gl_FragColor = texture2D(inputTexture, vUv);
+//    return;
+//   }
+
+//   vec2 uv = vUv;
+//   float zoomLevel;
+//   vec2 focalPoint;
+//   getZoomParams(time, zoomLevel, focalPoint);
+//   vec2 zoomedUV = focalPoint + (uv - focalPoint) / zoomLevel;
+//   vec4 color = sampleWithMotionBlur(zoomedUV, time);
+//  gl_FragColor = color;
+//  }
+// `;
 const vertexShaderSource = `
   attribute vec2 position;
   varying vec2 vUv;
@@ -6,64 +324,93 @@ const vertexShaderSource = `
     vUv = vec2(0.5 * (position.x + 1.0), 0.5 * (1.0 - position.y));
     gl_Position = vec4(position, 0.0, 1.0);
   }
-`
+`;
 
 const fragmentShaderSource = `
   precision highp float;
   varying vec2 vUv;
   uniform vec2 resolution;
   uniform float time;
+  uniform float startTime;   
+  uniform float holdDuration; 
   uniform vec2 zoomCoords;
   uniform sampler2D inputTexture;
+  
   const float ZOOM_DURATION = 0.8;
-  const float HOLD_DURATION = 2.0;
   const float MAX_ZOOM = 3.0;
   const float MOTION_BLUR_STRENGTH = 5.0;
   const int MOTION_BLUR_SAMPLES = 100;
+
   
   float easeInOutSine(float t) {
-    float eased = 0.5 * (1.0 - cos(3.141592653589793 * pow(t, 0.95)));
-    return eased + (sin(t * 3.141592653589793) * 0.02 * (1.0 - t));
+    return 0.5 * (1.0 - cos(3.141592653589793 * pow(t, 0.95)))
+           + (sin(t * 3.141592653589793) * 0.02 * (1.0 - t));
   }
-  
   void getZoomParams(float animTime, out float zoomLevel, out vec2 focalPoint) {
-    float totalDuration = ZOOM_DURATION * 2.0 + HOLD_DURATION;
-    float cyclicTime = mod(animTime, totalDuration);
-    if (cyclicTime < ZOOM_DURATION) {
-      float t = cyclicTime / ZOOM_DURATION;
+    float startTimeSec = startTime / 1000.0; // convert ms to sec
+    if (animTime < startTimeSec) {
+      zoomLevel = 1.0;
+      focalPoint = vec2(0.5, 0.5);
+      return;
+    }
+    
+    float adjustedTime = animTime - startTimeSec;
+    float holdDurationSec = holdDuration / 1000.0;
+    float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+    
+    if (adjustedTime >= totalDuration) {
+      zoomLevel = 1.0;
+      focalPoint = vec2(0.5, 0.5);
+      return;
+    }
+
+    if (adjustedTime < ZOOM_DURATION) {
+      float t = adjustedTime / ZOOM_DURATION;
       zoomLevel = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
       focalPoint = zoomCoords;
-    } else if (cyclicTime < ZOOM_DURATION + HOLD_DURATION) {
+    } else if (adjustedTime < ZOOM_DURATION + holdDurationSec) {
       zoomLevel = MAX_ZOOM;
       focalPoint = zoomCoords;
     } else {
-      float t = (cyclicTime - ZOOM_DURATION - HOLD_DURATION) / ZOOM_DURATION;
+      float t = (adjustedTime - ZOOM_DURATION - holdDurationSec) / ZOOM_DURATION;
       zoomLevel = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
       focalPoint = zoomCoords;
     }
   }
-  
   vec4 sampleWithMotionBlur(vec2 uv, float animTime) {
-    float totalDuration = ZOOM_DURATION * 2.0 + HOLD_DURATION;
-    float cyclicTime = mod(animTime, totalDuration);
-    bool isZooming = cyclicTime < ZOOM_DURATION || cyclicTime > ZOOM_DURATION + HOLD_DURATION;
+    float startTimeSec = startTime / 1000.0;
+    if (animTime < startTimeSec) {
+      return texture2D(inputTexture, uv);
+    }
+    
+    float adjustedTime = animTime - startTimeSec;
+    float holdDurationSec = holdDuration / 1000.0;
+    float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+    
+    // important: go back to original texture after end of effect
+    if (adjustedTime >= totalDuration) {
+      return texture2D(inputTexture, uv);
+    }
+    bool isZooming = (adjustedTime < ZOOM_DURATION) || (adjustedTime > ZOOM_DURATION + holdDurationSec);
     if (!isZooming) {
       return texture2D(inputTexture, uv);
     }
+    
     float zoomSpeed;
-    if (cyclicTime < ZOOM_DURATION) {
-      float t = cyclicTime / ZOOM_DURATION;
+    if (adjustedTime < ZOOM_DURATION) {
+      float t = adjustedTime / ZOOM_DURATION;
       float dt = 0.01;
       float z1 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t);
       float z2 = 1.0 + (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
       zoomSpeed = (z2 - z1) / dt;
     } else {
-      float t = (cyclicTime - ZOOM_DURATION - HOLD_DURATION) / ZOOM_DURATION;
+      float t = (adjustedTime - ZOOM_DURATION - holdDurationSec) / ZOOM_DURATION;
       float dt = 0.01;
       float z1 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t);
       float z2 = MAX_ZOOM - (MAX_ZOOM - 1.0) * easeInOutSine(t + dt);
       zoomSpeed = (z2 - z1) / dt;
     }
+    
     vec4 color = vec4(0.0);
     float blurAmount = abs(zoomSpeed) * MOTION_BLUR_STRENGTH / float(MOTION_BLUR_SAMPLES);
     for (int i = 0; i < MOTION_BLUR_SAMPLES; i++) {
@@ -74,8 +421,15 @@ const fragmentShaderSource = `
     }
     return color / float(MOTION_BLUR_SAMPLES);
   }
-  
+
   void main() {
+    float startTimeSec = startTime / 1000.0;
+    float holdDurationSec = holdDuration / 1000.0;
+    float totalDuration = ZOOM_DURATION * 2.0 + holdDurationSec;
+    if (time < startTimeSec || time >= startTimeSec + totalDuration) {
+      gl_FragColor = texture2D(inputTexture, vUv);
+      return;
+    }  
     vec2 uv = vUv;
     float zoomLevel;
     vec2 focalPoint;
@@ -84,7 +438,8 @@ const fragmentShaderSource = `
     vec4 color = sampleWithMotionBlur(zoomedUV, time);
     gl_FragColor = color;
   }
-`
+`;
+
 
 const VERTEX_POS = [-1, 1, -1, -1, 1, 1, 1, -1]
 
@@ -187,59 +542,166 @@ type TImgSource =
 interface motionShaderOpts {
   zoomCoords: [number, number]
   zoomDepth: number
+  startTime: number
+  holdDuration: number
 }
 
 
+// export const createZoomBlurShader = (opts: motionShaderOpts) => {
+//   let cvs: HTMLCanvasElement | OffscreenCanvas | null = null
+//   let gl: WebGLRenderingContext | null = null
+//   let texture: WebGLTexture | null = null
+
+//   return async (imgSource: TImgSource) => {
+//     const { width, height } =
+//       imgSource instanceof VideoFrame
+//         ? { width: imgSource.codedWidth, height: imgSource.codedHeight }
+//         : { width: imgSource.width, height: imgSource.height }
+
+//     if (!cvs || !gl || !texture) {
+//       ;({ cvs, gl } = initCanvas({ width, height }))
+//       const shaderProgram = initShaderProgram(
+//         gl,
+//         vertexShaderSource,
+//         fragmentShaderSource
+//       )
+//       gl.useProgram(shaderProgram)
+
+//       gl.uniform2fv(gl.getUniformLocation(shaderProgram, 'resolution'), [
+//         width,
+//         height
+//       ])
+
+//       gl.uniform1f(
+//         gl.getUniformLocation(shaderProgram, 'time'),
+//         performance.now() / 1000
+//       )
+//       gl.uniform1f(
+//         gl.getUniformLocation(shaderProgram, 'MAX_ZOOM'),
+//         opts.zoomDepth
+//       )
+
+//       gl.uniform2fv(
+//         gl.getUniformLocation(shaderProgram, 'zoomCoords'),
+//         opts.zoomCoords
+//       )
+// gl.uniform1f(
+//   gl.getUniformLocation(shaderProgram, 'startTime'),
+//   opts.startTime
+// )
+// gl.uniform1f(
+//   gl.getUniformLocation(shaderProgram, 'holdDuration'),
+//   opts.holdDuration
+// )
+//       gl.uniform1i(gl.getUniformLocation(shaderProgram, 'inputTexture'), 0)
+
+//       const posBuffer = gl.createBuffer()
+//       gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer)
+//       gl.bufferData(
+//         gl.ARRAY_BUFFER,
+//         new Float32Array(VERTEX_POS),
+//         gl.STATIC_DRAW
+//       )
+//       const posAttrib = gl.getAttribLocation(shaderProgram, 'position')
+//       gl.enableVertexAttribArray(posAttrib)
+//       gl.vertexAttribPointer(
+//         posAttrib,
+//         2,
+//         gl.FLOAT,
+//         false,
+//         Float32Array.BYTES_PER_ELEMENT * 2,
+//         0
+//       )
+
+//       texture = initTexture(gl)
+//     } else {
+//       const shaderProgram = gl.getParameter(gl.CURRENT_PROGRAM)
+//       if (shaderProgram) {
+//         gl.uniform1f(
+//           gl.getUniformLocation(shaderProgram, 'time'),
+//           performance.now() / 1000
+//         )
+//       }
+//     }
+
+//     updateTexture(gl, imgSource, texture)
+
+//     if (
+//       globalThis.VideoFrame != null &&
+//       imgSource instanceof globalThis.VideoFrame
+//     ) {
+//       const rs = new VideoFrame(cvs, {
+//         alpha: 'keep',
+//         timestamp: imgSource.timestamp,
+//         duration: imgSource.duration ?? undefined
+//       })
+//       imgSource.close()
+//       return rs
+//     }
+//     return createImageBitmap(cvs, {
+//       imageOrientation: imgSource instanceof ImageBitmap ? 'flipY' : 'none'
+//     })
+//   }
+// }
 export const createZoomBlurShader = (opts: motionShaderOpts) => {
-  let cvs: HTMLCanvasElement | OffscreenCanvas | null = null
-  let gl: WebGLRenderingContext | null = null
-  let texture: WebGLTexture | null = null
+  let cvs: HTMLCanvasElement | OffscreenCanvas | null = null;
+  let gl: WebGLRenderingContext | null = null;
+  let texture: WebGLTexture | null = null;
+  // init shader start time 
+  let shaderStartTime: number = -1; 
 
   return async (imgSource: TImgSource) => {
     const { width, height } =
       imgSource instanceof VideoFrame
         ? { width: imgSource.codedWidth, height: imgSource.codedHeight }
-        : { width: imgSource.width, height: imgSource.height }
+        : { width: imgSource.width, height: imgSource.height };
 
     if (!cvs || !gl || !texture) {
-      ;({ cvs, gl } = initCanvas({ width, height }))
+      ({ cvs, gl } = initCanvas({ width, height }));
       const shaderProgram = initShaderProgram(
         gl,
         vertexShaderSource,
         fragmentShaderSource
-      )
-      gl.useProgram(shaderProgram)
+      );
+      gl.useProgram(shaderProgram);
 
       gl.uniform2fv(gl.getUniformLocation(shaderProgram, 'resolution'), [
         width,
         height
-      ])
+      ]);
 
-      gl.uniform1f(
-        gl.getUniformLocation(shaderProgram, 'time'),
-        performance.now() / 1000
-      )
+     
+      shaderStartTime = performance.now();
+      
+      gl.uniform1f(gl.getUniformLocation(shaderProgram, 'time'), 0);
+
       gl.uniform1f(
         gl.getUniformLocation(shaderProgram, 'MAX_ZOOM'),
         opts.zoomDepth
-      )
-
+      );
       gl.uniform2fv(
         gl.getUniformLocation(shaderProgram, 'zoomCoords'),
         opts.zoomCoords
-      )
+      );
+      gl.uniform1f(
+        gl.getUniformLocation(shaderProgram, 'startTime'),
+        opts.startTime
+      );
+      gl.uniform1f(
+        gl.getUniformLocation(shaderProgram, 'holdDuration'),
+        opts.holdDuration
+      );
+      gl.uniform1i(gl.getUniformLocation(shaderProgram, 'inputTexture'), 0);
 
-      gl.uniform1i(gl.getUniformLocation(shaderProgram, 'inputTexture'), 0)
-
-      const posBuffer = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer)
+      const posBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, posBuffer);
       gl.bufferData(
         gl.ARRAY_BUFFER,
         new Float32Array(VERTEX_POS),
         gl.STATIC_DRAW
-      )
-      const posAttrib = gl.getAttribLocation(shaderProgram, 'position')
-      gl.enableVertexAttribArray(posAttrib)
+      );
+      const posAttrib = gl.getAttribLocation(shaderProgram, 'position');
+      gl.enableVertexAttribArray(posAttrib);
       gl.vertexAttribPointer(
         posAttrib,
         2,
@@ -247,20 +709,39 @@ export const createZoomBlurShader = (opts: motionShaderOpts) => {
         false,
         Float32Array.BYTES_PER_ELEMENT * 2,
         0
-      )
+      );
 
-      texture = initTexture(gl)
-    } else {
-      const shaderProgram = gl.getParameter(gl.CURRENT_PROGRAM)
-      if (shaderProgram) {
+      texture = initTexture(gl);
+
+//attach the shader program to the canvas and fix issues with startTime
+      function render() {
+        if (!gl || !texture) return;
+        const currentTime = performance.now();
+        const elapsedTime = (currentTime - shaderStartTime) / 1000; 
         gl.uniform1f(
           gl.getUniformLocation(shaderProgram, 'time'),
-          performance.now() / 1000
-        )
+          elapsedTime
+        );
+        updateTexture(gl, imgSource, texture);
+        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        requestAnimationFrame(render);
       }
-    }
+      render();
+    } else {
 
-    updateTexture(gl, imgSource, texture)
+      const shaderProgram = gl.getParameter(gl.CURRENT_PROGRAM);
+      if (shaderProgram) {
+        if (shaderStartTime < 0) {
+          shaderStartTime = performance.now();
+        }
+        const elapsedTime = (performance.now() - shaderStartTime) / 1000;
+        gl.uniform1f(
+          gl.getUniformLocation(shaderProgram, 'time'),
+          elapsedTime
+        );
+      }
+      updateTexture(gl, imgSource, texture);
+    }
 
     if (
       globalThis.VideoFrame != null &&
@@ -270,12 +751,12 @@ export const createZoomBlurShader = (opts: motionShaderOpts) => {
         alpha: 'keep',
         timestamp: imgSource.timestamp,
         duration: imgSource.duration ?? undefined
-      })
-      imgSource.close()
-      return rs
+      });
+      imgSource.close();
+      return rs;
     }
     return createImageBitmap(cvs, {
       imageOrientation: imgSource instanceof ImageBitmap ? 'flipY' : 'none'
-    })
+    });
   }
 }

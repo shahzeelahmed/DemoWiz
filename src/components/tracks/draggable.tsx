@@ -395,71 +395,7 @@ const findValidPosition = (
     itemStore
   }, [itemStore])
 
-//   return (
 
-// //     <div className="bg-white rounded-sm border border-gray-300 w-full h-full relative">
-  
-// //   <div className="absolute top-0 left-0 w-full bg-white z-10 p-2 flex gap-2 border-b border-gray-300">
-// //     <Button className="font-bold" onClick={addTrackRows}>
-// //       Tracks
-// //     </Button>
-// //     <Button onClick={() => { zoom === 1 ?  zoom : setZoom(zoom + 0.1); }}>
-// //       Zoom In
-// //     </Button>
-// //     <Button onClick={() => { zoom === 0.10000000000000014 ? zoom : setZoom(zoom - 0.1); }}>
-// //       Zoom Out
-// //     </Button>
-// //   </div>
-
-
-// //   <div className="overflow-auto w-full h-full pt-12 ">
-    
-// //     <TimeLine duration={1000} zoom={zoom} />
-   
-// //     <div className="flex flex-col min-w-max min-h-max space-y-4 overflow-auto"></div>
-
-// //     <div className="flex">
-// //       <div className="flex-1 relative" style={{ width: `${totalDuration}px` }}>
-// //         <div>
-// //           {trackRows.map(track => {
-// //             const isSelected = trackStore.selectedRowId === track.id;
-// //             return (
-// //               <div
-// //                 ref={rowRef}
-// //                 key={track.id}
-// //                 className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? 'bg-blue-200' : ''}`}
-// //                 style={{ height: `70px`, width: `${1000 * 10}px` }}
-// //                 onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
-// //                 onDragOver={handleDragOver}
-// //                 onDrop={e => handleDrop(e, track.id)}
-// //               >
-// //                 {itemStore.filter(item => item.inRowId === track.id).map(item => (
-// //                   <div
-// //                     key={item.id}
-// //                     draggable
-// //                     style={{
-// //                       position: 'absolute',
-// //                       left: `${item.startTime * 10}px`,
-// //                       top: '4px',
-// //                       width: `${item.duration * 10}px`,
-// //                       height: `60px`,
-// //                     }}
-// //                     onDragStart={e => handleTimeLineDragStart(e, item)}
-// //                     onDragEnd={handleDragEnd}
-// //                     className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
-// //                   ></div>
-// //                 ))}
-// //               </div>
-// //             );
-// //           })}
-// //         </div>
-// //       </div>
-// //     </div>
-// //   </div>
-// // </div>
-
-
-//   )
 
 const timelineRef = useRef<HTMLDivElement>(null);
 const trackContainerRef = useRef<HTMLDivElement>(null);
@@ -472,7 +408,7 @@ const syncScroll = () => {
 
 return (
  
-  <div className="bg-white rounded-sm border border-gray-600 w-full h-full flex flex-col">
+  <div className="bg-white rounded-sm border border-gray-600 w-full h-full flex flex-col z-0">
     
       <div className='flex-1 overflow-x-scroll overflow-y-auto flex-col shrink-0 grow relative'>
     <TimeLine duration={100}/>
@@ -486,7 +422,7 @@ return (
           <div
             ref={rowRef}
             key={track.id}
-            className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""}`}
+            className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""} ml-[3px]`}
             style={{ height: `50px`, width: `${1000 * 10}px` }}
             onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
             onDragOver={handleDragOver}
@@ -507,7 +443,7 @@ return (
                   }}
                   onDragStart={(e) => handleTimeLineDragStart(e, item)}
                   onDragEnd={handleDragEnd}
-                  className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative`}
+                  className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative border-2`}
                 ></div>
               ))}
           </div>

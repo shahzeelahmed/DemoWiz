@@ -168,10 +168,10 @@ export default function PlayheadNew () {
   }, [])
   return (
     <div>
-      <div className='relative w-full h-1 bg-gray-50 rounded-sm'>
+      <div className='relative w-full h-1 bg-gray-50 rounded-sm z-10'>
         <div
           ref={playheadRef}
-          className='absolute w-2 h-6 bg-[#6e6e6e] rounded-sm cursor-grab z-10'
+          className='absolute w-2 h-6 bg-[#6e6e6e] rounded-sm cursor-grab z-20'
           style={{ transform: `translateX(${position}px` }}
           onMouseDown={handleMouseDown}
         >

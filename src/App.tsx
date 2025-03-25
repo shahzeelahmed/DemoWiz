@@ -146,7 +146,7 @@ export default function App () {
       <div className='ml-2 z-10 absolute '>
       
       </div>
-      <div className='w-full h-full  '>
+      <div className='w-full h-full z-0  '>
                 <DraggableTrack />
                 </div>
             </div>
