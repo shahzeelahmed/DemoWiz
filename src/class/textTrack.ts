@@ -5,7 +5,7 @@ import { IClip } from "@webav/av-cliper";
 export class TextClip implements IClip {
   #cvsEl: HTMLCanvasElement;
   #ctx: CanvasRenderingContext2D;
-  #callback: (width: number, height: number) => void;
+  // #callback: (width: number, height: number) => void;
   ready: Promise<{ width: number; height: number; duration: number }>;
   #textConfig: TextConfig;
   #meta: {
@@ -35,12 +35,12 @@ export class TextClip implements IClip {
 
   constructor(
     textConfig: TextConfig,
-    callback: (width: number, height: number) => void
+    // callback: (width: number, height: number) => void
   ) {
     this.#cvsEl = document.createElement("canvas");
     this.#ctx = this.#cvsEl.getContext("2d")!;
     this.#textConfig = textConfig;
-    this.#callback = callback;
+    // this.#callback = callback;
     this.#updateCanvasDimensions();
 
 
@@ -60,7 +60,7 @@ export class TextClip implements IClip {
     this.#cvsEl.height = textHeight + yPadding * 2;
     this.#meta.width = this.#cvsEl.width;
     this.#meta.height = this.#cvsEl.height;
-    this.#callback(this.#meta.width, this.#meta.height);
+    // this.#callback(this.#meta.width, this.#meta.height);
   }
 
 
@@ -95,7 +95,6 @@ export class TextClip implements IClip {
     );
   }
 
- 
   async tick(time: number): Promise<{
     video?: VideoFrame;
     state: "success" | "done";
@@ -104,11 +103,15 @@ export class TextClip implements IClip {
     const { xPadding, yPadding } = this.#calcPadding();
     const textWidth = this.#getLineWidth(contentList);
     const textHeight = this.#getLineHeight(contentList);
+
+    //update canvas size dynamically
     this.#cvsEl.width = textWidth + xPadding * 2;
     this.#cvsEl.height = textHeight + yPadding * 2;
     this.#meta.width = this.#cvsEl.width;
     this.#meta.height = this.#cvsEl.height;
-    this.#callback(this.#meta.width, this.#meta.height);
+    // this.#callback(this.#meta.width, this.#meta.height);
+
+    //clear canvas and fill background 
     this.#ctx.clearRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
     if (this.#textConfig.backgroundColor) {
       this.#ctx.fillStyle = this.#textConfig.backgroundColor;
@@ -122,25 +125,28 @@ export class TextClip implements IClip {
     fontParts.push(this.#textConfig.fontFamily);
     this.#ctx.font = fontParts.join(" ");
     this.#ctx.textBaseline = "top"; 
+
+    //set shadow properties if enabled
     if (this.#textConfig.showShadow) {
       this.#ctx.shadowColor = this.#textConfig.shadowColor;
       this.#ctx.shadowBlur = this.#textConfig.shadowBlur;
       this.#ctx.shadowOffsetX = this.#textConfig.shadowOffsetX;
       this.#ctx.shadowOffsetY = this.#textConfig.shadowOffsetY;
     } else {
-     this.#ctx.shadowColor = "transparent";
+      this.#ctx.shadowColor = "transparent";
       this.#ctx.shadowBlur = 0;
       this.#ctx.shadowOffsetX = 0;
       this.#ctx.shadowOffsetY = 0;
     }
 
-   //animation offset for scrolling effect
+//[todo]: implement animation pdate animation offset
     if (this.#textConfig.animationSpeed) {
       this.#animationOffset = (time * this.#textConfig.animationSpeed) % (textWidth + xPadding * 2);
     } else {
       this.#animationOffset = 0;
     }
 
+  
     let yStart = yPadding;
     switch (this.#textConfig.verticalAlign) {
       case "middle":
@@ -154,6 +160,7 @@ export class TextClip implements IClip {
         yStart = yPadding;
     }
 
+    // Render each line with horizontal alignment and optional scrolling effect
     for (let i = 0; i < contentList.length; i++) {
       const line = contentList[i];
       const lineLength = line.length;
@@ -191,9 +198,6 @@ export class TextClip implements IClip {
           this.#ctx.fillText(line[j], xPos, yPos);
         }
       };
-
-      // Draw the text line. For scrolling animation, if the text is partially cut off,
-      // draw a second instance to create a continuous scroll effect.
       drawLine(xStart);
       if (this.#textConfig.animationSpeed && xStart + computedLineWidth < this.#cvsEl.width) {
         drawLine(xStart + computedLineWidth + xPadding);
@@ -205,8 +209,11 @@ export class TextClip implements IClip {
       video: new VideoFrame(this.#cvsEl, { timestamp: time }),
     };
   }
+  
+  
+ 
 
-  // Generate an image from the current canvas state and trigger a download.
+  
   async generateImage() {
     
     const { video } = await this.tick(0);
@@ -222,7 +229,7 @@ export class TextClip implements IClip {
       offscreenCanvas = tempCanvas as any;
     }
     const ctx = offscreenCanvas.getContext("2d");
-    ctx.drawImage(video, 0, 0, video.codedWidth, video.codedHeight);
+    ctx!.drawImage(video, 0, 0, video.codedWidth, video.codedHeight);
     const blob = await offscreenCanvas.convertToBlob();
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -231,7 +238,7 @@ export class TextClip implements IClip {
   }
 
   async clone() {
-    return new TextClip(this.#textConfig, this.#callback) as this;
+    return new TextClip(this.#textConfig) as this;
   }
 
   destroy() {
@@ -243,3 +250,4 @@ export class TextClip implements IClip {
     this.#updateCanvasDimensions();
   }
 }
+

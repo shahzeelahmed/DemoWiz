@@ -40,18 +40,18 @@ const SideBar = () => {
   }, [])
   
   return (
-    <div className='flex h-screen ml-2'>
+    <div className="relative z-0 flex h-full ml-2 " >
       <div className='w-12 flex flex-col items-center py-4 space-y-6 text-sm'>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
               <button
                 className={`p-1 rounded-md ${
-                  selectedIcon === 'gallery' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
+                  selectedIcon === 'video' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
                 }`}
-                onClick={() => setSelectedIcon('gallery')}
+                onClick={() => setSelectedIcon('video')}
               >
-                <img src={videoIcon} alt='Gallery' height={32} width={32} />
+                <img src={videoIcon} alt='video' height={32} width={32} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right'>
@@ -115,7 +115,7 @@ const SideBar = () => {
         </TooltipProvider>
       </div>
 
-      {selectedIcon === 'gallery' ?  (
+      {selectedIcon === 'video' ?  (
         <div className='w-72 bg-white p-4'>
           <h2 className='text-[#1e1e1e] font-semibold text-lg'>Background</h2>
 

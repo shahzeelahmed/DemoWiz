@@ -1,5 +1,6 @@
-import { ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
-import { useState, useCallback, useEffect, useRef } from 'react'
+//[todo]: implement videoEffect and textEffect]
+import { IClip, ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
+import { useState, useCallback, useEffect, useRef, FormEvent, FormEventHandler } from 'react'
 import usePlayerStore from '../../store/playerStore'
 import { AVCanvas } from '@webav/av-canvas'
 import React from 'react'
@@ -14,6 +15,11 @@ import { Button } from '../ui/button'
 import Slider from '../ui/slider'
 import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import useSidebarStore from '@/store/sideBarStore'
+import { TextClip } from '@/class/textTrack'
+import { TextTrack } from '@/types/trackType'
+import { TextConfig } from '@/types/textConfig'
+import  { useTextStore } from '@/store/textStore'
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -29,8 +35,14 @@ const Player = () => {
   const [activeSprite, setActiveSprite] = useState<VisibleSprite | null>(null);
   const [activeClipId, setActiveClipId] = useState<string | null>(null);
   const spriteMap = useRef(new Map<string, VisibleSprite>());
+  const sidebarStore = useSidebarStore()
+  const selectedIcon = sidebarStore.selectedIcon
+  const textStore = useTextStore()
 
-
+  
+ 
+    
+ 
 
 const activeClip = useCallback((clip: TrackItemType | null) => {
     if (!clip) {
@@ -63,6 +75,7 @@ const initClip=async (track: TrackItemType) =>{
    
 }
 const totalSprites = spriteMap.current.size
+
 const addVideoSprite = async () =>{
     const stream = (
         await loadFile({ 'video/*': ['.mp4', '.mov'] })
@@ -104,8 +117,10 @@ const addVideoSprite = async () =>{
     videoStore.setClip(trackId, clip)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
+    
     avCanvas!.addSprite(spr)
 }
+
 const addEffectToRow = () =>{
   const id = nanoid(5)
   const itemToAdd : EffectTrack ={
@@ -143,9 +158,106 @@ const addEffect = async (track: TrackItemType, startTime: number, hold: number) 
     }
   }
 }
-useEffect(()=>{
 
-})
+const addTextSprite = async (content: string) =>{
+  const testTextConfig: TextConfig = {
+    content: content,
+    fontSize: 48,
+    fontFamily: "Comic Sans MS",
+    fontStyle: "italic",
+    textDecoration: "none",
+    fontWeight: 400,
+    bold: false,
+    italic: true,
+    color: "#FFFFFF",           
+    bgColor: "#FFFFFF",
+    opacity: 1,                 
+    x: 0,
+    y: 0,
+    width: 400,
+    height: 200,
+    lineSpacing: 10,
+    letterSpacing: 5,           
+    align: "left",
+    backgroundColor: "", 
+    backgroundOpacity: 1,      
+    borderColor: "#ffffff",
+    borderWidth: 2,
+    borderRadius: 4,
+    padding: 4,
+    margin: 0,
+    showShadow: true,
+    shadowColor: "#000000",
+    shadowBlur: 4,
+    shadowOffsetX: 2,
+    shadowOffsetY: 2,
+    shadowOpacity: 0.5,
+    showStroke: true,
+    strokeColor: "#ffffff",
+    strokeWidth: 1,
+    strokeOpacity: 1,
+    strokeDasharray: [],
+    strokeDashoffset: 0,
+    verticalAlign: "top",   
+    animationSpeed: 0,     
+  };
+  const id = nanoid(5)
+ const itemToAdd : TextTrack  = { 
+        id:id,
+        type: 'TEXT',
+        name: 'test',
+        duration: 5,
+        startTime: 0,
+        endTime: 5,
+        config:testTextConfig ,}
+
+        trackStore.addRow({id:nanoid(5),acceptsType:'TEXT',trackItem:[itemToAdd]})
+        trackStore.addTrack([itemToAdd])
+        const clip = new TextClip(itemToAdd.config)
+       
+        const spr = new VisibleSprite(clip)
+        
+        spriteMap.current.set(itemToAdd.id, spr)
+        spr.rect.fixedScaleCenter = true
+        spr.rect.fixedAspectRatio = true
+        
+        avCanvas!.addSprite(spr)
+       
+        setTimeout(() => {
+         
+          console.log("Timeout started, changing text color...");
+          
+          clip.textConfig.color = "rgba(255, 10, 10, 1)";
+          console.log("Updated clip color:", clip.textConfig.color);
+          
+          requestAnimationFrame(async () => {
+            console.log("Triggering tick to update the canvas...");
+            
+            const result = await clip.tick(0);
+            console.log("Tick result:", result);
+        
+            avCanvas?.previewFrame(0)
+        
+            console.log("Update completed.");
+          });
+        }, 1000);
+        
+      
+        clip.textConfig.content = 'boss2'
+      clip.textConfig.content = 'boss1'
+      textStore.addClip(id,clip)
+       changeClipText(clip)
+       setActiveClipId(id)
+         
+        
+      }
+
+      const changeClipText =(clip: any)=>{
+        const content = 'test'
+        clip.textConfig.content = content
+        clip.textConfig.color = "rgba(255, 10, 10, 1)"
+        clip.tick(0)
+      } 
 //[todo] implement on z-index change and sprite position changer
 useEffect(()=>{
 
@@ -162,8 +274,6 @@ useEffect(()=>{
     setAvCanvas(cvs)
     
     cvs.on('timeupdate', time => {
-    //   if (time == null) return
-    //   setTime(time / 1e6)
     if(currentTime === null) return;
     playerStore.setCurrentTime(time / 1e6)
     })
@@ -282,14 +392,35 @@ useEffect(()=>{
     avCanvas.previewFrame(currentTime)
   }, [currentTime, isPaused])
 
+  const [sliderValue, setSliderValue] = useState(0);
+  const handleOpacity = (newValue: number[]) => {
+    if (!Array.isArray(newValue) || newValue.length === 0) return;
+  
+    const value = newValue[0]; 
+  
+    setSliderValue(value);
+  
+    if (!activeClipId) return;
+  
+    textStore.changeOpacity(sliderValue); 
+    
+  };
+  
+ 
 
   return(
     
 
 <div className="m-2 flex justify-between">
 <div className="h-[460px] w-[820px]" ref={(el) => setCvsWrapEl(el)}></div>
-<div className=" bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit ">
- 
+{selectedIcon === 'video' ? (
+  <div className=" bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit ">
+ <Button onClick={async()=>{await addTextSprite('shazboss')}}>
+  addText
+ </Button>
+
+
+
   <div className="border-b pb-3">
     <h3 className="text-sm font-medium">Position</h3>
     <div className="grid grid-cols-2 gap-2 mt-2">
@@ -310,10 +441,15 @@ useEffect(()=>{
 
   
   <div className="border-b pb-3">
-    <h3 className="text-sm font-medium ">Appearance</h3>
+    <h3 className="text-sm font-medium ">opacity</h3>
     <div className="flex gap-2 mt-2">
-      <Slider defaultValue={[100]} min={0} max={100} className="w-full" />
-      <Slider defaultValue={[50]} min={0} max={100} className="w-full" />
+      <Slider  defaultValue={[1]} // Still need an array here
+      min={0}
+      step={1}
+      max={100}
+      className="w-[250px]"
+      onValueChange={handleOpacity}  />
+      
     </div>
   </div>
 
@@ -343,24 +479,224 @@ useEffect(()=>{
     </div>
   </div>
 
-
-  <div className="border-b pb-3">
-    <h3 className="text-sm font-medium">Fill</h3>
-    <div className="flex items-center gap-1 mt-2">
-      <Input type="color" className="w-10 h-10 border-none" />
-      <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
-    </div>
-  </div>
-
-  
-  <div>
-    <h3 className="text-sm font-medium">Stroke</h3>
-    <div className="flex items-center gap-1 mt-2">
-      <Input type="color" className="w-10 h-10 border-none" />
-      <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
-    </div>
+</div>
+) : selectedIcon === 'image' ? (<div className=" bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit ">
+ 
+<div className="border-b pb-3">
+  <h3 className="text-sm font-medium">Position</h3>
+  <div className="grid grid-cols-2 gap-2 mt-2">
+    <Input type="number" placeholder="X" className="bg-gray-800" />
+    <Input type="number" placeholder="Y" className="bg-gray-800" />
+    <Input type="number" placeholder="Rotation" className="bg-gray-800 col-span-2" />
   </div>
 </div>
+
+
+<div className="border-b pb-3">
+  <h3 className="text-sm font-medium ">Layout</h3>
+  <div className="grid grid-cols-2 gap-1 ">
+    <Input type="number" placeholder="Width" className="bg-gray-800" />
+    <Input type="number" placeholder="Height"  />
+  </div>
+</div>
+
+
+<div className="border-b pb-3">
+  <h3 className="text-sm font-medium ">Appearance</h3>
+  <div className="flex gap-2 mt-2">
+    <Slider defaultValue={[100]} min={0} max={100} className="w-full" />
+    <Slider defaultValue={[50]} min={0} max={100} className="w-full" />
+  </div>
+</div>
+
+
+<div className="border-b pb-3">
+  <h3 className="text-sm  font-medium">Font Family</h3>
+  <Select>
+    <SelectTrigger className="bg-gray-800">
+      <SelectValue placeholder="Otetoro" />
+    </SelectTrigger>
+    <SelectContent>
+      <SelectItem value="otetoro">Otetoro</SelectItem>
+      <SelectItem value="sans-serif">Sans Serif</SelectItem>
+    </SelectContent>
+  </Select>
+  <div className="grid grid-cols-2 gap-1 mt-2">
+    <Select>
+      <SelectTrigger className="">
+        <SelectValue placeholder="Bold" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="bold">Bold</SelectItem>
+        <SelectItem value="normal">Normal</SelectItem>
+      </SelectContent>
+    </Select>
+    <Input type="number" placeholder="Size" className="bg-gray-800" />
+  </div>
+</div>
+
+
+<div className="border-b pb-3">
+  <h3 className="text-sm font-medium">Fill</h3>
+  <div className="flex items-center gap-1 mt-2">
+    <Input type="color" className="w-10 h-10 border-none" />
+    <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+  </div>
+</div>
+
+
+<div>
+  <h3 className="text-sm font-medium">Stroke</h3>
+  <div className="flex items-center gap-1 mt-2">
+    <Input type="color" className="w-10 h-10 border-none" />
+    <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+  </div>
+</div>
+</div>) : selectedIcon === 'text' ? (<div className=" bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit ">
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium">Position</h3>
+   <div className="grid grid-cols-2 gap-2 mt-2">
+     <Input type="number" placeholder="X" className="bg-gray-800" />
+     <Input type="number" placeholder="Y" className="bg-gray-800" />
+     <Input type="number" placeholder="Rotation" className="bg-gray-800 col-span-2" />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium ">Layout</h3>
+   <div className="grid grid-cols-2 gap-1 ">
+     <Input type="number" placeholder="Width" className="bg-gray-800" />
+     <Input type="number" placeholder="Height"  />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium ">Appearance</h3>
+   <div className="flex gap-2 mt-2">
+     <Slider defaultValue={[100]} min={0} max={100} className="w-full" />
+     <Slider defaultValue={[50]} min={0} max={100} className="w-full" />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm  font-medium">Font Family</h3>
+   <Select>
+     <SelectTrigger className="bg-gray-800">
+       <SelectValue placeholder="Otetoro" />
+     </SelectTrigger>
+     <SelectContent>
+       <SelectItem value="otetoro">Otetoro</SelectItem>
+       <SelectItem value="sans-serif">Sans Serif</SelectItem>
+     </SelectContent>
+   </Select>
+   <div className="grid grid-cols-2 gap-1 mt-2">
+     <Select>
+       <SelectTrigger className="">
+         <SelectValue placeholder="Bold" />
+       </SelectTrigger>
+       <SelectContent>
+         <SelectItem value="bold">Bold</SelectItem>
+         <SelectItem value="normal">Normal</SelectItem>
+       </SelectContent>
+     </Select>
+     <Input type="number" placeholder="Size" className="bg-gray-800" />
+   </div>
+ </div>
+
+
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium">Fill</h3>
+   <div className="flex items-center gap-1 mt-2">
+     <Input type="color" className="w-10 h-10 border-none" />
+     <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+   </div>
+ </div>
+
+ 
+ <div>
+   <h3 className="text-sm font-medium">Stroke</h3>
+   <div className="flex items-center gap-1 mt-2">
+     <Input type="color" className="w-10 h-10 border-none" />
+     <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+   </div>
+ </div>
+</div>) : selectedIcon === 'effects' ?(<div className=" bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit ">
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium">Position</h3>
+   <div className="grid grid-cols-2 gap-2 mt-2">
+     <Input type="number" placeholder="X" className="bg-gray-800" />
+     <Input type="number" placeholder="Y" className="bg-gray-800" />
+     <Input type="number" placeholder="Rotation" className="bg-gray-800 col-span-2" />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium ">Layout</h3>
+   <div className="grid grid-cols-2 gap-1 ">
+     <Input type="number" placeholder="Width" className="bg-gray-800" />
+     <Input type="number" placeholder="Height"  />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium ">Appearance</h3>
+   <div className="flex gap-2 mt-2">
+     <Slider defaultValue={[100]} min={0} max={100} className="w-full" />
+     <Slider defaultValue={[50]} min={0} max={100} className="w-full" />
+   </div>
+ </div>
+
+ 
+ <div className="border-b pb-3">
+   <h3 className="text-sm  font-medium">Font Family</h3>
+   <Select>
+     <SelectTrigger className="bg-gray-800">
+       <SelectValue placeholder="Otetoro" />
+     </SelectTrigger>
+     <SelectContent>
+       <SelectItem value="otetoro">Otetoro</SelectItem>
+       <SelectItem value="sans-serif">Sans Serif</SelectItem>
+     </SelectContent>
+   </Select>
+   <div className="grid grid-cols-2 gap-1 mt-2">
+     <Select>
+       <SelectTrigger className="">
+         <SelectValue placeholder="Bold" />
+       </SelectTrigger>
+       <SelectContent>
+         <SelectItem value="bold">Bold</SelectItem>
+         <SelectItem value="normal">Normal</SelectItem>
+       </SelectContent>
+     </Select>
+     <Input type="number" placeholder="Size" className="bg-gray-800" />
+   </div>
+ </div>
+
+
+ <div className="border-b pb-3">
+   <h3 className="text-sm font-medium">Fill</h3>
+   <div className="flex items-center gap-1 mt-2">
+     <Input type="color" className="w-10 h-10 border-none" />
+     <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+   </div>
+ </div>
+
+ 
+ <div>
+   <h3 className="text-sm font-medium">Stroke</h3>
+   <div className="flex items-center gap-1 mt-2">
+     <Input type="color" className="w-10 h-10 border-none" />
+     <Input type="text" placeholder="#EEFF88" className="bg-gray-800" />
+   </div>
+ </div>
+</div>): null}
 </div>
   )
 }
@@ -391,5 +727,5 @@ add effect
     }
     avCanvas
   }}>
-  {isPaused ? 'Play' : 'Pause'}
-</Button> */} 
+  {isPaused ? 'Play' : 'Pase'}
+</Button> */}

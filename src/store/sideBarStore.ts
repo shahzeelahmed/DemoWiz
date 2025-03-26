@@ -5,7 +5,7 @@ interface sidebarStore{
   setSelectedIcon: (icon: string) => void
   }
   const useSidebarStore = create<sidebarStore>((set) => ({
-    selectedIcon: 'gallery',
+    selectedIcon: 'video',
     setSelectedIcon: (icon: string) =>
       set(() => {
         return { selectedIcon: icon };

@@ -408,7 +408,7 @@ const syncScroll = () => {
 
 return (
  
-  <div className="bg-white rounded-sm border border-gray-600 w-full h-full flex flex-col z-0">
+  <div className="relative bg-white border   w-full h-full flex flex-col ">
     
       <div className='flex-1 overflow-x-scroll overflow-y-auto flex-col shrink-0 grow relative'>
     <TimeLine duration={100}/>

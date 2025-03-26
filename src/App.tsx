@@ -131,26 +131,59 @@ export default function App () {
   const zoom = 0;
 
   return (
-    <div className='flex h-screen  '>
-    
+<div className='relative h-lvh flex'>
+  <div className='relative z-10 h-full'>
     <SideBar />
-  
-    <div className="flex-1 flex flex-col overflow-hidden">
+  </div>
+
+  <div className="flex-1 flex flex-col overflow-hidden relative">
     <Player />
+    <div className="w-full h-full relative">
+     
+      <div className='absolute top-0 left-0 w-full h-full z-50 pointer-events-auto'>
+        <DraggableTrack />
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  //   <div className='flex h-lvh z-0  '>
+    
+  //   <SideBar />
+  
+  //   <div className="flex-1 flex flex-col overflow-hidden">
+  //   <Player />
  
   
   
-  <div className=" w-full h-full ">
+  // <div className=" w-full h-full ">
 
     
-      <div className='ml-2 z-10 absolute '>
+  //     <div className='ml-2 z-10 absolute '>
       
-      </div>
-      <div className='w-full h-full z-0  '>
-                <DraggableTrack />
-                </div>
-            </div>
-      </div>
-    </div>
+  //     </div>
+  //     <div className='w-full h-full z-10  '>
+  //               <DraggableTrack />
+  //               </div>
+  //           </div>
+  //     </div>
+  //   </div>
+//   <div className='relative h-lvh flex'>
+//   <div className='absolute z-10'>
+//     <SideBar />
+//   </div>
+//   <div className="flex flex-col overflow-hidden ml-[var(--sidebar-width)]">
+//     <Player />
+//     <div className="w-full h-full relative">
+//       <div className=' w-full h-full z-10'>
+//         <DraggableTrack />
+//       </div>
+//     </div>
+//   </div>
+// </div>
+
+
   )
 }

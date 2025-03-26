@@ -1,6 +1,7 @@
 export interface TextConfig {
     content: string;
     fontSize: number;
+    letterSpacing: number;
     fontFamily: string;
     fontStyle: "normal" | "italic" | "oblique";
     textDecoration: "none" | "underline" | "line-through" | "overline";
@@ -17,7 +18,6 @@ export interface TextConfig {
     width: number;
     height: number;
     lineSpacing: number;
-    letterSpacing: number;
     align: "left" | "center" | "right";
     backgroundColor: string;
     backgroundOpacity: number;

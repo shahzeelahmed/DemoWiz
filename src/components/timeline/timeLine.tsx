@@ -310,7 +310,7 @@ console.log(zoom)
   }, [handleDragPlayhead, stopDragPlayhead])
 
   return (
-    <div className='time-ruler  sticky'>
+    <div className='time-ruler  relative'>
       <div className='absolute top-0 left-0 w-full h-full'>
         
       </div >

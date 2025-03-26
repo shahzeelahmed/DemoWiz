@@ -1,3 +1,5 @@
+import { TextConfig } from "./textConfig";
+
 export type TrackType =
   | 'IMAGE'
   | 'VIDEO'
@@ -64,13 +66,9 @@ export interface AudioTrack extends MediaTrack {
   volume: number;
 }
 
-export interface TextTrack extends BaseTrack, PositionableTrack {
+export interface TextTrack extends BaseTrack {
   type: 'TEXT';
-  height: number;
-  width: number;
-  frameCount: number;
-  text: string;
-  format: string;
+  config: TextConfig;
 }
 
 export interface ImageTrack extends MediaTrack, PositionableTrack {
