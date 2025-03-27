@@ -59,14 +59,7 @@ export const formatMinuteTime = (tick: number): string => {
   return `${minutes}m:${remainingSeconds.toString().padStart(2, '0')}s`
 }
 
-// Format time for seconds display (M:SS)
-// export const formatSecondTime = (tick: number) => {
-//   // Each tick represents 0.1 seconds
-//   const seconds = Math.floor(tick / 10);
-//   const minutes = Math.floor(seconds / 60);
-//   const remainingSeconds = seconds % 60;
-//   return `${minutes}:${remainingSeconds.toString()}s`;
-// };
+
 export const formatSecondTime = (tick: number): string => {
   //tick is in seconds [tick = 1s]
   const seconds = tick 

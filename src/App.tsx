@@ -4,6 +4,7 @@ import Playhead from './components/timeline/playheadtest'
 import DraggableTrack from './components/tracks/draggable'
 import { AVCanvas } from '@webav/av-canvas'
 import { useTrackStateStore } from './store/trackStore'
+import ExportIcon from '@/frappe-ui/icons/export'
 import {
   AudioClip,
   Combinator,
@@ -120,32 +121,33 @@ export default function App () {
   }
 
 
-
-  function setZoom(arg0: number): void {
-    throw new Error('Function not implemented.')
-  }
-
-  function addTrackRows(event): void {
-    throw new Error('Function not implemented.')
-  }
-  const zoom = 0;
-
   return (
-<div className='relative h-lvh flex'>
-  <div className='relative z-10 h-full'>
+    <div className='relative h-lvh w-full flex'>
+
+  <div className="absolute top-4 right-4 z-40">
+    <Button  className="px-4 py-2 rounded-lg">
+   <ExportIcon/>   EXPORT
+    </Button>
+  </div>
+  <div className='relative z-0 mt-10'>
     <SideBar />
   </div>
 
-  <div className="flex-1 flex flex-col overflow-hidden relative">
+  <div className="flex-1 flex flex-col overflow-hidden relative mt-10">
     <Player />
+ 
     <div className="w-full h-full relative">
-     
-      <div className='absolute top-0 left-0 w-full h-full z-50 pointer-events-auto'>
+      <div className=' flex justify-items-start flex-row w-screen h-full z-50 pointer-events-auto'>
         <DraggableTrack />
       </div>
     </div>
   </div>
 </div>
+
+
+
+
+
 
 
 

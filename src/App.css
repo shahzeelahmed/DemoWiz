@@ -60,7 +60,8 @@ body {
   width: 100%;
   overflow: hidden;
   height: 100%;
-
+  -webkit-user-select: none;
+  user-select: none;
 }
 .customScrollbar::-webkit-scrollbar {
   height: 8px; 

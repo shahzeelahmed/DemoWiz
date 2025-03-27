@@ -14,8 +14,6 @@ export class TextClip implements IClip {
     duration: number;
   } = { width: 0, height: 0, duration: Infinity };
 
-  #animationOffset = 0;
-
   get textConfig() {
     return this.#textConfig;
   }
@@ -99,34 +97,55 @@ export class TextClip implements IClip {
     video?: VideoFrame;
     state: "success" | "done";
   }> {
+
     const contentList = this.#textConfig.content.split("\n");
     const { xPadding, yPadding } = this.#calcPadding();
-    const textWidth = this.#getLineWidth(contentList);
-    const textHeight = this.#getLineHeight(contentList);
+  
+    
+    let maxLineWidth = 0;
+    const measuredLines: number[] = [];
+//text styles 
+    this.#ctx.font = `${this.#textConfig.italic ? "italic " : ""}${
+      this.#textConfig.bold ? "bold " : ""
+    }${this.#textConfig.fontSize}px ${this.#textConfig.fontFamily}`;
+    contentList.forEach((line) => {
+      let lineWidth = 0;
+      for (let j = 0; j < line.length; j++) {
+        const m = this.#ctx.measureText(line[j]);
+        lineWidth += m.width;
+        if (j < line.length - 1) {
+          lineWidth += this.#textConfig.letterSpacing;
+        }
+      }
+      measuredLines.push(lineWidth);
+      if (lineWidth > maxLineWidth) maxLineWidth = lineWidth;
+    });
 
-    //update canvas size dynamically
-    this.#cvsEl.width = textWidth + xPadding * 2;
+    this.#cvsEl.width = maxLineWidth + xPadding * 2;
+    
+    const textHeight =
+    this.#textConfig.fontSize * contentList.length +
+    this.#textConfig.lineSpacing * (contentList.length - 1);
     this.#cvsEl.height = textHeight + yPadding * 2;
     this.#meta.width = this.#cvsEl.width;
     this.#meta.height = this.#cvsEl.height;
-    // this.#callback(this.#meta.width, this.#meta.height);
-
-    //clear canvas and fill background 
+   
+//clear the canvas
     this.#ctx.clearRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
     if (this.#textConfig.backgroundColor) {
+      this.#ctx.globalAlpha = this.#textConfig.backgroundOpacity ?? 1;
       this.#ctx.fillStyle = this.#textConfig.backgroundColor;
       this.#ctx.fillRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
     }
-
+//opacity of the text
+    this.#ctx.globalAlpha = this.#textConfig.opacity ?? 1;
     const fontParts = [];
     if (this.#textConfig.italic) fontParts.push("italic");
     if (this.#textConfig.bold) fontParts.push("bold");
     fontParts.push(`${this.#textConfig.fontSize}px`);
     fontParts.push(this.#textConfig.fontFamily);
     this.#ctx.font = fontParts.join(" ");
-    this.#ctx.textBaseline = "top"; 
-
-    //set shadow properties if enabled
+    this.#ctx.textBaseline = "top";
     if (this.#textConfig.showShadow) {
       this.#ctx.shadowColor = this.#textConfig.shadowColor;
       this.#ctx.shadowBlur = this.#textConfig.shadowBlur;
@@ -138,70 +157,41 @@ export class TextClip implements IClip {
       this.#ctx.shadowOffsetX = 0;
       this.#ctx.shadowOffsetY = 0;
     }
-
-//[todo]: implement animation pdate animation offset
-    if (this.#textConfig.animationSpeed) {
-      this.#animationOffset = (time * this.#textConfig.animationSpeed) % (textWidth + xPadding * 2);
-    } else {
-      this.#animationOffset = 0;
-    }
-
   
-    let yStart = yPadding;
-    switch (this.#textConfig.verticalAlign) {
-      case "middle":
-        yStart = (this.#cvsEl.height - textHeight) / 2;
-        break;
-      case "bottom":
-        yStart = this.#cvsEl.height - textHeight - yPadding;
-        break;
-      case "top":
-      default:
-        yStart = yPadding;
-    }
-
-    // Render each line with horizontal alignment and optional scrolling effect
+    let yStart = yPadding; 
     for (let i = 0; i < contentList.length; i++) {
       const line = contentList[i];
-      const lineLength = line.length;
-      const computedLineWidth =
-        this.#textConfig.fontSize * lineLength +
-        this.#textConfig.letterSpacing * Math.max(0, lineLength - 1);
-      let xStart = 0;
+      let currentX = 0;
+      const lineWidth = measuredLines[i];
+      let xStart = xPadding;
       switch (this.#textConfig.align) {
         case "center":
-          xStart = (this.#cvsEl.width - computedLineWidth) / 2;
+          xStart = (this.#cvsEl.width - lineWidth) / 2;
           break;
         case "right":
-          xStart = this.#cvsEl.width - computedLineWidth - xPadding;
+          xStart = this.#cvsEl.width - lineWidth - xPadding;
           break;
         case "left":
         default:
           xStart = xPadding;
       }
-
-      // Apply horizontal animation offset if enabled
-      xStart = xStart - this.#animationOffset;
-
-      // Function to render a single line at a given x-offset
-      const drawLine = (offsetX: number) => {
-        for (let j = 0; j < line.length; j++) {
-          const xPos = offsetX + j * this.#textConfig.fontSize + this.#textConfig.letterSpacing * j;
-          const yPos = yStart + i * (this.#textConfig.fontSize + this.#textConfig.lineSpacing);
-          if (this.#textConfig.showStroke) {
-            this.#ctx.lineJoin = "round";
-            this.#ctx.strokeStyle = this.#textConfig.strokeColor;
-            this.#ctx.lineWidth = this.#textConfig.strokeWidth;
-            this.#ctx.strokeText(line[j], xPos, yPos);
-          }
-          this.#ctx.fillStyle = this.#textConfig.color;
-          this.#ctx.fillText(line[j], xPos, yPos);
+      currentX = xStart;
+  
+      for (let j = 0; j < line.length; j++) {
+        const char = line[j];
+       
+        if (this.#textConfig.showStroke) {
+          this.#ctx.lineJoin = "round";
+          this.#ctx.strokeStyle = this.#textConfig.strokeColor;
+          this.#ctx.lineWidth = this.#textConfig.strokeWidth;
+          this.#ctx.strokeText(char, currentX, yStart);
         }
-      };
-      drawLine(xStart);
-      if (this.#textConfig.animationSpeed && xStart + computedLineWidth < this.#cvsEl.width) {
-        drawLine(xStart + computedLineWidth + xPadding);
+        this.#ctx.fillStyle = this.#textConfig.color;
+        this.#ctx.fillText(char, currentX, yStart);
+        const metrics = this.#ctx.measureText(char);
+        currentX += metrics.width + this.#textConfig.letterSpacing;
       }
+      yStart += this.#textConfig.fontSize + this.#textConfig.lineSpacing;
     }
 
     return {
@@ -209,7 +199,7 @@ export class TextClip implements IClip {
       video: new VideoFrame(this.#cvsEl, { timestamp: time }),
     };
   }
-  
+
   
  
 
@@ -222,7 +212,6 @@ export class TextClip implements IClip {
     try {
       offscreenCanvas = new OffscreenCanvas(video.codedWidth, video.codedHeight);
     } catch (error) {
-      // Fallback if OffscreenCanvas is not supported
       const tempCanvas = document.createElement("canvas");
       tempCanvas.width = video.codedWidth;
       tempCanvas.height = video.codedHeight;
