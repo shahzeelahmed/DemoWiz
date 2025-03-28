@@ -167,17 +167,16 @@ export default function PlayheadNew () {
     }
   }, [])
   return (
-    <div>
-      <div className='relative w-full h-1 bg-gray-50 rounded-sm z-10'>
-        <div
-          ref={playheadRef}
-          className='absolute w-2 h-6 bg-[#6e6e6e] rounded-sm cursor-grab z-20'
-          style={{ transform: `translateX(${position}px` }}
-          onMouseDown={handleMouseDown}
-        >
-          <div className='absolute w-0.5 h-screen bg-[#6e6e6e] top-[0px] left-1/2 -translate-x-1/2'></div>
-        </div>
-      </div>
-    </div>
+    <div className="relative w-full h-1 bg-gray-200 rounded-sm z-10">
+  <div
+    ref={playheadRef}
+    className="absolute w-4 h-6 bg-gray-400 rounded-[4px] cursor-grab z-20 flex items-center justify-center"
+    style={{ transform: `translateX(${position}px)` }}
+    onMouseDown={handleMouseDown}
+  >
+    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-l-transparent border-r-4 border-r-transparent border-t-4 border-t-gray-400"></div>
+    <div className="absolute w-0.5 h-screen bg-gray-400 top-0 left-1/2 -translate-x-1/2"></div>
+  </div>
+</div>
   )
 }

@@ -13,6 +13,10 @@ import {
 } from '@/components/ui/tooltip'
 import useSidebarStore from '@/store/sideBarStore'
 import { Button } from '@/components/ui/button'
+import AddVideoSprite from '@/hooks/addVideo'
+import { Textarea } from '@/components/ui/textarea'
+import AddTextSprite from '@/hooks/addText'
+import AddImageSprite from '@/hooks/addImage'
 const SideBar = () => {
   const sliderRef = useRef<HTMLInputElement>(null)
   const sidebarStore = useSidebarStore()
@@ -120,10 +124,12 @@ const SideBar = () => {
       {selectedIcon === 'video' ?  (
         <div className='w-72 bg-white p-4'>
           <h2 className='text-[#3e3e3e] font-medium text-lg'>Videos</h2>
-          <Button variant={'outline'} className='h-32 w-64 grid grid-rows-2  justify-items-center mt-2'>
+          <AddVideoSprite/>
+          {/* <Button variant={'outline'} className='h-32 w-64 grid grid-rows-2  justify-items-center mt-2' >
           <img className='self-end' src={fileIcon} alt='video' height={32} width={32} /> 
           <h3 className='text-sm self-start text-[#6e6e6e]'> Upload a Video</h3>
-          </Button>
+
+          </Button> */}
 
           <div className='mt-4 '>
             <h3 className='text-[#383838] text-sm mb-2'>Recently Used</h3>
@@ -148,10 +154,7 @@ const SideBar = () => {
         </div>
       ): selectedIcon === 'image' ? (   <div className='w-72 bg-white p-4'>
       <h2 className='text-[#1e1e1e] font-medium text-lg'>Images</h2>
-      <Button variant={'outline'} className='h-32 w-64 grid grid-rows-2  justify-items-center mt-2'>
-          <img className='self-end' src={fileIcon} alt='video' height={32} width={32} /> 
-          <h3 className='text-sm self-start text-[#6e6e6e]'> Upload an Image</h3>
-          </Button>
+      <AddImageSprite/>
 
     </div>) : selectedIcon === 'effects' ? (   <div className='w-72 bg-white p-4'>
           <h2 className='text-[#1e1e1e] font-medium text-lg'>Effects</h2>
@@ -160,8 +163,8 @@ const SideBar = () => {
           
         </div>) : selectedIcon === 'text' ? (   <div className='w-72 bg-white p-4'>
           <h2 className='text-[#1e1e1e] font-medium text-lg'>Text</h2>
-
-          
+          <Textarea className='resize-none bg-white 'placeholder='Enter Text'/>
+          <AddTextSprite />
           
         </div>) : null}
     </div>

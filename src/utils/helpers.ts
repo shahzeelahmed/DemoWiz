@@ -32,19 +32,7 @@ export const DEFAULT_DRAW_CONFIG: DrawConfig = {
   textColor: '#71717a',
   lineWidth: 1
 }
-// export const formatHourTime = (tick: number) => {
-//   const totalMinutes = tick;
-//   const hours = Math.floor(totalMinutes / 60);
-//   const minutes = totalMinutes % 60;
-//   return `${hours}h:${minutes.toString().padStart(2, '0')}`;
-// };
 
-// export const formatMinuteTime = (tick: number) => {
-//   const totalSeconds = Math.floor(tick * 6);
-//   const minutes = Math.floor(totalSeconds / 60);
-//   const seconds = totalSeconds % 60;
-//   return `${minutes}m:${seconds.toString().padStart(2, '0')}`;
-// };
 export const formatHourTime = (tick: number): string => {
   const minutes = tick
   const hours = Math.floor(minutes / 60)
@@ -73,6 +61,19 @@ export async function loadFile (accept: Record<string, string[]>) {
   })
   return (await fileHandle.getFile()) as File
 }
+export async function loadImage(accept: Record<string, string[]>): Promise<Uint8Array> {
+  const [fileHandle] = await window.showOpenFilePicker({
+    types: [{ accept }],
+  });
+  const file = await fileHandle.getFile();
+
+  if (file.type.startsWith('image/')) {
+    return await file.arrayBuffer().then((buffer:any) => new Uint8Array(buffer));
+  } else {
+    return file;
+  }
+}
+
 
 export const generateId = () => nanoid(5)
 export const getPlayheadSpeed = (zoom: number): number => {

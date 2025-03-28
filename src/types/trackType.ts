@@ -1,3 +1,4 @@
+import { ImageConfig } from "./imageConfig";
 import { TextConfig } from "./textConfig";
 
 export type TrackType =
@@ -34,6 +35,7 @@ export interface BaseTrack {
   endTime: number;
   inRowId?: string;
   atTime?: number;
+  opacity? : number
 }
 
 export interface PositionableTrack {
@@ -73,8 +75,9 @@ export interface TextTrack extends BaseTrack {
 
 export interface ImageTrack extends MediaTrack, PositionableTrack {
   type: 'IMAGE';
-  height: number;
-  width: number;
+  height?: number;
+  width?: number;
+  config: ImageConfig
 }
 
 export interface TransitionTrack extends BaseTrack {

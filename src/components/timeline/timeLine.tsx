@@ -310,7 +310,7 @@ console.log(zoom)
   }, [handleDragPlayhead, stopDragPlayhead])
 
   return (
-    <div className='time-ruler  relative'>
+    <div className='time-ruler  relative '>
       <div className='absolute top-0 left-0 w-full h-full'>
         
       </div >
@@ -318,7 +318,7 @@ console.log(zoom)
       <PlayheadNew  />
       </div>
       <div
-        className='ticks-container ml-[4px]'
+        className='ticks-container ml-[7px] mt-5'
         ref={rulerContainerRef}
         style={{
           width: `${totalWidth}px`,

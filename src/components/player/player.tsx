@@ -50,6 +50,10 @@ import chevLeft from '@/frappe-ui/icons/chevLeft.svg'
 
 import ColorPicker from './icons/colorpicker'
 import { Textarea } from '../ui/textarea'
+import useSpriteStore from '@/store/spriteStore'
+import { useAVCanvasStore } from '@/store/avCanvasStore'
+import { TrackItem } from '../tracks/trackItem'
+import TextTrackConfig from '../tracks/textTrack'
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -60,14 +64,17 @@ const Player = () => {
   const videoStore = useVideoStore()
   const rows = trackStore.trackLines
   const currentTime = playerStore.currentTime
-  const [avCanvas, setAvCanvas] = useState<AVCanvas | null>(null)
+  const avCanvas = useAVCanvasStore(state => state.avCanvas)
+  const setAvCanvas = useAVCanvasStore(state=> state.setAvCanvas)
   const [cvsWrapEl, setCvsWrapEl] = useState<HTMLDivElement | null>(null)
   const [activeSprite, setActiveSprite] = useState<VisibleSprite | null>(null)
   const [activeClipId, setActiveClipId] = useState<string | null>(null)
-  const spriteMap = useRef(new Map<string, VisibleSprite>())
   const sidebarStore = useSidebarStore()
   const selectedIcon = sidebarStore.selectedIcon
   const textStore = useTextStore()
+  const spriteStore = useSpriteStore()
+  const spriteMap = useSpriteStore(state => state.sprite)
+
   const opacity = useTextStore(state => state.opacity);
   const spacing = useTextStore(state => state.spacing);
   const changeOpacity = useTextStore(state => state.changeOpacity);
@@ -81,28 +88,14 @@ const Player = () => {
       return
     }
 
-    const spr = spriteMap.current.get(clip.id)
+    const spr = spriteMap.get(clip.id)
     if (spr?.visible) {
       setActiveSprite(spr)
     }
   }, [])
 
-  const initClips = () => {
-    rows.forEach(track => {
-      track.trackItem.forEach(clip => {
-        initClip(clip)
-      })
-    })
-  }
 
-  const addClip = (track: TrackItemType) => {
-    initClip(track)
-  }
-  const initClip = async (track: TrackItemType) => {
-    if (spriteMap.current.has(track.id)) return
-    let spr: VisibleSprite = null
-  }
-  const totalSprites = spriteMap.current.size
+  const totalSprites = spriteMap.size
 
   const addVideoSprite = async () => {
     const stream = (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()
@@ -138,7 +131,7 @@ const Player = () => {
 
     console.log('duration', duration / 1e6)
     console.log('sprites count', totalSprites)
-    spriteMap.current.set(trackId, spr)
+    spriteMap.set(trackId, spr)
     videoStore.setClip(trackId, clip)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
@@ -192,7 +185,7 @@ const Player = () => {
     const testTextConfig: TextConfig = {
       content: content,
       fontSize: 48,
-      fontFamily: 'Helvetica',
+      fontFamily: 'Inter',
       fontStyle: 'normal',
       textDecoration: 'none',
       fontWeight: 100,
@@ -215,7 +208,7 @@ const Player = () => {
       borderRadius: 4,
       padding: 4,
       margin: 0,
-      showShadow: true,
+      showShadow: false,
       shadowColor: '#ffffff',
       shadowBlur: 10,
       shadowOffsetX: 2,
@@ -251,7 +244,7 @@ const Player = () => {
 
     const spr = new VisibleSprite(clip)
 
-    spriteMap.current.set(itemToAdd.id, spr)
+    spriteMap.set(itemToAdd.id, spr)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
 
@@ -263,7 +256,10 @@ const Player = () => {
   }
 
   //[todo] implement on z-index change and sprite position changer
- 
+ const updateText = async(track: TextTrack) =>{
+  playerStore.setPaused(true)
+
+ }
   useEffect(() => {
     if (cvsWrapEl == null) return
     avCanvas?.destroy()
@@ -289,7 +285,7 @@ const Player = () => {
       console.log('paused')
     })
     cvs.on('activeSpriteChange', (sprite: VisibleSprite | null) => {
-      for (const [key, spr] of spriteMap.current.entries()) {
+      for (const [key, spr] of spriteMap.entries()) {
         if (Object.is(spr, activeSprite)) {
           setActiveClipId(key)
           // setActiveSprite(spr);
@@ -315,7 +311,7 @@ const Player = () => {
   const activeSPrite = (item: TrackItemType | null) => {
     if (avCanvas == null) return
     if (!item) return (avCanvas.activeSprite = null)
-    const spr = spriteMap.current.get(item.id)
+    const spr = spriteMap.get(item.id)
     if (avCanvas && spr?.visible) {
       avCanvas.activeSprite = spr
     }
@@ -331,55 +327,9 @@ const Player = () => {
     avCanvas.previewFrame(currentTime)
   }, [currentTime, isPaused])
 
-  useEffect(() => {
-    rows.forEach(track => {
-      track.trackItem.forEach(clip => {
-        initClip(clip)
-        avCanvas?.activeSprite
-      })
-    })
-  })
 
-  const addImageSprite = async () => {
-    const stream = (
-      await loadFile({ 'image/*': ['.PNG', '.JPG', '.JPEG', '.WebP'] })
-    ).stream()
-    const imgClip = new ImgClip(stream)
 
-    const spr = new VisibleSprite(imgClip)
-    const { duration } = await imgClip.ready
-    const trackId = nanoid(5)
-    const rowId = nanoid(5)
 
-    const newTrack: ImageTrack[] = [
-      {
-        id: trackId,
-        name: 'track:' + `${trackId}`,
-        index: 0,
-        type: 'IMAGE',
-        isVisible: true,
-        isMuted: false,
-        duration: 5000,
-        height: 720,
-        width: 1280,
-        startTime: currentTime,
-        endTime: currentTime + duration,
-        inRowId: rowId,
-        atTime: 0
-      }
-    ]
-
-    trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
-    trackStore.addTrack(newTrack)
-
-    console.log('duration', duration / 1e6)
-    console.log('sprites count', totalSprites)
-    spriteMap.current.set(trackId, spr)
-
-    spr.rect.fixedScaleCenter = true
-    spr.rect.fixedAspectRatio = true
-    avCanvas!.addSprite(spr)
-  }
   const nextFrame = useCallback(() => {
     console.log("nextFrame triggered");
     if (!avCanvas) {
@@ -388,20 +338,8 @@ const Player = () => {
     if (!isPaused) {
       playerStore.setPaused(true);
     }
-//single frame increment by dividing 1 by our video fps[30] 
-    const frameDuration = 1 / 30; 
-    avCanvas.on("timeupdate", (time: number | null) => {
-      if (time == null) {
-        return;
-      }
-      const newTime = time + frameDuration;
-      console.log(`currentTime: ${newTime}`);
-      playerStore.setCurrentTime(newTime);
-    });
-   
-
     avCanvas.previewFrame(currentTime);
-  }, [ isPaused, currentTime,opacity,spacing]);
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -417,24 +355,72 @@ const Player = () => {
     };
   }, [nextFrame]);
 
+  const updateSpritesZIndex = () => {
+    let currentZIndex = 0
+    rows.forEach((track) => {
+        track.trackItem.forEach(clip => {
+            const spr = spriteMap.get(clip.id)
+            if (!spr || clip.type === 'TEXT') return
+            spr.zIndex = currentZIndex++
+        })
+        track.trackItem.forEach(clip => {
+            const spr = spriteMap.get(clip.id)
+            if (!spr || clip.type !== 'TEXT') return
+            spr.zIndex = currentZIndex++
+        })
+    })
+}
 
+  const updateClip = async (clip: TrackItemType, type: 'default' | 'resize' | 'delete' = 'default') => {
+    
+    playerStore.setPaused(true)
+    console.log('updateClip', clip)
+    if (!spriteMap.has(clip.id)) return
 
+    const spr = spriteMap.get(clip.id) as VisibleSprite
+
+    if (type === 'delete') {
+        avCanvas?.removeSprite(spr)
+        spriteMap.delete(clip.id)
+        return
+    }
+
+    if (type === 'resize' && (clip.type === 'VIDEO' || clip.type === 'AUDIO')) {
+        avCanvas?.removeSprite(spr)
+        spriteMap.delete(clip.id)
+        
+        return
+    }
+
+    spr.time.offset = clip.startTime * 1e6
+    spr.time.duration = Number(clip.duration) * 1e6
+    spr.opacity = Number((clip.opacity / 100).toFixed(2))
+
+    updateSpritesZIndex()
+
+    if (clip.type === 'TEXT') {
+        const textClip: TextClip = spr.getClip() as TextClip
+        textClip.textConfig = clip.config
+        spr.preFrame(currentTime * 1e6)
+    }
+}
 
   return (
-    <div className='m-2 flex justify-evenly items-end'>
-      <div className='h-[360px] w-[720px]' ref={el => setCvsWrapEl(el)}></div>
-  
+<div className='m-2 flex'>
+  <div className='flex flex-col flex-1'> 
+    <div className='h-[480px] w-[854px] flex-grow' ref={el => setCvsWrapEl(el)}></div>
+
+    <div className="flex justify-between items-end mt-4">
       <div className="flex flex-row items-start gap-4">
-    <img src={scissorIcon} height={24} width={24} />
-    <img src={deleteIcon} height={24} width={24} />
-  </div>
+        <img src={scissorIcon} height={24} width={24} alt="Scissor" />
+        <img src={deleteIcon} height={24} width={24} alt="Delete" />
+      </div>
 
-  <div className="flex items-end">
-    <img src={chevLeft} height={24} width={24} />
+      <img src={chevLeft} height={24} width={24} alt="Chevron Left" />
+    </div>
   </div>
-
       {selectedIcon === 'video' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit '>
+       <div className='bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80 max-w-80 flex-none min-w-0' >
           <Button
             onClick={async () => {
               await addTextSprite('lorem ipsum lorem ipsum')
@@ -444,7 +430,7 @@ const Player = () => {
           </Button>
           <Button
             onClick={async () => {
-              await textStore.changeFirstClipContent('as')
+               textStore.changeFirstClipContent('as')
               avCanvas?.activeSprite
             }}
           >
@@ -453,28 +439,21 @@ const Player = () => {
          
 
         </div>
+        
       ) : selectedIcon === 'image' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit '>
+        <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 h-fit '>
        
         </div>
       ) : selectedIcon === 'text' ? (
         
-        <div className=' bg-white text-[#6e6e6e] text-[40px]  flex flex-col mt-3   '>
+        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80 max-w-80 flex-none min-w-0'>
        
-       <div className="grid grid-rows-2 gap-2"> 
-    <Input
-      type="text"
-      className="pr-20 pb-1 place-self-start h-[70px]"
-      style={{
-        paddingTop: "0px",
-        paddingLeft: "0px",
-        textAlign: "left",
-      }}
-    />
-    <Button size="sm">Submit</Button>
+       <div className="grid grid-rows-2 gap-1"> 
+ 
   </div>
 
           <h3 className='text-sm font-medium'>STYLE</h3>
+          <Slider/>
           <div className='flex gap-4 mt-2'>
             <Button variant={'icon'} size={'icon'}>
               <BoldIcon />
@@ -525,14 +504,15 @@ const Player = () => {
         max={100}
         defaultValue={[0]}
         step={1}
-        onValueChange={}
-        className="w-[250px]"
+        onValueChange={()=>{}}
+        className="w-[250px] "
       />
 
           </div>
         </div>
+//<TextTrackConfig track={} /> 
       ) : selectedIcon === 'effects' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit '>
+        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80'>
 
         </div>
       ) : null}

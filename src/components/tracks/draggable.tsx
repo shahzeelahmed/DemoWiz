@@ -13,6 +13,8 @@ import PlayheadNew from '../timeline/playheadtest'
 
 const DraggableTrack = () => {
   const trackStore = useTrackStateStore()
+  const setSelectedTrack = useTrackStateStore(state => state.selectTrack)
+  const selectedTrack = useTrackStateStore(state => state.selectedTrackId)
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -316,7 +318,7 @@ const findValidPosition = (
 
   //[todo]: implement drag from library
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
-  const handleTimeLineDragStart = (e, item: TrackItemType) => {
+  const handleTimeLineDragStart = (e:any , item: TrackItemType) => {
     const rect = e.target.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - rect.left,
@@ -329,7 +331,7 @@ const findValidPosition = (
     console.log(item.name)
 
     setTimeout(() => {
-      e.target.style.opacity = '0.4'
+      e.target.style.opacity = '0.8'
     }, 0)
     e.stopPropagation()
   }
@@ -417,34 +419,41 @@ return (
   <div className="flex-1">
     <div className="min-w-max">
       {trackRows.map((track) => {
-        const isSelected = trackStore.selectedRowId === track.id;
+       
         return (
           <div
             ref={rowRef}
             key={track.id}
-            className={`border-t border-gray-300 relative cursor-pointer ${isSelected ? "bg-blue-200" : ""} ml-[3px]`}
-            style={{ height: `50px`, width: `${1000 * 10}px` }}
-            onClick={() => trackStore.selectRow(isSelected ? null : track.id)}
+            className={` relative ml-2 h-10`}
+            style={{  width: `${1000 * 10}px` }}
+            
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, track.id)}
           >
-            {itemStore
+            {
+            
+            itemStore
               .filter((item) => item.inRowId === track.id)
               .map((item) => (
+                
                 <div
                   key={item.id}
                   draggable
+                  
                   style={{
                     position: "absolute",
                     left: `${item.startTime * 10}px`,
-                    top: "4px",
+                    top: "1px",
                     width: `${item.duration * 10}px`,
-                    height: `38px`,
                   }}
+                  onClick={()=>{setSelectedTrack(item.id), console.log('item',selectedTrack)}}
                   onDragStart={(e) => handleTimeLineDragStart(e, item)}
                   onDragEnd={handleDragEnd}
-                  className={`${item.type} bg-black text-white rounded-sm p-1 overflow-hidden flex flex-col relative border-2`}
-                ></div>
+                  className={` text-white rounded-sm  h-8 overflow-hidden flex flex-col relative border-2  bg-[#F69AD1] ${selectedTrack === item.id ? "border-[#CB4934]" : "border-[#ED77BE]"} `}
+                >
+
+                  <img src={}/>
+                </div>
               ))}
           </div>
         );
