@@ -19,6 +19,7 @@ import { nanoid } from 'nanoid'
 import { TrackRow, TrackRowType } from './types/trackRowTypes'
 import { TrackItemType, VideoTrack } from './types/trackType'
 import { loadFile } from './utils/helpers'
+import appIcon from '@/frappe-ui/icons/appIcon.svg'
 
 import { Button } from './components/ui/button'
 import Slider from './components/ui/slider'
@@ -42,95 +43,21 @@ export default function App () {
   const totalDuration = usePlayerStore().duration
 
 
-  async function addSpriteToRow (atTime: number, type: TrackRowType,spr: VisibleSprite) {
-    const isSelected = rowStore.selectedRowId
-    console.log('Selected Row:', isSelected)
-    console.log('clip: ', clip)
-
-    const id = nanoid(5)
-    const itemToAdd: VideoTrack[] = [
-      {
-        id: id,
-        name: 'track:',
-        source: '/videos/sample.mp4',
-        type: 'VIDEO',
-        isVisible: true,
-        isMuted: false,
-        duration: 100,
-        height: 720,
-        width: 1280,
-        color: '#3498db',
-        startTime: 0,
-        endTime: 50,
-        inRowId: 'l',
-        atTime: 0,
-        format: 'mp4',
-        frameCount: 900,
-        position: { x: 0, y: 0 },
-        transform: { scaleX: 1, scaleY: 1, rotation: 0 },
-        volume: 1,
-        fps: 30
-      }
-    ]
-
-    if (isSelected === null) {
-      const newRowId = nanoid(5)
-
-      rowStore.addRow({
-        id: newRowId,
-        acceptsType: 'MEDIA',
-        trackItem: itemToAdd
-      })
-
-      console.log('New row added:', newRowId)
-    } else {
-      if (!clip) {
-        console.warn('Clip is null, cannot process MP4')
-        return
-      }
-
-      const track = new MP4Clip(clip)
-      const { duration } = await track.ready
-      const itemStore = rowStore.tracks
-      const updatedItems = [...itemStore]
-      const existingItemIndex = itemStore.findIndex(
-        item => item.id === isSelected
-      )
-      updatedItems[existingItemIndex] = {
-        ...updatedItems[existingItemIndex],
-        inRowId: isSelected,
-        duration: 50,
-        startTime: 0,
-        endTime: 50
-      }
-
-      rowStore.updateTrack(updatedItems)
-
-      // rowStore.updateTrack(
-
-      //   [...rowStore.tracks, ...itemToAdd]);
-
-      console.log('Updated row with new track item:', isSelected)
-    }
-
-    console.log('Current Rows:', rowStore.trackLines)
-    console.log(
-      'Current tracks:',
-      rowStore.tracks.map(e => e.id)
-    )
-  }
-
+ 
 
   return (
-    <div className='relative h-lvh w-full flex'>
-
-  <div className="absolute top-4 right-4 z-40">
-    <Button  className="px-4 py-2 rounded-lg">
-   <ExportIcon/>   EXPORT
+    <div className='relative h-lvh w-full flex '>
+     
+     
+    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-2 top-2 ' />
+    <Button className="absolute  rounded-lg right-2 top-2" >
+      <ExportIcon /> EXPORT
     </Button>
-  </div>
-  <div className='relative z-0 mt-10'>
-    <SideBar />
+
+ 
+    <div className='relative z-0 mt-10'>
+      <SideBar />
+  
   </div>
 
   <div className="flex-1 flex flex-col overflow-hidden relative mt-10">

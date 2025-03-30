@@ -9,90 +9,21 @@ import { MP4Clip, VisibleSprite } from "@webav/av-cliper"
 import { nanoid } from "nanoid"
 import { TextTrack } from "@/types/trackType"
 import { Button } from "@/components/ui/button"
-import React from "react"
+import React, { useState } from "react"
 import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
 const addTextSprite = () => {
     const avCanvas = useAVCanvasStore(state=> state.avCanvas)
     const spriteMap = useSpriteStore(state=> state.sprite)
     const trackStore = useTrackStateStore()
     const currentTime = usePlayerStore(state=> state.currentTime)
-    
-
-const addSprite = async (config: TextConfig) => {
-    const testTextConfig: TextConfig = {
-      content: config.content,
-      fontSize: config.fontSize,
-      fontFamily: config.fontFamily,
-      fontStyle: config.fontStyle,
-      textDecoration: 'none',
-      fontWeight: config.fontWeight,
-      bold: config.bold,
-      italic: config.italic,
-      color: config.color,
-      bgColor: '',
-      opacity: 1,
-      x: 0,
-      y: 0,
-      width: 400,
-      height: 200,
-      lineSpacing: 10,
-      letterSpacing: 0,
-      align: 'left',
-      backgroundColor: '',
-      backgroundOpacity: 1,
-      borderColor: '#ffffff',
-      borderWidth: 2,
-      borderRadius: 4,
-      padding: 4,
-      margin: 0,
-      showShadow: config.showShadow || false,
-      shadowColor: config.shadowColor || '#FFFFFF',
-      shadowBlur: config.shadowBlur,
-      shadowOffsetX: config.shadowOffsetX,
-      shadowOffsetY: config.shadowOffsetY,
-      shadowOpacity: config.shadowOpacity,
-      showStroke: config.showStroke,
-      strokeColor: config.strokeColor,
-      strokeWidth: config.strokeWidth,
-      strokeOpacity: 1,
-      strokeDasharray: [],
-      strokeDashoffset: 0,
-      verticalAlign: 'top',
-      animationSpeed: 10
-    }
-    const id = nanoid(5)
-    const itemToAdd: TextTrack = {
-      id: id,
-      type: 'TEXT',
-      name: 'test',
-      duration: 5,
-      startTime: 0,
-      endTime: 5,
-      config: testTextConfig
-    }
-
-    trackStore.addRow({
-      id: nanoid(5),
-      acceptsType: 'TEXT',
-      trackItem: [itemToAdd]
-    })
-    trackStore.addTrack([itemToAdd])
-    const clip = new TextClip(itemToAdd.config)
-
-    const spr = new VisibleSprite(clip)
-
-    spriteMap.set(itemToAdd.id, spr)
-    // spr.rect.fixedScaleCenter = true
-    // spr.rect.fixedAspectRatio = true
-
-    avCanvas!.addSprite(spr)
-
-    
-
+    const index = useTrackStateStore(state => state.rowIndexCounter)
+    const [textValue, setTextValue] = useState("");
+const addSprite = async (content:string) => {
+  const trackId = nanoid(5)
+  const rowId = nanoid(5)
   
-  }
-const testConfig :TextConfig = {
-    content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+  const testConfig :TextConfig = {
+    content: content,
     fontSize: 36,
     fontFamily: "Arial",
     fontStyle: "normal",
@@ -117,9 +48,9 @@ const testConfig :TextConfig = {
     opacity: 1,
     x: 0,
     y: 0,
-    width: 0,
-    height: 0,
-    lineSpacing: 0,
+    width: 200,
+    height: 200,
+    lineSpacing: 5,
     align: "left",
     backgroundColor: "",
     backgroundOpacity: 0,
@@ -130,13 +61,63 @@ const testConfig :TextConfig = {
     margin: 0,
     strokeOpacity: 0,
     strokeDasharray: [],
-    strokeDashoffset: 0
-};
-return (
-    <Button  className="mt-2" onClick={async() =>{await addSprite(testConfig)}}>
-        ADD TEXT
-        </Button>
+    strokeDashoffset: 0,
+    animationDuration: 1 * 1e6,
+    animationType: 'fade'
+  };
+    const itemToAdd: TextTrack[] = [{
+      id: trackId,
+      name: 'test',
+      type: 'TEXT',
+      duration: 5,
+      inRowId: rowId,
+      startTime: currentTime,
+      endTime: currentTime + 5,
+      config: testConfig
+    }]
+
+    trackStore.addRow({ id: rowId, acceptsType: 'TEXT', trackItem: itemToAdd })
+    trackStore.addTrack(itemToAdd)
+
+    const clip = new TextClip(itemToAdd[0].config)
+    
+    const spr = new VisibleSprite(clip)
+    spr.time.offset = currentTime * 1e6
+    spr.time.duration = 5 * 1e6
    
+    
+
+    spriteMap.set(itemToAdd[0].id, spr)
+    spr.rect.fixedScaleCenter = true
+    spr.rect.fixedAspectRatio = true
+
+    avCanvas!.addSprite(spr)
+    console.log('index',index)
+    
+
+  
+  }
+
+return (
+    // <Button  className="mt-2" onClick={async() =>{await addSprite('')}}>
+    //     ADD TEXT
+    //     </Button>
+    <div className="flex flex-col gap-2">
+      <textarea
+        className="border rounded-md p-2 w-full"
+        placeholder="Enter text here..."
+        value={textValue}
+        onChange={(e) => setTextValue(e.target.value)}
+      />
+      <Button
+        className="mt-2"
+        onClick={async () => {
+          await addSprite(textValue);
+        }}
+      >
+        ADD TEXT
+      </Button>
+    </div>  
 )
 }
 export default addTextSprite

@@ -18,6 +18,7 @@ type playerState = {
   targetTrack: Map<string, any>
   currentTime: number
   duration: number
+  playHeadPosition:number
 }
 type playerActions = {
   setLoading: (loading: boolean) => void
@@ -29,6 +30,7 @@ type playerActions = {
   setTargetTrack: (track: Map<string, any>) => void
   setCurrentTime: (time: number) => void
   setDuration: (duration: number) => void
+  setPlayHeadPosition: (pos: number) =>void
 }
 
 const usePlayerStore = create<playerState & playerActions>(set => ({
@@ -41,6 +43,8 @@ const usePlayerStore = create<playerState & playerActions>(set => ({
   targetTrack: new Map<string, any>(),
   currentTime: 0, 
   isPaused: true,
+  playHeadPosition: 0,
+  setPlayHeadPosition: pos => set({playHeadPosition: pos}),
   setLoading: loading => set({ isLoading: loading }),
   setCanvasInfo: info => set({ canvasInfo: info }),
   setPlayerInfo: info => set({ playerInfo: info }),

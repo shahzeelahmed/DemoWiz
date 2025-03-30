@@ -45,30 +45,31 @@ const addImageSprite = () => {
     }
     const clip = new ImageClip(testImageConfig)
     const id = nanoid(5)
-    const itemToAdd: ImageTrack = {
-      id: id,
+    const itemToAdd: ImageTrack[] = [{
+      id: trackId,
       type: 'IMAGE',
       name: 'test',
-      duration: 50,
-      startTime: 0,
-      endTime: 5,
+      inRowId: rowId,
+      duration: 5,
+      startTime: currentTime,
+      endTime: currentTime + 5,
       config: testImageConfig
-    }
+    }]
 
     trackStore.addRow({
-      id: nanoid(5),
+      id: rowId,
       acceptsType: 'MEDIA',
-      trackItem: [itemToAdd]
+      trackItem: itemToAdd
     })
-    trackStore.addTrack([itemToAdd])
+    trackStore.addTrack(itemToAdd)
     
 
     const spr = new VisibleSprite(clip)
-
-    spriteMap.set(itemToAdd.id, spr)
+    spr.time.offset = currentTime * 1e6
+    spriteMap.set(itemToAdd[0].id, spr)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
-
+    spr.time.duration = 5 * 1e6
     avCanvas!.addSprite(spr)
 
     

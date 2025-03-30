@@ -10,10 +10,17 @@ import usePlayerStore from '../../store/playerStore'
 import TimeLine from '../timeline/timeLine'
 import { Button } from '../ui/button'
 import PlayheadNew from '../timeline/playheadtest'
+import imageIcon from '@/frappe-ui/icons/image.svg'
+import effectIcon from '@/frappe-ui/icons/magic-wand-svgrepo-com.svg'
+import textIcon from '@/frappe-ui/icons/text.svg'
+import videoIcon from '@/frappe-ui/icons/video.svg'
+import useSpriteStore from '@/store/spriteStore'
+import { VisibleSprite } from '@webav/av-cliper'
 
 const DraggableTrack = () => {
   const trackStore = useTrackStateStore()
   const setSelectedTrack = useTrackStateStore(state => state.selectTrack)
+  const setSelectedTrackItem = useTrackStateStore(state => state.setSelectedTrackItem)
   const selectedTrack = useTrackStateStore(state => state.selectedTrackId)
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
@@ -25,26 +32,7 @@ const DraggableTrack = () => {
   const playerStore = usePlayerStore()
   const totalDuration = playerStore.duration
   const [zoom, setZoom] = useState(1)
-  // const checkOverlap = (
-  //   trackId: string,
-  //   startTime: number,
-  //   duration: number,
-  //   itemId: string
-  // ) => {
-  //   for (const item of itemStore) {
-  //     if (item.id === itemId) continue
-
-  //     if (item.inRowId !== trackId) continue
-
-  //     const itemEnd = item.startTime + item.duration
-  //     const newItemEnd = startTime + duration
-
-  //     if (startTime < itemEnd && newItemEnd > item.startTime) {
-  //       return true
-  //     }
-  //   }
-  //   return false
-  // }
+ const spriteMap = useSpriteStore(state=> state.sprite)
 
   useEffect(() => {
     const getDuration = () => {
@@ -74,49 +62,7 @@ const DraggableTrack = () => {
     getDuration()
   }, [itemStore, duration])
   //[todo]: add snap condition for snapping to grid
-//   const findValidPosition = (
-//     rowId: string,
-//     rawStartTime: number,
-//     duration: number,
-//     itemId: string,
-//     itemStore: any[] // Assuming itemStore is accessible
-// ) => {
-//     let startTime = Math.max(0, rawStartTime);
 
-//     if (!checkOverlap(rowId, startTime, duration, itemId, itemStore)) {
-//         return startTime;
-//     }
-
-//     let forwardPos = startTime;
-//     let backwardPos = startTime;
-//     const timeIncrement = 1; // Define a small unit of time for searching
-//     const maxAttempts = 100;
-//     let attempts = 0;
-
-//     while (attempts < maxAttempts) {
-//         attempts++;
-
-//         forwardPos += timeIncrement;
-//         if (!checkOverlap(rowId, forwardPos, duration, itemId, itemStore)) {
-//             return forwardPos;
-//         }
-
-//         backwardPos -= timeIncrement;
-//         if (
-//             backwardPos >= 0 &&
-//             !checkOverlap(rowId, backwardPos, duration, itemId, itemStore)
-//         ) {
-//             return backwardPos;
-//         }
-//     }
-
-//     const lastItem = itemStore
-//         .filter(item => item.inRowId === rowId)
-//         .sort((a, b) => (a.startTime + a.duration) - (b.startTime + b.duration))
-//         .pop();
-
-//     return lastItem ? lastItem.startTime + lastItem.duration : 0;
-// };
 //new
 const checkOverlap = (
     trackId: string,
@@ -139,6 +85,29 @@ const checkOverlap = (
     }
     return false;
 };
+const borderStyles = {
+  'IMAGE': {
+    selected: "border-[#ED77BE]",
+    default: "border-[#F69AD1]",
+  },
+  'VIDEO': {
+    selected: "border-[#3CB8DC]",
+    default: "border-[#A0E6F7]", 
+  },
+  'TEXT': {
+    selected: "border-[#9D7CEA]",
+    default: "border-[#C4AFEE]", 
+  },
+  'EFFECT': { 
+      selected: "border-[#DE6D1b]",
+      default: "border-[#FFCDAD]",
+  }
+};
+
+function getBorderStyle(selectedTrack: any, item: any) {
+  const typeStyles = borderStyles[item.type as keyof typeof borderStyles];
+  return selectedTrack === item.id ? typeStyles.selected : typeStyles.default;
+}
 //new
 const findValidPosition = (
   rowId: string,
@@ -239,82 +208,8 @@ const findValidPosition = (
   return lastItem ? lastItem.startTime + lastItem.duration : 0;
 };
 
-  // const findValidPosition = (
-  //   rowId: string,
-  //   rawStartTime: number,
-  //   duration: number,
-  //   itemId: string
-  // ) => {
-  //   let startTime = Math.max(0, rawStartTime)
 
-  //   if (!checkOverlap(rowId, startTime, duration, itemId)) {
-  //     return startTime
-  //   }
-  //   let forwardPos = startTime
-  //   let backwardPos = startTime
 
-  //   const maxAttempts = 100
-  //   let attempts = 0
-
-  //   while (attempts < maxAttempts) {
-  //     attempts++
-
-  //     forwardPos += 0
-  //     if (!checkOverlap(rowId, forwardPos, duration, itemId)) {
-  //       return forwardPos
-  //     }
-  //     backwardPos = backwardPos
-  //     if (
-  //       backwardPos >= 0 &&
-  //       !checkOverlap(rowId, backwardPos, duration, itemId)
-  //     ) {
-  //       return backwardPos
-  //     }
-  //   }
-
-  //   const lastItem = itemStore
-  //     .filter(item => item.inRowId === rowId)
-  //     .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
-  //     .pop()
-
-  //   return lastItem ? lastItem.startTime + lastItem.duration : 0
-  // }
-
-  const addTrackRows = () => {
-    const trackId = nanoid(5)
-    const rowId = nanoid(5)
-    const start = randInt(0, 100)
-    const dur = randInt(0, 100)
-    const newTrack: VideoTrack[] = [
-      {
-        id: trackId,
-        name: 'track:' + `${trackId}`,
-        source: '/videos/sample.mp4',
-        index: trackRows.length,
-        type: 'VIDEO',
-        isVisible: true,
-        isMuted: false,
-        duration: dur,
-        height: 720,
-        width: 1280,
-        color: '#3498db',
-        startTime: start,
-        endTime: 50,
-        inRowId: rowId,
-        atTime: 0,
-        format: 'mp4',
-        frameCount: 900,
-        position: { x: 0, y: 0 },
-        transform: { scaleX: 1, scaleY: 1, rotation: 0 },
-        volume: 1,
-        fps: 30
-      }
-    ]
-
-    console.log(start)
-    trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
-    trackStore.addTrack(newTrack)
-  }
 
   //[todo]: implement drag from library
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
@@ -379,6 +274,12 @@ const findValidPosition = (
           startTime: validStartTime,
           endTime: endTime
         }
+        const spr = spriteMap.get(trackItem.id) as VisibleSprite
+        console.log('startTime:',validStartTime)
+        
+        spr.time.offset = validStartTime * 1e6
+        
+        
 
         trackStore.updateTrack(updatedItems)
       }
@@ -445,14 +346,17 @@ return (
                     left: `${item.startTime * 10}px`,
                     top: "1px",
                     width: `${item.duration * 10}px`,
+                    // alignItems: 'center',
+                    // display: 'flex',
+
                   }}
-                  onClick={()=>{setSelectedTrack(item.id), console.log('item',selectedTrack)}}
+                  onClick={()=>{setSelectedTrack(item.id), setSelectedTrackItem(item.id) }}
                   onDragStart={(e) => handleTimeLineDragStart(e, item)}
                   onDragEnd={handleDragEnd}
-                  className={` text-white rounded-sm  h-8 overflow-hidden flex flex-col relative border-2  bg-[#F69AD1] ${selectedTrack === item.id ? "border-[#CB4934]" : "border-[#ED77BE]"} `}
+                  className={` text-white rounded-sm  h-8 overflow-hidden flex   items-center relative border-2   ${item.type === 'IMAGE' ? 'bg-[#F69AD1] ': item.type === 'TEXT' ? 'bg-[#B398EF]' : item.type === 'EFFECT' ? 'bg-[#ffa873]' : 'bg-[#68D3F3]'  } ${getBorderStyle(selectedTrack, item)}                  `}
                 >
 
-                  <img src={}/>
+                  <img src={item.type === 'IMAGE' ? imageIcon : item.type === 'TEXT' ? textIcon : item.type === 'EFFECT' ? effectIcon : videoIcon  } height={16} width={16} className='ml-1'  />
                 </div>
               ))}
           </div>

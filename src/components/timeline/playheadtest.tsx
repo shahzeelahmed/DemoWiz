@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 
 import React from 'react'
 import usePlayerStore from '../../store/playerStore'
@@ -136,7 +136,7 @@ export default function PlayheadNew () {
     console.log('speed', getPlayheadSpeed(zoom))
     console.log('zoom', zoom)
   },[zoom])
-  
+ 
   useEffect(()=>{
     if ( playheadRef.current) {
     const rect = playheadRef.current.parentElement!.getBoundingClientRect()

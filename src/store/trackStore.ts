@@ -2,26 +2,36 @@ import { create } from 'zustand'
 import { BaseTrack, TrackItemType, TrackType } from '../types/trackType'
 import { TrackRow, TrackRowType } from '../types/trackRowTypes'
 import { getGridPixel } from '../utils/utils'
+import trackRow from '@/components/tracks/trackRow'
 
 //[todo]: add condition for checking overlap b/w tracks
 interface TrackRowState {
   trackLines: TrackRow[]
   tracks: TrackItemType[]
   frameCount: number
+  selectedTrackItem: TrackItemType | null
   selectedTrackId: string | null
+  setSelectedTrackItem: (id:string) =>void;
   addTrack: (tracks: TrackItemType[]) => void
   addRow: (row: TrackRow) => void
   updateTrack: (updatedTrack: TrackItemType[]) => void
-  removetrack: (trackId: string, rowId: string) => void
+  removetrack: (trackId: string) => void
   removeRow: (rowId: string) => void
   selectTrack: (trackId: string) => void
+  rowIndexCounter: number;
 }
 
 export const useTrackStateStore = create<TrackRowState>(set => ({
   trackLines: [],
   frameCount: 0,
+  rowIndexCounter:0,
+  selectedTrackItem: null,
   tracks: [],
   selectedTrackId: null,
+  setSelectedTrackItem: (id: string) =>
+    set(state => ({
+      selectedTrackItem: state.tracks.find(track => track.id === id) || null, 
+    })),
   addTrack: (tracks: TrackItemType[]) =>
     set(state => ({
       
@@ -29,6 +39,7 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       trackLines: state.trackLines.map(row => ({
         ...row,
         trackItem: row.trackItem ? [...row.trackItem, ...tracks] : [...tracks],
+        
       })),
     })),
   updateTrack: (updatedTracks: TrackItemType[]) =>
@@ -45,13 +56,12 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         })
       }))
     })),
-  addRow (row) {
-    set(state => {
-      return {
-        trackLines: [...state.trackLines, row]
-      }
-    })
-  },
+     addRow(row: Omit<TrackRow, 'index'>) {
+      set((state: TrackRowState) => ({
+        trackLines: [...state.trackLines, { ...row, index: state.rowIndexCounter }],
+        rowIndexCounter: state.rowIndexCounter + 1,
+      }));
+    },
   removeRow (rowId) {
     set(state => {
       return {
@@ -60,27 +70,20 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       }
     })
   },
-
+  
      selectTrack: trackid =>
       set(state =>
         state.selectedTrackId === trackid
           ? { selectedTrackId: null }
           : { selectedTrackId: trackid }
       ),
-  removetrack: (trackId: string, rowId: string) =>
-    set(state => {
-      const removeTrack = state.trackLines.map(row => {
-        if (row.id === rowId) {
-          return {
+      removetrack: (trackId: string) =>
+        set(state => ({
+          trackLines: state.trackLines.map(row => ({
             ...row,
             trackItem: row.trackItem.filter(track => track.id !== trackId)
-          }
-        }
-        return row
-      })
-      return {
-        trackLines: removeTrack,
-        tracks: state.tracks.filter(item => item.id !== trackId)
-      }
-    })
+          })),
+          tracks: state.tracks.filter(item => item.id !== trackId)
+        }))
+  
 }))

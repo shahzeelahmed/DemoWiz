@@ -28,11 +28,11 @@ export interface BaseTrack {
   type: TrackType;
   isVisible?: boolean;
   isMuted?: boolean;
-  duration: number;
+  duration?: number;
   height?: number;
   color?: string;
-  startTime: number;
-  endTime: number;
+  startTime?: number;
+  endTime?: number;
   inRowId?: string;
   atTime?: number;
   opacity? : number

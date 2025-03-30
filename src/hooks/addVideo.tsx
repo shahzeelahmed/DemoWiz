@@ -46,8 +46,8 @@ import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
     trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
     trackStore.addTrack(newTrack)
     // videoStore.setClip(trackId, clip)
-
-    console.log('duration', duration / 1e6)
+    spr.time.offset = currentTime * 1e6
+    console.log('duration', duration/1e6)
     spriteMap.set(trackId, spr)
     // videoStore.setClip(trackId, clip)
     spr.rect.fixedScaleCenter = true
