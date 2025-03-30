@@ -329,7 +329,6 @@ export class TextClip implements IClip {
       video: new VideoFrame(this.#cvsEl, { timestamp: time }),
     };
   }
-  
 
   async clone () {
     return new TextClip(this.#textConfig  ) as this

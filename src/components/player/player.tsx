@@ -297,7 +297,8 @@ const handleSplit = async () => {
   if (!oldSprite) return;
   const currentMicroTime = currentTime * 1e6;
   const splitDuration = currentMicroTime - oldSprite.time.offset;
-  const newClips = await oldSprite.getClip().split(splitDuration);
+  const getClip = await oldSprite.getClip()
+  const newClips = await getClip.split(splitDuration);
   console.log("new clips:", newClips);
   avCanvas.removeSprite(oldSprite);
   spriteMap.delete(selectedTrackItem.id);

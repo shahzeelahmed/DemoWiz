@@ -1,3 +1,4 @@
+//[todo]: add split fn and text animations
 import { TextClip } from "@/class/textTrack"
 import { useAVCanvasStore } from "@/store/avCanvasStore"
 import usePlayerStore from "@/store/playerStore"
@@ -90,7 +91,6 @@ const addSprite = async (content:string) => {
     spriteMap.set(itemToAdd[0].id, spr)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
-
     avCanvas!.addSprite(spr)
     console.log('index',index)
     
