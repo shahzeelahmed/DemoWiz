@@ -56,6 +56,7 @@ import { useAVCanvasStore } from '@/store/avCanvasStore'
 import { TrackItem } from '../tracks/trackItem'
 import TextTrackConfig from '../tracks/textTrack'
 import { randInt } from 'three/src/math/MathUtils'
+import { ImageClip } from '@/class/imageTrack'
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -253,19 +254,12 @@ useEffect(() => {
       spr.preFrame(currentTime * 1e6)
     }
   }
-const [fontSize,setFontSize] = useState(0)
-useEffect(()=>{
-  if(selectedTrackItem === null) return;
-if(selectedTrackItem?.type === 'TEXT'){
-  const sprite = spriteMap.get(selectedTrack!)  
-  const textClip = sprite!.getClip() as TextClip;
-  setFontSize(textClip.textConfig.opacity!)
-}
-},[selectedTrackItem])
+
 const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
   console.log('selected clip', clip)
   console.log('clip id:',clip.id)
   const sprite = spriteMap.get(clip.id)
+  const itemStore = trackStore.tracks
   if (clip.type === 'TEXT') {
     
     const textClip = sprite!.getClip() as TextClip;
@@ -275,17 +269,18 @@ const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
       ...textClip.textConfig,
       [propertyKey]: newValue
     };
-    const newconfig = {
+    clip.config = {
       ...clip.config,
       [propertyKey]: newValue
     };
-    const itemToUpdate : TextTrack[] = [{
+    const newConfig = clip.config
+    const itemToUpdate:TextTrack[] = [{
       id: clip.id,
       type: 'TEXT',
-      config: newconfig,
-      name: randInt(10,100).toString(),
-   
-    } ]
+      config: newConfig,
+      name: ''
+    }]
+  console.log('newconfig',newConfig)
     trackStore.updateTrack(itemToUpdate)
     
     sprite!.preFrame(currentTime * 1e6);
@@ -293,6 +288,54 @@ const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
     return true;
   }
   return false;
+};
+
+//adapted from videoclip demo
+const handleSplit = async () => {
+  if (!selectedTrackItem || !avCanvas ) return;
+  const oldSprite = spriteMap.get(selectedTrackItem.id);
+  if (!oldSprite) return;
+  const currentMicroTime = currentTime * 1e6;
+  const splitDuration = currentMicroTime - oldSprite.time.offset;
+  const newClips = await oldSprite.getClip().split(splitDuration);
+  console.log("new clips:", newClips);
+  avCanvas.removeSprite(oldSprite);
+  spriteMap.delete(selectedTrackItem.id);
+
+  const sprsDuration = [
+    splitDuration,
+    oldSprite.time.duration - splitDuration,
+  ];
+  const sprsOffset = [
+    oldSprite.time.offset,
+    oldSprite.time.offset + splitDuration,
+  ];
+
+  if (newClips[0]) {
+    selectedTrackItem.duration = sprsDuration[0] / 1e6;
+    selectedTrackItem.endTime =
+      Number(selectedTrackItem.startTime) + selectedTrackItem.duration;
+    trackStore.updateTrack([selectedTrackItem]);
+  }
+
+  for (let i = 0; i < newClips.length; i++) {
+    const clip = newClips[i];
+    let clipObj = i === 0
+      ? selectedTrackItem
+      : { ...selectedTrackItem, id: nanoid() };
+    if (i > 0) {
+      clipObj.startTime = selectedTrackItem.endTime;
+      clipObj.duration = sprsDuration[i] / 1e6;
+      clipObj.endTime = Number(clipObj.startTime) + clipObj.duration;
+      clipObj.inRowId = selectedTrackItem.inRowId;
+      trackStore.addTrack([clipObj]);
+    }
+    const newSprite = new VisibleSprite(clip);
+    newSprite.time.offset = sprsOffset[i];
+    newSprite.time.duration = sprsDuration[i];
+    spriteMap.set(clipObj.id, newSprite);
+    await avCanvas.addSprite(newSprite);
+  }
 };
 
 
@@ -308,7 +351,7 @@ const [color,setColor] = useState('')
 
         <div className='flex mt-4'>
           <div className='flex flex-row flex-grow items-start gap-4'>
-            <Button variant={'icon'}>
+            <Button variant={'icon'} onClick={async() =>{await handleSplit()}}>
               <img src={scissorIcon} height={20} width={20} alt='Scissor' />
               Split
             </Button>

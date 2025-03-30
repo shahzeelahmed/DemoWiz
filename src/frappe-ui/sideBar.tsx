@@ -163,7 +163,7 @@ const SideBar = () => {
           
         </div>) : selectedIcon === 'text' ? (   <div className='w-72 bg-white p-4'>
           <h2 className='text-[#1e1e1e] font-medium text-lg'>Text</h2>
-          <Textarea className='resize-none bg-white 'placeholder='Enter Text'/>
+        
           <AddTextSprite />
           
         </div>) : null}

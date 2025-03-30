@@ -99,13 +99,11 @@ const addSprite = async (content:string) => {
   }
 
 return (
-    // <Button  className="mt-2" onClick={async() =>{await addSprite('')}}>
-    //     ADD TEXT
-    //     </Button>
+
     <div className="flex flex-col gap-2">
       <textarea
-        className="border rounded-md p-2 w-full"
-        placeholder="Enter text here..."
+        className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 "
+        placeholder="Enter Text Here..."
         value={textValue}
         onChange={(e) => setTextValue(e.target.value)}
       />
