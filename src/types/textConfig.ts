@@ -1,9 +1,8 @@
 export interface TextConfig {
   content: string; 
-  fontSize?: number;
-  letterSpacing?: number;
+  fontSize: number;
+  letterSpacing: number;
   animationDuration?: number;
-  animationType?: 'fade' | 'slide' | 'none';
   fontFamily?: string;
   fontStyle?: "normal" | "italic" | "oblique";
   textDecoration?: "none" | "underline" | "line-through" | "overline";

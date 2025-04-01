@@ -32,13 +32,13 @@ const addSprite = async (content:string) => {
     bold: false,
     italic: false,
     color: "#ffffff",
-    showShadow: false,
+    showShadow: true,
     shadowColor: "#888888",
     shadowBlur: 5,
     shadowOffsetX: 2,
     shadowOffsetY: 2,
     shadowOpacity: 0.5,
-    showStroke: true,
+    showStroke: false,
     strokeColor: "#000000",
     strokeWidth: 1,
     letterSpacing: 0,
@@ -51,7 +51,7 @@ const addSprite = async (content:string) => {
     y: 0,
     width: 200,
     height: 200,
-    lineSpacing: 5,
+    lineSpacing: 0,
     align: "left",
     backgroundColor: "",
     backgroundOpacity: 0,
@@ -64,7 +64,7 @@ const addSprite = async (content:string) => {
     strokeDasharray: [],
     strokeDashoffset: 0,
     animationDuration: 1 * 1e6,
-    animationType: 'fade'
+
   };
     const itemToAdd: TextTrack[] = [{
       id: trackId,
@@ -102,7 +102,7 @@ return (
 
     <div className="flex flex-col gap-2">
       <textarea
-        className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 "
+        className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 text-[#5e5e5e] "
         placeholder="Enter Text Here..."
         value={textValue}
         onChange={(e) => setTextValue(e.target.value)}

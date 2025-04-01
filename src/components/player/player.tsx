@@ -57,6 +57,7 @@ import { TrackItem } from '../tracks/trackItem'
 import TextTrackConfig from '../tracks/textTrack'
 import { randInt } from 'three/src/math/MathUtils'
 import { ImageClip } from '@/class/imageTrack'
+import { cn } from '../ui/lib/utils'
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -254,6 +255,14 @@ useEffect(() => {
       spr.preFrame(currentTime * 1e6)
     }
   }
+  // const [localClip, setLocalClip] = useState(selectedTrackItem);
+
+
+  // useEffect(() => {
+  //   setLocalClip(selectedTrackItem);
+  // }, [selectedTrackItem]);
+
+  
 
 const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
   console.log('selected clip', clip)
@@ -289,6 +298,7 @@ const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
   }
   return false;
 };
+
 
 //adapted from videoclip demo
 const handleSplit = async () => {
@@ -411,40 +421,22 @@ const [color,setColor] = useState('')
           <div className='grid grid-rows-2 gap-1'></div>
 
           <h3 className='text-sm font-medium'>STYLE</h3>
-          <Slider />
+          
           <div className='flex gap-4 mt-2'>
             <Button variant={'icon'} size={'icon'} 
-            className={selectedTrackItem.config.bold ? "bg-gray-600" : "bg-transparent"}
-            // onClick={()=>{
-            //   const newBoldValue = selectedTrackItem.config.bold === true ? false : true
-            //   console.log('bold:' , newBoldValue)
-           
-            //   updateTextClip(selectedTrackItem as TrackItemType,'bold', newBoldValue )
-            // }
-            //   }
-            onClick={() => {
-              console.log("Before Toggle:", selectedTrackItem.config.bold);
-              console.log('config', selectedTrackItem.config)
-              
-              const newBoldValue = !selectedTrackItem.config.bold; 
-          
-              console.log("After Toggle:", newBoldValue);
-          
-              updateTextClip({ 
-                ...selectedTrackItem, 
-                config: { 
-                  ...selectedTrackItem.config, 
-                  bold: newBoldValue 
-                } 
-              }, "bold", newBoldValue);
-              console.log('after updateclip',newBoldValue)
-            }
-          
-          }
+            className={selectedTrackItem.config.bold ? "bg-red-200" : "bg-green-300"}
+       onClick={()=>{
+        const toggleBold = !selectedTrackItem.config.bold; 
+        updateTextClip(selectedTrackItem, 'bold', toggleBold );
+       }}
+        
               >
               <BoldIcon />
             </Button>
-            <Button variant={'icon'} size={'icon'}>
+            <Button variant={'icon'} size={'icon'} onClick={()=>{
+        const toggleItalic = !selectedTrackItem.config.italic; 
+        updateTextClip(selectedTrackItem, 'italic', toggleItalic );
+       }}>
               <ItalicIcon />
             </Button>
             <Button variant={'icon'} size={'icon'}>
@@ -453,15 +445,28 @@ const [color,setColor] = useState('')
           </div>
           <h3 className='text-sm font-medium  mt-2'>FONT</h3>
           <div className='grid grid-rows-2  '>
-            <Select>
+            <Select onValueChange={(value) => updateTextClip(selectedTrackItem,'fontFamily',value)}>
               <SelectTrigger className='bg-white border-none w-[200px]'>
-                <SelectValue placeholder='Otetoro' />
+                <SelectValue placeholder='Arial' />
               </SelectTrigger>
               <SelectContent className='font-medium bg-white' >
+              <SelectItem value='Arial'>  Arial</SelectItem>
                 <SelectItem value='otetoro'>  Otetoro</SelectItem>
                 <SelectItem value='sans-serif'>Sans Serif</SelectItem>
+                <SelectItem value='Verdana'>Verdana</SelectItem>
+                <SelectItem value='Tahoma'>Tahoma</SelectItem>
+                <SelectItem value='Trebuchet MS'>Trebuchet MS</SelectItem>
+                <SelectItem value='Georgia'>Georgia</SelectItem>
+                <SelectItem value='Times New Roman'>Times New Roman</SelectItem>
+                <SelectItem value='Impact'>Impact</SelectItem>
+                <SelectItem value='Comic Sans MS'>Comic Sans MS</SelectItem>
+                <SelectItem value='Courier New'>Courier New</SelectItem>
+                <SelectItem value='Inter'>Inter</SelectItem>
+
               </SelectContent>
             </Select>
+            
+            <div className='flex flex-row gap-2 mt-2'>
             <h3 className='text-sm mt-3'>Size</h3>
             
   <Input
@@ -470,31 +475,61 @@ const [color,setColor] = useState('')
     min={1}
     step={1}
     max={200}
+    className={cn(
+      "border-none",
+    )}
     onChange={(e) => {
       updateTextClip(selectedTrackItem, 'fontSize', parseInt(e.target.value, 10));
     }}
-    className='border-none'
+    // className='border-none'
   />
-
+</div>
 
             <div className='grid grid-cols-2 items-center justify-between'>
-              <h3 className='text-sm mt-4'>Color</h3>
-              <div className='flex h-7 w-8 justify-center items-center rounded-md border border-gray-500 mt-4 '>
-              <input type = 'color' onChange={(e) =>{updateTextClip(selectedTrackItem, "color", e.target.value),setColor(e.target.value)}} /> 
+              <h3 className='text-sm mt-4 text-[#8e8e8e]'>Color</h3>
+              <div className='flex h-6 w-6 justify-center items-center rounded-md border-[1.5px] border-gray-800 mt-4  '>
+              <input type = 'color' 
+              className='h-6 w-5'
+              value={selectedTrackItem.color}
+              onChange={(e) =>{updateTextClip(selectedTrackItem, "color", e.target.value)}} /> 
               </div>
             </div>
             <h3 className='text-sm mt-3 text-[#8e8e8e]'>Opacity</h3>
 
-            <span className='text-sm'>Opacity: {opacity.toFixed(1)}</span>
+            <div className='flex flex-row gap-1'>
             <Slider
   min={0}
   max={1}
   defaultValue={[selectedTrackItem.config.opacity as number]} 
+  value={[ selectedTrackItem.config.opacity as number]}
   step={0.01}
   onValueChange={(val) => { updateTextClip(selectedTrackItem, 'opacity', val);
-  }}
+  }
+}
+
   className='w-[250px]'
 />
+<span className='text-sm'> {selectedTrackItem.config.opacity as number}</span>
+
+</div>
+<h3 className='text-sm mt-3 text-[#8e8e8e]'>Letter Spacing</h3>
+
+<div className='flex flex-row gap-1'>
+<Slider
+min={0}
+max={50}
+defaultValue={[selectedTrackItem.config.letterSpacing as number]} 
+value={[ selectedTrackItem.config.letterSpacing as number]}
+step={1}
+onValueChange={(val) => { updateTextClip(selectedTrackItem, 'letterSpacing', val);
+}
+}
+
+className='w-[250px]'
+/>
+<span className='text-sm'> {selectedTrackItem.config.letterSpacing as number}</span>
+
+</div>
           </div>
         </div>
       ) :

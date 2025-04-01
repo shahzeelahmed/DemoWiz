@@ -3,6 +3,8 @@ import { BaseTrack, TrackItemType, TrackType } from '../types/trackType'
 import { TrackRow, TrackRowType } from '../types/trackRowTypes'
 import { getGridPixel } from '../utils/utils'
 import trackRow from '@/components/tracks/trackRow'
+import { TextTrack } from '../types/trackType'
+
 
 //[todo]: add condition for checking overlap b/w tracks
 interface TrackRowState {
@@ -42,20 +44,7 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
         
       })),
     })),
-  updateTrack: (updatedTracks: TrackItemType[]) =>
-    set(state => ({
-      tracks: state.tracks.map(track => {
-        const updatedTrack = updatedTracks.find(t => t.id === track.id)
-        return updatedTrack ? { ...track, ...updatedTrack } : track
-      }),
-      trackLines: state.trackLines.map(row => ({
-        ...row,
-        trackItem: row.trackItem.map(track => {
-          const updatedTrack = updatedTracks.find(t => t.id === track.id)
-          return updatedTrack ? { ...track, ...updatedTrack } : track
-        })
-      }))
-    })),
+ 
      addRow(row: Omit<TrackRow, 'index'>) {
       set((state: TrackRowState) => ({
         trackLines: [...state.trackLines, { ...row, index: state.rowIndexCounter }],
@@ -70,7 +59,40 @@ export const useTrackStateStore = create<TrackRowState>(set => ({
       }
     })
   },
-  
+  updateTrack: (updatedTracks: TrackItemType[]) =>
+    set((state) => ({
+      tracks: state.tracks.map((track) => {
+        const updatedTrack = updatedTracks.find((t) => t.id === track.id);
+        if (updatedTrack) {
+          if (track.type === "TEXT") {
+            return {
+              ...track,
+              ...updatedTrack,
+              config: { ...(track as any).config, ...(updatedTrack as any).config },
+            };
+          }
+          return { ...track, ...updatedTrack };
+        }
+        return track;
+      }),
+      trackLines: state.trackLines.map((row) => ({
+        ...row,
+        trackItem: row.trackItem.map((track) => {
+          const updatedTrack = updatedTracks.find((t) => t.id === track.id);
+          if (updatedTrack) {
+            if (track.type === "TEXT") {
+              return {
+                ...track,
+                ...updatedTrack,
+                config: { ...(track as any).config, ...(updatedTrack as any).config },
+              };
+            }
+            return { ...track, ...updatedTrack };
+          }
+          return track;
+        }),
+      })),
+    })),
      selectTrack: trackid =>
       set(state =>
         state.selectedTrackId === trackid

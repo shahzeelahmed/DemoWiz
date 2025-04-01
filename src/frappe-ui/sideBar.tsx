@@ -131,7 +131,7 @@ const SideBar = () => {
 
           </Button> */}
 
-          <div className='mt-4 '>
+          {/* <div className='mt-4 '>
             <h3 className='text-[#383838] text-sm mb-2'>Recently Used</h3>
             <div className=' overflow-x-auto whitespace-nowrap   p-1 flex customScrollbar'>
               <div className='flex space-x-2  '>
@@ -147,8 +147,8 @@ const SideBar = () => {
               <div className='w-20 h-12 bg-red-500 rounded'></div>
               <div className='w-20 h-12 bg-red-300 rounded'></div>
               <div className='w-20 h-12 bg-red-300 rounded'></div>
-            </div>
-          </div>
+            </div> */}
+          {/* </div> */}
 
          
         </div>
