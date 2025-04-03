@@ -17,6 +17,7 @@ import AddVideoSprite from '@/hooks/addVideo'
 import { Textarea } from '@/components/ui/textarea'
 import AddTextSprite from '@/hooks/addText'
 import AddImageSprite from '@/hooks/addImage'
+import AddEffect from '@/hooks/addEffect'
 const SideBar = () => {
   const sliderRef = useRef<HTMLInputElement>(null)
   const sidebarStore = useSidebarStore()
@@ -158,6 +159,7 @@ const SideBar = () => {
 
     </div>) : selectedIcon === 'effects' ? (   <div className='w-72 bg-white p-4'>
           <h2 className='text-[#1e1e1e] font-medium text-lg'>Effects</h2>
+          <AddEffect/>
 
         
           

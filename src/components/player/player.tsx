@@ -84,7 +84,7 @@ const Player = () => {
   const opacity = useTextStore(state => state.opacity)
   const spacing = useTextStore(state => state.spacing)
  
-  const addEffectToRow = () => {
+  const addEffectToRow = async() => {
     const id = nanoid(5)
     const itemToAdd: EffectTrack = {
       id: id,
@@ -109,24 +109,49 @@ const Player = () => {
     hold: number
   ) => {
     const id = track.id
-    const clip = videoStore.clip.get(id)
-    if (!clip) return
+    if(id===null){
+      console.warn('no id',id)
+      return
+    }
+    
+    const sprite = spriteMap.get(id)
+   
+    if(!sprite){
+      console.warn('no sprite',id)
+      return
+    }
+    
+    const newClip = sprite?.getClip() as MP4Clip
+    if (!newClip) return
+    spriteMap.delete(id);
+    avCanvas?.removeSprite(sprite)
+
     const zoomBlur = createZoomBlurShader({
       zoomCoords: [0, 1],
       zoomDepth: 1.0,
       startTime: startTime,
       holdDuration: hold
     })
-    clip.tickInterceptor = async (_, tickRet) => {
-      if (tickRet.video == null) return tickRet
+    newClip.tickInterceptor = async (_, tickRet) => {
+      if (tickRet.video == null){ 
+        console.log('no clip found ')
+        return tickRet}
       return {
         ...tickRet,
         video: await zoomBlur(tickRet.video)
       }
     }
+ 
+    await newClip.ready
+    const spr = new VisibleSprite(newClip)
+    console.log('sprite',spr) 
+    
+    spriteMap.set(id+'00',spr)
+    console.log('map',spriteMap)
+    await avCanvas?.addSprite(spr)
   }
 
-  //[todo] implement on z-index change and sprite position changer
+  //[todo] implement on z-index change 
 
   useEffect(() => {
     if (cvsWrapEl == null) return
@@ -152,7 +177,8 @@ const Player = () => {
       playerStore.setPaused(true)
       console.log('paused')
     })
-
+    cvs.on('activeSpriteChange', (s: VisibleSprite | null) => {
+      console.log('activeSpriteChange:', s);})
     return () => {
       cvs.destroy()
     }
@@ -268,7 +294,6 @@ const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
   console.log('selected clip', clip)
   console.log('clip id:',clip.id)
   const sprite = spriteMap.get(clip.id)
-  const itemStore = trackStore.tracks
   if (clip.type === 'TEXT') {
     
     const textClip = sprite!.getClip() as TextClip;
@@ -307,7 +332,7 @@ const handleSplit = async () => {
   if (!oldSprite) return;
   const currentMicroTime = currentTime * 1e6;
   const splitDuration = currentMicroTime - oldSprite.time.offset;
-  const getClip = await oldSprite.getClip()
+  const getClip =  oldSprite.getClip()
   const newClips = await getClip.split(splitDuration);
   console.log("new clips:", newClips);
   avCanvas.removeSprite(oldSprite);
@@ -534,7 +559,12 @@ className='w-[250px]'
         </div>
       ) :
       selectedIcon === 'effects' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80'></div>
+        
+        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80'>
+          <Button onClick={async() =>await addEffect(selectedTrackItem as TrackItemType,currentTime,5000)}>
+            add effect
+          </Button>
+        </div>
 ) : null
     }    </div>
   )

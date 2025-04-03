@@ -1,5 +1,7 @@
 import { nanoid } from 'nanoid'
 import { DrawConfig } from '../types/types'
+import usePlayerStore from '@/store/playerStore'
+import { EffectState } from '@/store/effectStore'
 export function formatTime (time: number): {
   s: number
   m: number
@@ -73,6 +75,7 @@ export async function loadImage(accept: Record<string, string[]>): Promise<Uint8
     return file;
   }
 }
+
 
 
 export const generateId = () => nanoid(5)

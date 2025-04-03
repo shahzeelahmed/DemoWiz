@@ -49,7 +49,7 @@ export default function App () {
     <div className='relative h-lvh w-full flex '>
      
      
-    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-2 top-2 ' />
+    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-1 top-1 bottom-1 m-1 ' />
     <Button className="absolute  rounded-lg right-2 top-2" >
       <ExportIcon /> EXPORT
     </Button>

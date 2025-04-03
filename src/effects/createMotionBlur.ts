@@ -337,8 +337,8 @@ const fragmentShaderSource = `
   uniform sampler2D inputTexture;
   
   const float ZOOM_DURATION = 0.8;
-  const float MAX_ZOOM = 3.0;
-  const float MOTION_BLUR_STRENGTH = 5.0;
+  const float MAX_ZOOM = 1.5;
+  const float MOTION_BLUR_STRENGTH = 4.0;
   const int MOTION_BLUR_SAMPLES = 100;
 
   

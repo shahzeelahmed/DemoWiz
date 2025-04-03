@@ -32,7 +32,7 @@ const addImageSprite = () => {
     const testImageConfig: ImageConfig = {
         data: file,
         opacity: 1,
-        showShadow: true,
+        showShadow: false,
         shadowColor: '#FFFFFF',
         shadowBlur: 10,
         shadowOffsetX: 5,
