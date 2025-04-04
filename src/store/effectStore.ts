@@ -7,6 +7,7 @@ interface EffectData {
   trackId: string
   effectFunction: any
   startTime: number
+  endTime:number
 }
 
 export type EffectState = {
@@ -23,7 +24,8 @@ type EffectsStore = {
   applyEffect: (
     trackItem: TrackItemType,
     effectFunction: any,
-    startTime: number
+    startTime: number,
+    endTime:number
   ) => Promise<void>
   removeEffect: (trackItemId: string) => Promise<void>
 }
@@ -36,7 +38,8 @@ const useEffectsStore = create<EffectsStore>((set, get) => ({
   applyEffect: async (
     trackItem: TrackItemType,
     effectFunction: any,
-    startTime: number
+    startTime: number,
+    endTime:number
   ) => {
     const { isPaused } = usePlayerStore.getState()
     const { effectsMap } = get()
@@ -48,7 +51,8 @@ const useEffectsStore = create<EffectsStore>((set, get) => ({
     const effectData: EffectData = {
       trackId: trackItem.id,
       effectFunction,
-      startTime
+      startTime,
+      endTime
     }
 
     const effectStateToStore: any = {

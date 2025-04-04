@@ -30,7 +30,7 @@ const AddEffect = () => {
         }
         const currentSprite = sprite.get(trackId);
         if (!currentSprite) return console.warn(`sprite with id ${trackId} not found`);
-    
+        const endTime = startTime + hold  
         const trackItem = trackStore.selectedTrackItem;
         if (!trackItem) return;
 //init effect        
@@ -41,7 +41,7 @@ const AddEffect = () => {
             holdDuration: hold
           })
 //apply the effect
-        applyEffect(trackItem, async (videoFrame: ImageBitmap | VideoFrame)  => {return await zoomBlur(videoFrame); },startTime);
+        applyEffect(trackItem, async (videoFrame: ImageBitmap | VideoFrame)  => {return await zoomBlur(videoFrame); },startTime,endTime);
     
         console.log(`effect applied on track ${trackId}`);
     };

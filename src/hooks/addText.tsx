@@ -25,14 +25,16 @@ const addSprite = async (content:string) => {
   
   const testConfig :TextConfig = {
     content: content,
-    fontSize: 36,
+    fontSize: 58,
     fontFamily: "Arial",
     fontStyle: "normal",
+    animationType: "none",
+    animationDuration: 3*1e6,
     fontWeight: 200,
     bold: false,
     italic: false,
     color: "#ffffff",
-    showShadow: true,
+    showShadow: false,
     shadowColor: "#888888",
     shadowBlur: 5,
     shadowOffsetX: 2,
@@ -49,8 +51,8 @@ const addSprite = async (content:string) => {
     opacity: 1,
     x: 0,
     y: 0,
-    width: 200,
-    height: 200,
+    width: 400,
+    height: 400,
     lineSpacing: 0,
     align: "left",
     backgroundColor: "",
@@ -63,7 +65,6 @@ const addSprite = async (content:string) => {
     strokeOpacity: 0,
     strokeDasharray: [],
     strokeDashoffset: 0,
-    animationDuration: 1 * 1e6,
 
   };
     const itemToAdd: TextTrack[] = [{
@@ -81,13 +82,21 @@ const addSprite = async (content:string) => {
     trackStore.addTrack(itemToAdd)
 
     const clip = new TextClip(itemToAdd[0].config)
-    
     const spr = new VisibleSprite(clip)
     spr.time.offset = currentTime * 1e6
     spr.time.duration = 5 * 1e6
    
     
-
+    // spr.setAnimation(
+    //   {
+    //     '0%': { x: 400, y: 200 },
+    //     '25%': { x: 400, y: 220 },
+    //     '50%': { x: 400, y: 230 },
+    //     '75%': { x: 400, y: 240  },
+    //     '100%': { x: 400, y: 300 },
+    //   },
+    //   { duration: 1e6, iterCount: 1 },
+    // );
     spriteMap.set(itemToAdd[0].id, spr)
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true

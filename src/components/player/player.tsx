@@ -1,5 +1,6 @@
 //[todo]: implement videoEffect and textEffect]
 import { IClip, ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
+import { cn } from '../ui/lib/utils'
 import {
   useState,
   useCallback,
@@ -8,7 +9,7 @@ import {
   FormEvent,
   FormEventHandler
 } from 'react'
-import Colorpicker, { ColorPicker, useColor } from 'react-color-palette'
+
 import usePlayerStore from '../../store/playerStore'
 import { AVCanvas } from '@webav/av-canvas'
 import React from 'react'
@@ -57,7 +58,9 @@ import { TrackItem } from '../tracks/trackItem'
 import TextTrackConfig from '../tracks/textTrack'
 import { randInt } from 'three/src/math/MathUtils'
 import { ImageClip } from '@/class/imageTrack'
-import { cn } from '../ui/lib/utils'
+import { NumberInputWithUnit } from '../ui/numberinput'
+import { ColorPicker, PickerExample } from '../ui/colorpicker'
+
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -83,6 +86,7 @@ const Player = () => {
   const selectedTrackItem = useTrackStateStore(state => state.selectedTrackItem)
   const opacity = useTextStore(state => state.opacity)
   const spacing = useTextStore(state => state.spacing)
+  const [effectStart, setEffectStart] = useState(0)
  
   const addEffectToRow = async() => {
     const id = nanoid(5)
@@ -123,33 +127,56 @@ const Player = () => {
     
     const newClip = sprite?.getClip() as MP4Clip
     if (!newClip) return
-    spriteMap.delete(id);
-    avCanvas?.removeSprite(sprite)
 
+    const endTime = startTime + hold
     const zoomBlur = createZoomBlurShader({
       zoomCoords: [0, 1],
       zoomDepth: 1.0,
       startTime: startTime,
       holdDuration: hold
     })
+    if (currentTime === startTime && currentTime < endTime){
     newClip.tickInterceptor = async (_, tickRet) => {
-      if (tickRet.video == null){ 
-        console.log('no clip found ')
+      
+      if (isPaused === false) {
+        console.log('paused')
+        return tickRet
+      }
+      console.log('timeStamp',tickRet.video?.timestamp)
+      if (tickRet.video?.timestamp === undefined){ 
+        console.log('undefined ')
         return tickRet}
-      return {
+        
+       return {
         ...tickRet,
-        video: await zoomBlur(tickRet.video)
+        video: await zoomBlur(tickRet.video as VideoFrame),
+        
+        
+      
       }
     }
- 
-    await newClip.ready
-    const spr = new VisibleSprite(newClip)
-    console.log('sprite',spr) 
-    
-    spriteMap.set(id+'00',spr)
-    console.log('map',spriteMap)
-    await avCanvas?.addSprite(spr)
   }
+// else{
+//   newClip.tickInterceptor = async (_, tickRet) => {
+//     if (isPaused === false) {
+//       console.log('paused')
+//       return tickRet
+//     }
+//     if (tickRet.video == null){ 
+//       console.log('no clip found ')
+//       return tickRet}
+//     return {
+//       ...tickRet,
+//     }
+//   }
+  
+
+  }
+  // useEffect(()=>{
+  //   if(currentTime === effectStart){
+  //     addEffect(selectedTrackItem as TrackItemType,currentTime ,10000)
+  //   }
+  // },[effectStart])
 
   //[todo] implement on z-index change 
 
@@ -325,6 +352,7 @@ const updateTextClip = (clip: TrackItemType,propertyKey:any, newValue:any) => {
 };
 
 
+
 //adapted from videoclip demo
 const handleSplit = async () => {
   if (!selectedTrackItem || !avCanvas ) return;
@@ -375,8 +403,6 @@ const handleSplit = async () => {
 };
 
 
-const [color,setColor] = useState('')
-  
   return (
     <div className='m-2 flex'>
       <div className='flex flex-col flex-1'>
@@ -447,7 +473,7 @@ const [color,setColor] = useState('')
 
           <h3 className='text-sm font-medium'>STYLE</h3>
           
-          <div className='flex gap-4 mt-2'>
+          <div className='flex gap-4'>
             <Button variant={'icon'} size={'icon'} 
             className={selectedTrackItem.config.bold ? "bg-red-200" : "bg-green-300"}
        onClick={()=>{
@@ -464,12 +490,12 @@ const [color,setColor] = useState('')
        }}>
               <ItalicIcon />
             </Button>
-            <Button variant={'icon'} size={'icon'}>
-              <UnderLineIcon />
-            </Button>
           </div>
+          <div className='flex flex-row justify-between'>
           <h3 className='text-sm font-medium  mt-2'>FONT</h3>
-          <div className='grid grid-rows-2  '>
+          <h3 className='text-sm font-medium mt-2 mr-6'>Size</h3>
+          </div>
+         <div className='flex flex-row gap-1'>
             <Select onValueChange={(value) => updateTextClip(selectedTrackItem,'fontFamily',value)}>
               <SelectTrigger className='bg-white border-none w-[200px]'>
                 <SelectValue placeholder='Arial' />
@@ -491,35 +517,34 @@ const [color,setColor] = useState('')
               </SelectContent>
             </Select>
             
-            <div className='flex flex-row gap-2 mt-2'>
-            <h3 className='text-sm mt-3'>Size</h3>
             
-  <Input
-    type='number'
-    defaultValue={selectedTrackItem.config?.fontSize ?? 16}
+            
+            
+  <NumberInputWithUnit
+    unit='px'
+    defaultValue={selectedTrackItem.config?.fontSize ?? 40}
     min={1}
     step={1}
-    max={200}
+    max={130}
     className={cn(
-      "border-none",
+      "border-none ",
     )}
-    onChange={(e) => {
-      updateTextClip(selectedTrackItem, 'fontSize', parseInt(e.target.value, 10));
+    onValueChange={(e) => {
+      updateTextClip(selectedTrackItem, 'fontSize', e);
     }}
-    // className='border-none'
+    
   />
 </div>
 
-            <div className='grid grid-cols-2 items-center justify-between'>
-              <h3 className='text-sm mt-4 text-[#8e8e8e]'>Color</h3>
-              <div className='flex h-6 w-6 justify-center items-center rounded-md border-[1.5px] border-gray-800 mt-4  '>
-              <input type = 'color' 
-              className='h-6 w-5'
-              value={selectedTrackItem.color}
-              onChange={(e) =>{updateTextClip(selectedTrackItem, "color", e.target.value)}} /> 
+            <div className= 'flex flex-row items-center justify-between '>
+              <h3 className='text-sm mt-2 text-[#8e8e8e]'>Color</h3>
+              <ColorPicker
+              
+             onChange={(value) =>{updateTextClip(selectedTrackItem, "color", value)}}
+              />
+            
               </div>
-            </div>
-            <h3 className='text-sm mt-3 text-[#8e8e8e]'>Opacity</h3>
+            <h3 className='text-sm mt-1 text-[#8e8e8e]'>Opacity</h3>
 
             <div className='flex flex-row gap-1'>
             <Slider
@@ -537,31 +562,57 @@ const [color,setColor] = useState('')
 <span className='text-sm'> {selectedTrackItem.config.opacity as number}</span>
 
 </div>
-<h3 className='text-sm mt-3 text-[#8e8e8e]'>Letter Spacing</h3>
+<div className='flex flex-row justify-between'>
+<h3 className='text-sm font-medium  mt-2 text-[#8e8e8e]'>Animation</h3>
+<h3 className='text-sm font-medium  mt-2 text-[#8e8e8e] mr-8'>
+  
+              Duration
+            </h3>
+            </div>
+          <div className='flex flex-row gap-1 '>
+            <Select onValueChange={(value) => updateTextClip(selectedTrackItem,'animationType',value)}>
+              <SelectTrigger className='bg-white border-none w-[200px]'>
+                <SelectValue placeholder='None' />
+              </SelectTrigger>
+              
+              <SelectContent className='font-medium  bg-[#f6f6f6]' >
+              <SelectItem value='None'>  None</SelectItem>
+                <SelectItem value='typewriter'>  typewriter</SelectItem>
+                <SelectItem value='slide'>slide</SelectItem>
+                <SelectItem value='fade'>fade</SelectItem>
+                <SelectItem value='blur'>blur</SelectItem>
+                <SelectItem value='pop'>pop</SelectItem>
+                <SelectItem value='bounce'>bounce</SelectItem>
+                <SelectItem value='reveal'>reveal</SelectItem>
 
-<div className='flex flex-row gap-1'>
-<Slider
-min={0}
-max={50}
-defaultValue={[selectedTrackItem.config.letterSpacing as number]} 
-value={[ selectedTrackItem.config.letterSpacing as number]}
-step={1}
-onValueChange={(val) => { updateTextClip(selectedTrackItem, 'letterSpacing', val);
-}
-}
-
-className='w-[250px]'
-/>
-<span className='text-sm'> {selectedTrackItem.config.letterSpacing as number}</span>
-
+              </SelectContent>
+            </Select>
+            <NumberInputWithUnit
+        unit="sec"
+        onValueChange={(val) => { updateTextClip(selectedTrackItem, 'animationDuration', val * 1e6) }}
+        value={selectedTrackItem.config.animationDuration as number / 1e6 }
+        defaultValue={selectedTrackItem.config.animationDuration as number / 1e6} 
+        min={0}          
+        max={5}         
+        step={0.5}         
+        width={20}
+        className='border-none w-24 h-10'
+      />
+            </div>
+            <h3 className='text-sm font-medium'>
+              STROKE
+            </h3>
+            <h3 className='text-sm font-medium'>
+              SHADOW
+            </h3>
 </div>
-          </div>
-        </div>
+   
+    
       ) :
       selectedIcon === 'effects' ? (
         
         <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80'>
-          <Button onClick={async() =>await addEffect(selectedTrackItem as TrackItemType,currentTime,5000)}>
+          <Button onClick={async() => {await addEffect(selectedTrackItem as TrackItemType,currentTime ,10000), setEffectStart(currentTime)}}>
             add effect
           </Button>
         </div>

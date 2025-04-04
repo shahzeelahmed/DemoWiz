@@ -4,7 +4,6 @@ import { IClip } from '@webav/av-cliper'
 export class TextClip implements IClip {
   #cvsEl: HTMLCanvasElement
   #ctx: CanvasRenderingContext2D
-  // #callback: (width: number, height: number) => void;
   ready: Promise<{ width: number; height: number; duration: number }>
   #textConfig: TextConfig
   #meta: {
@@ -32,12 +31,10 @@ export class TextClip implements IClip {
 
   constructor (
     textConfig: TextConfig,
-    // callback: (width: number, height: number) => void
   ) {
     this.#cvsEl = document.createElement('canvas')
     this.#ctx = this.#cvsEl.getContext('2d')!
     this.#textConfig = textConfig
-    // this.#callback = callback;
     this.#updateCanvasDimensions()
 
     this.ready = Promise.resolve({
@@ -57,98 +54,50 @@ export class TextClip implements IClip {
     this.#meta.width = this.#cvsEl.width
     this.#meta.height = this.#cvsEl.height
   }
-
-  #calcPadding () {
-    const {
-      showStroke,
-      strokeWidth,
-      showShadow,
-      shadowBlur,
-      shadowOffsetX,
-      shadowOffsetY
-    } = this.#textConfig
-    const xPadding = Math.max(
-      showStroke ? strokeWidth : 0,
-      showShadow ? Math.max(shadowBlur, shadowOffsetX) : 0
-    )
-    const yPadding = Math.max(
-      showStroke ? strokeWidth : 0,
-      showShadow ? Math.max(shadowBlur, shadowOffsetY) : 0
-    )
-    return { xPadding, yPadding }
-  }
-
-  #getLineWidth (contentList: string[]) {
-    return Math.max(
-      ...contentList.map(
-        line =>
-          this.#textConfig.fontSize * line.length +
-          this.#textConfig.letterSpacing * Math.max(0, line.length - 1)
-      )
-    )
-  }
-
-  #getLineHeight (contentList: string[]) {
-    return (
-      this.#textConfig.fontSize * contentList.length +
-      this.#textConfig.lineSpacing * Math.max(0, contentList.length - 1)
-    )
-  }
-
   async tick(time: number): Promise<{
     video?: VideoFrame;
     state: "success" | "done";
   }> {
-    
     const contentList = this.#textConfig.content.split("\n");
     const { xPadding, yPadding } = this.#calcPadding();
-    let maxLineWidth = 0;
-    const measuredLines: number[] = [];
 
-    this.#ctx.font = `${this.#textConfig.italic ? "italic " : ""}${
-      this.#textConfig.bold ? "bold " : ""
-    }${this.#textConfig.fontSize}px ${this.#textConfig.fontFamily}`;
-    contentList.forEach((line) => {
-      let lineWidth = 0;
-      for (let j = 0; j < line.length; j++) {
-        const m = this.#ctx.measureText(line[j]);
-        lineWidth += m.width;
-        if (j < line.length - 1) {
-          lineWidth += this.#textConfig.letterSpacing;
-        }
-      }
-      measuredLines.push(lineWidth);
-      if (lineWidth > maxLineWidth) maxLineWidth = lineWidth;
-    });
-  
+    const maxLineWidth = this.#getLineWidth(contentList);
+    const maxLineHeight = this.#getLineHeight(contentList);
 
-    this.#cvsEl.width = maxLineWidth + xPadding * 2;
-  
-    const textHeight =
-      this.#textConfig.fontSize * contentList.length +
-      this.#textConfig.lineSpacing * (contentList.length - 1);
-    this.#cvsEl.height = textHeight + yPadding * 2;
+    this.#cvsEl.width = Math.max(1, maxLineWidth + xPadding * 2);
+    this.#cvsEl.height = Math.max(1, maxLineHeight + yPadding * 2);
     this.#meta.width = this.#cvsEl.width;
     this.#meta.height = this.#cvsEl.height;
-   
+
     this.#ctx.clearRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
-  
+
     if (this.#textConfig.backgroundColor) {
       this.#ctx.globalAlpha = this.#textConfig.backgroundOpacity ?? 1;
       this.#ctx.fillStyle = this.#textConfig.backgroundColor;
       this.#ctx.fillRect(0, 0, this.#cvsEl.width, this.#cvsEl.height);
     }
-  
-    this.#ctx.globalAlpha = this.#textConfig.opacity ?? 1;
-  
-    const fontParts = [];
-    if (this.#textConfig.italic) fontParts.push("italic");
-    if (this.#textConfig.bold) fontParts.push("bold");
-    fontParts.push(`${this.#textConfig.fontSize}px`);
-    fontParts.push(this.#textConfig.fontFamily);
-    this.#ctx.font = fontParts.join(" ");
-    this.#ctx.textBaseline = "top";
-  
+//time is in ms
+    const animDuration = this.#textConfig.animationDuration || 2000; 
+    const progress = Math.min(time / animDuration, 1);
+
+    let animOffsetX = 0;
+    let animOffsetY = 0;
+    let animGlobalAlpha = this.#textConfig.opacity ?? 1;
+    let animScale = 1;
+    let animBlurRadius = 0;
+    const animType = this.#textConfig.animationType; 
+
+    this.#ctx.font = `${this.#textConfig.bold ? "bold " : ""}${
+      this.#textConfig.italic ? "italic " : ""
+    } ${this.#textConfig.fontSize}px ${this.#textConfig.fontFamily}`;
+    this.#ctx.textBaseline = "hanging";
+    this.#ctx.fillStyle = this.#textConfig.color;
+    if (this.#textConfig.showStroke) {
+      this.#ctx.lineJoin = "round";
+      this.#ctx.strokeStyle = this.#textConfig.strokeColor;
+      this.#ctx.lineWidth = this.#textConfig.strokeWidth;
+    }
+
     if (this.#textConfig.showShadow) {
       this.#ctx.shadowColor = this.#textConfig.shadowColor;
       this.#ctx.shadowBlur = this.#textConfig.shadowBlur;
@@ -160,48 +109,179 @@ export class TextClip implements IClip {
       this.#ctx.shadowOffsetX = 0;
       this.#ctx.shadowOffsetY = 0;
     }
-  
-    let yStart = yPadding; 
-  
-    for (let i = 0; i < contentList.length; i++) {
-      const line = contentList[i];
-      let currentX = 0;
-      const lineWidth = measuredLines[i];
-      let xStart = xPadding;
-      switch (this.#textConfig.align) {
-        case "center":
-          xStart = (this.#cvsEl.width - lineWidth) / 2;
-          break;
-        case "right":
-          xStart = this.#cvsEl.width - lineWidth - xPadding;
-          break;
-        case "left":
-        default:
-          xStart = xPadding;
+
+    let y = yPadding;
+
+    if (animType === "slide") {
+      animOffsetX = 50 * (1 - progress);
+    } else if (animType === "fade") {
+      animGlobalAlpha = progress * (this.#textConfig.opacity ?? 1);
+    } else if (animType === "grow") {
+      animScale = 0.1 + 0.9 * progress;
+    } else if (animType === "blur") {
+      animBlurRadius = 10 * (1 - progress);
+      this.#ctx.filter = `blur(${animBlurRadius}px)`;
+    } else if (animType === "bounce") {
+      const bounceAmplitude = 10;
+      animOffsetY = bounceAmplitude * Math.sin(progress * Math.PI * 2 * 2); 
+    } else if (animType === "reveal") {
+      const revealOffset = this.#cvsEl.height;
+      animOffsetY = revealOffset * (1 - progress);
+    } else if (animType === "pop") {
+      animScale = 1 + 0.2 * Math.sin(progress * Math.PI * 3); 
+      if (progress > 0.7) {
+        animScale = 1 + 0.2 * Math.sin(0.7 * Math.PI * 3) * (1 - (progress - 0.7) / 0.3); 
       }
-      currentX = xStart;
-        for (let j = 0; j < line.length; j++) {
-        const char = line[j];
-        if (this.#textConfig.showStroke) {
-          this.#ctx.lineJoin = "round";
-          this.#ctx.strokeStyle = this.#textConfig.strokeColor;
-          this.#ctx.lineWidth = this.#textConfig.strokeWidth;
-          this.#ctx.strokeText(char, currentX, yStart);
-        }
-        this.#ctx.fillStyle = this.#textConfig.color;
-        this.#ctx.fillText(char, currentX, yStart);
-        const metrics = this.#ctx.measureText(char);
-        currentX += metrics.width + this.#textConfig.letterSpacing;
-      }
-      yStart += this.#textConfig.fontSize + this.#textConfig.lineSpacing;
     }
-  
+
+    if (animType === "typewriter") {
+      let totalChars = 0;
+      contentList.forEach((line) => {
+        totalChars += line.length;
+      });
+      let visibleChars = Math.floor(totalChars * progress);
+
+      for (let i = 0; i < contentList.length; i++) {
+        const line = contentList[i];
+        let lineToDraw = "";
+        if (visibleChars >= line.length) {
+          lineToDraw = line;
+          visibleChars -= line.length;
+        } else {
+          lineToDraw = line.substring(0, visibleChars);
+          visibleChars = 0;
+        }
+
+        let lineWidth = this.#textConfig.fontSize * line.length + this.#textConfig.letterSpacing * Math.max(0, line.length - 1);
+        let x = xPadding;
+        switch (this.#textConfig.align) {
+          case "center":
+            x = (this.#cvsEl.width - lineWidth) / 2;
+            break;
+          case "right":
+            x = this.#cvsEl.width - lineWidth - xPadding * 2;
+            break;
+          case "left":
+          default:
+            x = xPadding;
+        }
+
+        for (let j = 0; j < lineToDraw.length; j++) {
+          const char = lineToDraw[j];
+          if (this.#textConfig.showStroke) {
+            this.#ctx.lineJoin = "round";
+            this.#ctx.strokeStyle = this.#textConfig.strokeColor;
+            this.#ctx.lineWidth = this.#textConfig.strokeWidth;
+            this.#ctx.strokeText(
+              char,
+              x + j * this.#textConfig.fontSize + this.#textConfig.letterSpacing * j,
+              y + animOffsetY 
+            );
+          }
+          this.#ctx.fillText(
+            char,
+            x + j * this.#textConfig.fontSize + this.#textConfig.letterSpacing * j,
+            y + animOffsetY 
+          );
+        }
+        y += this.#textConfig.fontSize + this.#textConfig.lineSpacing;
+      }
+    } else {
+      this.#ctx.save(); 
+      const centerX = this.#cvsEl.width / 2;
+      const centerY = this.#cvsEl.height / 2;
+      if (animType === "grow" || animType === "pop") {
+        this.#ctx.translate(centerX, centerY);
+        this.#ctx.scale(animScale, animScale);
+        this.#ctx.translate(-centerX, -centerY);
+      }
+      this.#ctx.globalAlpha = animGlobalAlpha;
+      let currentY = yPadding + animOffsetY; 
+
+      for (let i = 0; i < contentList.length; i++) {
+        const line = contentList[i];
+        let lineWidth = this.#textConfig.fontSize * line.length + this.#textConfig.letterSpacing * Math.max(0, line.length - 1);
+        let x = xPadding + animOffsetX;
+        switch (this.#textConfig.align) {
+          case "center":
+            x = (this.#cvsEl.width - lineWidth) / 2 + animOffsetX;
+            break;
+          case "right":
+            x = this.#cvsEl.width - lineWidth - xPadding * 2 + animOffsetX;
+            break;
+          case "left":
+          default:
+            x = xPadding + animOffsetX;
+        }
+
+        for (let j = 0; j < line.length; j++) {
+          const char = line[j];
+          if (this.#textConfig.showStroke) {
+            this.#ctx.lineJoin = "round";
+            this.#ctx.strokeStyle = this.#textConfig.strokeColor;
+            this.#ctx.lineWidth = this.#textConfig.strokeWidth;
+            this.#ctx.strokeText(
+              char,
+              x + j * this.#textConfig.fontSize + this.#textConfig.letterSpacing * j,
+              currentY
+            );
+          }
+          this.#ctx.fillText(
+            char,
+            x + j * this.#textConfig.fontSize + this.#textConfig.letterSpacing * j,
+            currentY
+          );
+        }
+        currentY += this.#textConfig.fontSize + this.#textConfig.lineSpacing;
+      }
+      this.#ctx.restore(); 
+    }
+
     return {
-      state: "success",
+      state: progress >= 1 ? "done" : "success",
       video: new VideoFrame(this.#cvsEl, { timestamp: time }),
     };
   }
-  
+ 
+  #calcPadding() {
+    let xPadding = 0;
+    let yPadding = 0;
+    const textConfig = this.#textConfig;
+    xPadding = Math.max(
+      textConfig.showStroke ? textConfig.strokeWidth : 0,
+      textConfig.showShadow
+        ? Math.max(textConfig.shadowBlur, Math.abs(textConfig.shadowOffsetX)) 
+        : 0
+    );
+    yPadding = Math.max(
+      textConfig.showStroke ? textConfig.strokeWidth : 0,
+      textConfig.showShadow
+        ? Math.max(textConfig.shadowBlur, Math.abs(textConfig.shadowOffsetY)) 
+        : 0
+    );
+    return {
+      xPadding,
+      yPadding,
+    };
+  }
+
+  #getLineWidth(contentList: string[]) {
+    return Math.max(
+      ...contentList.map((line) => {
+        return (
+          this.#textConfig.fontSize * line.length +
+          this.#textConfig.letterSpacing * Math.max(0, line.length - 1)
+        );
+      })
+    );
+  }
+
+  #getLineHeight(contentList: string[]) {
+    return (
+      this.#textConfig.fontSize * contentList.length +
+      this.#textConfig.lineSpacing * Math.max(0, contentList.length - 1)
+    );
+  }
 
   async clone () {
     return new TextClip(this.#textConfig  ) as this
