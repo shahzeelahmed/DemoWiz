@@ -13,8 +13,11 @@ import { Paintbrush } from 'lucide-react'
 import React from 'react'
 import { useMemo, useState } from 'react'
 
-export function ColorPicker ({ onChange }: { onChange?: (bg: string) => void }) {
-  const [background, setBackground] = useState('#FFFFFF')
+
+export function ColorPicker ({ onChange, defaultBg }: { onChange?: (bg: string) => void; defaultBg?: string }) {
+  
+  const [background, setBackground] = useState(defaultBg || "FFFFFF")
+
   const handleBackgroundChange = (bg: string) => {
     setBackground(bg)
     onChange?.(bg)
@@ -22,7 +25,7 @@ export function ColorPicker ({ onChange }: { onChange?: (bg: string) => void }) 
 
   return (
     <GradientPicker
-    className='mt-2'
+    className='mt-0'
       background={background}
       setBackground={handleBackgroundChange}
     />
@@ -94,7 +97,7 @@ export function GradientPicker ({
         <Button
           variant={'ghost'}
           className={cn(
-            'w-[220px] justify-start text-left font-normal bg-white',
+            'w-[150px] justify-start text-left font-normal bg-[#efefef]',
             !background && 'text-muted-foreground bg-amber-200',
             className
           )}

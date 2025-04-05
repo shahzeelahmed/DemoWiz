@@ -134,11 +134,8 @@ const TimeLine: React.FC<TimeLineProps> = ({
     ctx.scale(dpr, dpr)
     ctx.clearRect(0, 0, totalWidth, CONSTANTS.rulerHeight)
 
-  
-
     const baseTickSpacing = 10
     const tickSpacing = baseTickSpacing * zoom
-
     const totalTicks = Math.floor(totalWidth / tickSpacing)
     let fontSize = zoom < 0.8 ? 12 : zoom < 1 ? 11 : 11
     ctx.font = `${fontSize}px Arial, sans-serif`
@@ -146,13 +143,10 @@ const TimeLine: React.FC<TimeLineProps> = ({
     ctx.textBaseline = 'top'
     for (let i = 0; i <= totalTicks; i++) {
       const x = i * tickSpacing
-
       if (i % largeTickInterval === 0) {
         ctx.fillStyle = '#3e3e3e'
         ctx.fillRect(x, 20, 1, 10)
-
         const label = timeFormatter(i)
-
         const textWidth = ctx.measureText(label).width
         if (textWidth + 4 < tickSpacing * largeTickInterval) {
           ctx.fillStyle = '#4e4e4e'

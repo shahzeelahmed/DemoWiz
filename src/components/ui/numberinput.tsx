@@ -98,7 +98,7 @@ const NumberInputWithUnit = React.forwardRef<
     return (
       <div
         className={cn(
-          'inline-flex  h-10 items-center justify-center rounded-md border border-input bg-background  text-sm ring-offset-background',
+          'inline-flex  h-10 items-center justify-center rounded-md  border-input bg-background  text-sm ring-offset-background',
           disabled ? 'cursor-not-allowed opacity-50' : '',
           className
         )}
@@ -124,7 +124,7 @@ const NumberInputWithUnit = React.forwardRef<
         <span className='text-muted-foreground  select-none whitespace-nowrap '>
           {unit}
         </span>
-        <div className='ml-6 flex flex-col items-center justify-between h-full '>
+        <div className='ml-2 flex flex-col items-center justify-between h-full '>
           <Button
             variant='ghost'
             size='icon'
@@ -151,6 +151,5 @@ const NumberInputWithUnit = React.forwardRef<
   }
 )
 
-NumberInputWithUnit.displayName = 'NumberInputWithUnit'
 
 export { NumberInputWithUnit }

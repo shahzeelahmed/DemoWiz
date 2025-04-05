@@ -33,7 +33,7 @@ const addSprite = async (content:string) => {
     fontWeight: 200,
     bold: false,
     italic: false,
-    color: "#ffffff",
+    color: "#FFFFFF",
     showShadow: false,
     shadowColor: "#888888",
     shadowBlur: 5,
@@ -99,7 +99,7 @@ const addSprite = async (content:string) => {
     // );
     spriteMap.set(itemToAdd[0].id, spr)
     spr.rect.fixedScaleCenter = true
-    spr.rect.fixedAspectRatio = true
+    // spr.rect.fixedAspectRatio = true
     avCanvas!.addSprite(spr)
     console.log('index',index)
     

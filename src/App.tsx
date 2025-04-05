@@ -46,11 +46,11 @@ export default function App () {
  
 
   return (
-    <div className='relative h-lvh w-full flex '>
+    <div className='relative h-lvh w-full flex border-2'>
      
      
-    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-1 top-1 bottom-1 m-1 ' />
-    <Button className="absolute  rounded-lg right-2 top-2" >
+    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-1 top-1 bottom-1  z-10 rounded-sm rounded-tr-md ' />
+    <Button className="absolute  rounded-lg right-2 top-2 z-10 h-7 w-24" >
       <ExportIcon /> EXPORT
     </Button>
 
@@ -60,7 +60,7 @@ export default function App () {
   
   </div>
 
-  <div className="flex-1 flex flex-col overflow-hidden relative mt-10">
+  <div className="flex-1 flex flex-col overflow-hidden relative z-20 mt-10">
     <Player />
  
     <div className="w-full h-full relative">

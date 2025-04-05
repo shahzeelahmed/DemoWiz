@@ -47,18 +47,18 @@ const SideBar = () => {
   }, [])
   
   return (
-    <div className="relative z-0 flex  ml-2 " >
-      <div className='w-12 flex flex-col items-center py-4 space-y-6 text-sm'>
+    <div className="relative z-0 flex   border-t-1 h-full " >
+      <div className='w-12 flex flex-col items-center py-4 space-y-6 text-sm border-r-1'>
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger>
               <button
                 className={`p-1 rounded-md ${
-                  selectedIcon === 'video' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
+                  selectedIcon === 'video' ? 'bg-[#e9e9e9]' : 'hover:bg-[#e8e8e8]'
                 }`}
                 onClick={() => setSelectedIcon('video')}
               >
-                <img src={videoIcon} alt='video' height={32} width={32} />
+                <img src={videoIcon} alt='video' height={24} width={24} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right'>
@@ -72,11 +72,11 @@ const SideBar = () => {
             <TooltipTrigger>
               <button
                 className={`p-1 rounded-md ${
-                  selectedIcon === 'image' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
+                  selectedIcon === 'image' ? 'bg-[#e9e9e9]' : 'hover:bg-[#e8e8e8]'
                 }`}
                 onClick={() => setSelectedIcon('image')}
               >
-                <img src={imageIcon} alt='image' height={32} width={32} />
+                <img src={imageIcon}  alt='image' height={24} width={24} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right'>
@@ -90,11 +90,11 @@ const SideBar = () => {
             <TooltipTrigger>
               <button
                 className={`p-1 rounded-md ${
-                  selectedIcon === 'effects' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
+                  selectedIcon === 'effects' ? 'bg-[#e9e9e9]' : 'hover:bg-[#e8e8e8]'
                 }`}
                 onClick={() => setSelectedIcon('effects')}
               >
-                <img src={filterIcon} alt='effects' height={32} width={32} />
+                <img src={filterIcon} alt='effects' height={24} width={24} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right'>
@@ -108,11 +108,11 @@ const SideBar = () => {
             <TooltipTrigger>
               <button
                 className={`p-1 rounded-md ${
-                  selectedIcon === 'text' ? 'bg-[#e2e2e2]' : 'hover:bg-[#e6e6e6]'
+                  selectedIcon === 'text' ? 'bg-[#e9e9e9]' : 'hover:bg-[#e8e8e8]'
                 }`}
                 onClick={() => setSelectedIcon('text')}
               >
-                <img src={textIcon} alt='Text' height={32} width={32} />
+                <img src={textIcon} alt='Text' height={24} width={24} />
               </button>
             </TooltipTrigger>
             <TooltipContent side='right'>
