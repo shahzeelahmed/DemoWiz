@@ -449,14 +449,7 @@ const Player = () => {
       </div>
       {selectedIcon === 'video' ? (
         <div className='bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 w-80 max-w-80 flex-none min-w-0 border-l-1 h-full'>
-          <Button
-            onClick={async () => {
-              textStore.changeFirstClipContent('as')
-              avCanvas?.activeSprite
-            }}
-          >
-            modify
-          </Button>
+        
         </div>
       ) : selectedIcon === 'image' ? (
         <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 border-l-1 h-full '></div>
