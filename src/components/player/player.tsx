@@ -58,8 +58,12 @@ import TextTrackConfig from '../tracks/textTrack'
 import { randInt } from 'three/src/math/MathUtils'
 import { ImageClip } from '@/class/imageTrack'
 import { NumberInputWithUnit } from '../ui/numberinput'
-import { ColorPicker } from '../ui/colorpicker'
+
 import { Checkbox } from '../ui/checkbox'
+
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
+import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
+
 
 const Player = () => {
   const playerStore = usePlayerStore()
@@ -212,10 +216,7 @@ const Player = () => {
       avCanvas?.previewFrame(currentTime * 1e6)
     }
   }, [isPaused, currentTime])
-  useEffect(() => {
-    console.log(spacing)
-    avCanvas?.previewFrame(0)
-  }, [spacing])
+
   const activeSPrite = (item: TrackItemType | null) => {
     if (avCanvas == null) return
     if (!item) return
@@ -303,11 +304,6 @@ const Player = () => {
       spr.preFrame(currentTime * 1e6)
     }
   }
-  // const [localClip, setLocalClip] = useState(selectedTrackItem);
-
-  // useEffect(() => {
-  //   setLocalClip(selectedTrackItem);
-  // }, [selectedTrackItem]);
 
   const updateTextClip = (
     clip: TrackItemType,
@@ -337,11 +333,9 @@ const Player = () => {
           name: ''
         }
       ]
-      console.log('newconfig', newConfig)
       trackStore.updateTrack(itemToUpdate)
 
       sprite!.preFrame(currentTime * 1e6)
-      console.log('done')
       return true
     }
     return false
@@ -356,7 +350,7 @@ const Player = () => {
     const splitDuration = currentMicroTime - oldSprite.time.offset
     const getClip = oldSprite.getClip()
     const newClips = await getClip.split(splitDuration)
-    console.log('new clips:', newClips)
+    
     avCanvas.removeSprite(oldSprite)
     spriteMap.delete(selectedTrackItem.id)
 
@@ -394,6 +388,7 @@ const Player = () => {
       await avCanvas.addSprite(newSprite)
     }
   }
+  const [color, setColor] = useState('#6366f1')
 
   return (
     <div className='flex z-0 border  '>
@@ -406,7 +401,7 @@ const Player = () => {
         <div className='flex items-start mt-4'>
           <div className='flex flex-row  items-start gap-4'>
             <Button
-            className='absolute left-4'
+              className='absolute left-4'
               variant={'icon'}
               onClick={async () => {
                 await handleSplit()
@@ -416,14 +411,12 @@ const Player = () => {
               Split
             </Button>
             <Button
-            className='absolute left-30'
+              className='absolute left-30'
               variant={'icon'}
               onClick={() => {
                 selectedTrack ? deleteClip(selectedTrack) : null
               }}
             >
-
-
               <img src={deleteIcon} height={20} width={20} alt='Delete' />
               Delete
             </Button>
@@ -449,16 +442,19 @@ const Player = () => {
       </div>
       {selectedIcon === 'video' ? (
         <div className='bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 w-80 max-w-80 flex-none min-w-0 border-l-1 h-full'>
-        
+
+          
         </div>
       ) : selectedIcon === 'image' ? (
         <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 border-l-1 h-full '></div>
       ) : selectedIcon === 'text' && selectedTrackItem?.type === 'TEXT' ? (
+       
         <div
-        style={{
-          scrollbarWidth: 'none'
-        }}
-        className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '>
+          style={{
+            scrollbarWidth: 'none'
+          }}
+          className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '
+        >
           <h3 className='text-sm font-medium text-[#2e2e2e]'>Style</h3>
 
           <div className='flex gap-4'>
@@ -540,17 +536,12 @@ const Player = () => {
 
           <div className='flex flex-row items-center justify-between '>
             <h3 className='text-xs font-medium mt-0 text-[#5e5e5e]'>Color</h3>
-            <ColorPicker
-              defaultBg={selectedTrackItem.config.color}
-              onChange={value => {
-                updateTextClip(selectedTrackItem, 'color', value)
-              }}
-            />
+   
           </div>
-         
+
           <h3 className='text-sm font-medium text-[#2e2e2e]'>Stroke</h3>
           <div className='grid grid-cols-2 justify-between gap-2 mt-1'>
-          <h3 className='text-xs font-medium text-[#5e5e5e]'>Show Stroke</h3>
+            <h3 className='text-xs font-medium text-[#5e5e5e]'>Show Stroke</h3>
             <Checkbox
               checked={selectedTrackItem.config.showStroke}
               className='mt-1'
@@ -559,13 +550,10 @@ const Player = () => {
                 updateTextClip(selectedTrackItem, 'showStroke', toggleStroke)
               }}
             />
-             <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>Color</h3>
-            <ColorPicker
-              onChange={value =>
-                updateTextClip(selectedTrackItem, 'strokeColor', value)
-              }
-            />
- <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>Width</h3>
+            <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>Color</h3>
+           
+
+            <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>Width</h3>
             <NumberInputWithUnit
               unit='px'
               max={50}
@@ -578,9 +566,9 @@ const Player = () => {
 
           <h3 className='text-sm font-medium text-[#2e2e2e]'>Shadow</h3>
           <div className='grid grid-cols-2 gap-2 justify-between mt-1'>
-          <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>
-    Show Shadow
-  </h3>
+            <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>
+              Show Shadow
+            </h3>
             <Checkbox
               checked={selectedTrackItem.config.showShadow}
               onCheckedChange={() => {
@@ -588,14 +576,8 @@ const Player = () => {
                 updateTextClip(selectedTrackItem, 'showShadow', toggleStroke)
               }}
             />
-             <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>
-    Width
-  </h3>
-            <ColorPicker
-              onChange={value =>
-                updateTextClip(selectedTrackItem, 'shadowColor', value)
-              }
-            />
+            <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>Width</h3>
+           
           </div>
           <div className='flex flex-row justify-between'>
             <h3 className=' text-xs  text-[#5e5e5e]'>Offset X</h3>
@@ -629,80 +611,101 @@ const Player = () => {
             />
           </div>
           <h3 className='text-sm font-medium  mt-2 text-[#2e2e2e] mr-8'>
-    Others
-  </h3>
+            Others
+          </h3>
           <h3 className='text-xs mt-1 text-[#5e5e5e]'>Opacity</h3>
 
-<div className='flex flex-row gap-1'>
-  <Slider
-    min={0}
-    max={1}
-    defaultValue={[selectedTrackItem.config.opacity as number]}
-    value={[selectedTrackItem.config.opacity as number]}
-    step={0.01}
-    onValueChange={val => {
-      updateTextClip(selectedTrackItem, 'opacity', val)
-    }}
-    className='w-[180px]'
-  />
-  <span className='ml-5 text-xs font-black '>
-    {' '}
-    {selectedTrackItem.config.opacity as number}
-  </span>
-</div>
-<div className='flex flex-row justify-between'>
-  <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e]'>
-    Animation
-  </h3>
-  <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] mr-8'>
-    Duration
-  </h3>
-</div>
+          <div className='flex flex-row gap-1'>
+            <Slider
+              min={0}
+              max={1}
+              defaultValue={[selectedTrackItem.config.opacity as number]}
+              value={[selectedTrackItem.config.opacity as number]}
+              step={0.01}
+              onValueChange={val => {
+                updateTextClip(selectedTrackItem, 'opacity', val)
+              }}
+              className='w-[180px]'
+            />
+            <span className='ml-5 text-xs font-black '>
+              {' '}
+              {selectedTrackItem.config.opacity as number}
+            </span>
+          </div>
+          <div className='flex flex-row justify-between'>
+            <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e]'>
+              Animation
+            </h3>
+            <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] mr-8'>
+              Duration
+            </h3>
+          </div>
 
-<div className='flex flex-row gap-1 '>
-  <Select
-    onValueChange={value =>
-      updateTextClip(selectedTrackItem, 'animationType', value)
-    }
-  >
-    <SelectTrigger className='bg-white border-none w-[200px]'>
-      <SelectValue placeholder='None' />
-    </SelectTrigger>
+          <div className='flex flex-row gap-1 '>
+            <Select
+              onValueChange={value =>
+                updateTextClip(selectedTrackItem, 'animationType', value)
+              }
+            >
+              <SelectTrigger className='bg-white border-none w-[200px]'>
+                <SelectValue placeholder='None' />
+              </SelectTrigger>
 
-    <SelectContent className='font-medium  bg-[#f6f6f6]'>
-      <SelectItem value='None'> None</SelectItem>
-      <SelectItem value='typewriter'> typewriter</SelectItem>
-      <SelectItem value='slide'>slide</SelectItem>
-      <SelectItem value='fade'>fade</SelectItem>
-      <SelectItem value='blur'>blur</SelectItem>
-      <SelectItem value='pop'>pop</SelectItem>
-      <SelectItem value='bounce'>bounce</SelectItem>
-      <SelectItem value='reveal'>reveal</SelectItem>
-    </SelectContent>
-  </Select>
-  <NumberInputWithUnit
-    unit='sec'
-    onValueChange={val => {
-      updateTextClip(
-        selectedTrackItem,
-        'animationDuration',
-        val * 1e6
-      )
-    }}
-    value={
-      (selectedTrackItem.config.animationDuration as number) / 1e6
-    }
-    defaultValue={
-      (selectedTrackItem.config.animationDuration as number) / 1e6
-    }
-    min={0}
-    max={5}
-    step={0.5}
-    width={20}
-    className='border-none w-24 h-10'
-  />
-</div>
-        </div>
+              <SelectContent className='font-medium  bg-[#f6f6f6]'>
+                <SelectItem value='None'> None</SelectItem>
+                <SelectItem value='typewriter'> typewriter</SelectItem>
+                <SelectItem value='slide'>slide</SelectItem>
+                <SelectItem value='fade'>fade</SelectItem>
+                <SelectItem value='blur'>blur</SelectItem>
+                <SelectItem value='pop'>pop</SelectItem>
+                <SelectItem value='bounce'>bounce</SelectItem>
+                <SelectItem value='reveal'>reveal</SelectItem>
+              </SelectContent>
+            </Select>
+            <NumberInputWithUnit
+              unit='sec'
+              onValueChange={val => {
+                updateTextClip(
+                  selectedTrackItem,
+                  'animationDuration',
+                  val * 1e6
+                )
+              }}
+              value={
+                (selectedTrackItem.config.animationDuration as number) / 1e6
+              }
+              defaultValue={
+                (selectedTrackItem.config.animationDuration as number) / 1e6
+              }
+              min={0}
+              max={5}
+              step={0.5}
+              width={20}
+              className='border-none w-24 h-10'
+            />
+            <Popover>
+      <PopoverTrigger >
+        <Button variant="outline" className="flex items-center gap-2">
+          <span
+            className="h-4 w-4 rounded-full border"
+            style={{ backgroundColor: color }}
+          />
+          <span>{color}</span>
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-4 z-50">
+        <ColorPicker color={color} defaultValue={color} onChange={(val)=>{setColor(val as string),updateTextClip(selectedTrackItem,'color',val as string)}} >
+          <ColorPickerSelection/>
+          <ColorPickerFormat/>
+          <ColorPickerHue/>
+         <ColorPickerOutput/>
+          </ColorPicker>
+      </PopoverContent>
+    </Popover>
+          </div>
+          </div>
+          
+       
       ) : selectedIcon === 'effects' ? (
         <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3  w-80 border-l-1 h-full'>
           <Button
@@ -718,7 +721,14 @@ const Player = () => {
             add effect
           </Button>
         </div>
-      ) : null}{' '}
+      ) : selectedIcon === 'TEXT' ? (
+        <div
+        style={{
+          scrollbarWidth: 'none'
+        }}
+        className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '
+      ></div>
+      ) : null  }{' '}
     </div>
   )
 }

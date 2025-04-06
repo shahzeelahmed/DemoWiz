@@ -235,19 +235,6 @@ console.log(zoom)
     startDragging(event)
   }
 
-  const startDragPlayhead = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!rulerContainerRef.current) return
-
-    const rect = rulerContainerRef.current.getBoundingClientRect()
-    const mouseX = e.clientX - rect.left
-    const time = Math.max(
-      0,
-      Math.min(mouseX / ((tickSpacing * 10) / ticksPerSecond), duration)
-    )
-    onTimeUpdate(time)
-    startDragging(e)
-  }
 
   const startDragging = (e: React.MouseEvent) => {
     setIsDragging(true)
@@ -329,21 +316,7 @@ console.log(zoom)
           position: relative;
           user-select: none;
         }
-        .playhead {
-          position: absolute;
-          top: 0;
-          width: 0;
-          height: ${CONSTANTS.rulerHeight}px;
-          cursor: ew-resize;
-          z-index: 10;
-        }
-        .playhead-line {
-          position: absolute;
-          width: 2px;
-          height: 100%;
-          background: #fff;
-          left: -1px;
-        }
+      
       
       `}</style>
     </div>

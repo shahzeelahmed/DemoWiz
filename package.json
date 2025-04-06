@@ -12,6 +12,7 @@
   "dependencies": {
     "@pixi/react": "^7.1.2",
     "@radix-ui/react-checkbox": "^1.1.4",
+    "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.6",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slider": "^1.2.3",
@@ -25,6 +26,7 @@
     "@xzdarcy/react-timeline-editor": "^0.1.9",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "color": "^5.0.0",
     "frappe-ui": "^0.1.107",
     "lucide-react": "^0.483.0",
     "mp4-muxer": "^5.0.1",

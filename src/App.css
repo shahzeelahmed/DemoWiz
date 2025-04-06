@@ -182,3 +182,9 @@ body {
     @apply bg-background text-foreground;
   }
 }
+[draggable="true"] {
+  cursor: pointer;
+}
+[data-dragging="true"] {
+  opacity: 1 !important;
+}
