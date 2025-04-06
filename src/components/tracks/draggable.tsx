@@ -292,7 +292,7 @@ const DraggableTrack = () => {
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
 
   const handleTimeLineDragStart = (e, item: TrackItemType) => {
-    if (isResizing) return
+    if (!isResizing || !selectedTrackItem) return
     const rect = e.target.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - rect.left,
@@ -402,7 +402,7 @@ const DraggableTrack = () => {
                     .map(item => (
                       <div
                         key={item.id}
-                        draggable={!isResizing}
+                        draggable={isResizing === true ? false : true}
                         ref={trackContainerRef}
                         style={{
                           position: 'absolute',
