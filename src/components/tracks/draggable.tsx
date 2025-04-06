@@ -70,6 +70,8 @@ const DraggableTrack = () => {
 
   const handleResize = (e: MouseEvent) => {
     if (!selectedTrackItem) return
+    e.stopPropagation()
+    e.preventDefault()
     const deltaX = e.clientX - initialMouseX
     const deltaTime = deltaX / 10
   
