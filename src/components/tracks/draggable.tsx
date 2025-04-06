@@ -1,5 +1,11 @@
 //[todo]: implement drop preview
-import React, { useEffect, useRef, useState } from 'react'
+import React, {
+  useCallback,
+  useEffect,
+  useReducer,
+  useRef,
+  useState
+} from 'react'
 
 import { TrackItemType, VideoTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
@@ -20,7 +26,9 @@ import { VisibleSprite } from '@webav/av-cliper'
 const DraggableTrack = () => {
   const trackStore = useTrackStateStore()
   const setSelectedTrack = useTrackStateStore(state => state.selectTrack)
-  const setSelectedTrackItem = useTrackStateStore(state => state.setSelectedTrackItem)
+  const setSelectedTrackItem = useTrackStateStore(
+    state => state.setSelectedTrackItem
+  )
   const selectedTrack = useTrackStateStore(state => state.selectedTrackId)
   const trackRows = trackStore.trackLines
   const items = trackStore.tracks
@@ -32,7 +40,80 @@ const DraggableTrack = () => {
   const playerStore = usePlayerStore()
   const totalDuration = playerStore.duration
   const [zoom, setZoom] = useState(1)
- const spriteMap = useSpriteStore(state=> state.sprite)
+  const spriteMap = useSpriteStore(state => state.sprite)
+  const trackContainerRef = useRef<HTMLDivElement>(null)
+
+  let isResizing = false
+  let resizeType: 'left' | 'right' | null = null
+  let initialMouseX = 0
+  let initialStartTime = 0
+  let initialEndTime = 0
+  let selectedTrackItem: TrackItemType | null = null
+  const [, forceUpdate] = useReducer(x => x + 1, 0)
+  const startResize = (
+    e: React.MouseEvent<HTMLDivElement>,
+    clip: TrackItemType,
+    type: 'left' | 'right'
+  ) => {
+    e.stopPropagation()
+    e.preventDefault()
+    isResizing = true
+    resizeType = type
+    selectedTrackItem = clip
+    initialMouseX = e.clientX
+    initialStartTime = clip.startTime as number
+    initialEndTime = clip.endTime as number
+
+    document.addEventListener('mousemove', handleResize)
+    document.addEventListener('mouseup', stopResize)
+  }
+
+  const handleResize = (e: MouseEvent) => {
+    if (!selectedTrackItem) return
+    const deltaX = e.clientX - initialMouseX
+    const deltaTime = deltaX / 10
+  
+    if (resizeType === 'left') {
+      let newStart = initialStartTime + deltaTime
+      newStart = Math.max(0, Math.min(newStart, initialEndTime - 0.1))
+      const newDuration = initialEndTime - newStart
+
+      selectedTrackItem.startTime = newStart
+      selectedTrackItem.duration = newDuration
+      selectedTrackItem.endTime = newStart + newDuration
+      //update sprite
+      const sprite = spriteMap.get(selectedTrackItem.id)
+      if (sprite) {
+        sprite.time.offset = Math.round(newStart * 1e6)
+        sprite.time.duration = Math.round(newDuration * 1e6)
+      }
+    }
+
+    if (resizeType === 'right') {
+      let newEnd = initialEndTime + deltaTime
+      newEnd = Math.max(initialStartTime + 0.1, newEnd)
+      const newDuration = newEnd - initialStartTime
+
+      selectedTrackItem.duration = newDuration
+      selectedTrackItem.endTime = newEnd
+
+      const sprite = spriteMap.get(selectedTrackItem.id)
+      if (sprite) {
+        sprite.time.duration = Math.round(newDuration * 1e6)
+      }
+    }
+
+    forceUpdate()
+  }
+  const stopResize = () => {
+    if (!selectedTrackItem) return
+    isResizing = false
+    resizeType = null
+
+    trackStore.updateTrack([selectedTrackItem])
+    document.removeEventListener('mousemove', handleResize)
+    document.removeEventListener('mouseup', stopResize)
+  }
 
   useEffect(() => {
     const getDuration = () => {
@@ -63,162 +144,160 @@ const DraggableTrack = () => {
   }, [itemStore, duration])
   //[todo]: add snap condition for snapping to grid
 
-//new
-const checkOverlap = (
+  //new
+  const checkOverlap = (
     trackId: string,
     startTime: number,
     duration: number,
-    itemId: string,
-  
-) => {
+    itemId: string
+  ) => {
     for (const item of itemStore) {
-        if (item.id === itemId) continue;
+      if (item.id === itemId) continue
 
-        if (item.inRowId !== trackId) continue;
+      if (item.inRowId !== trackId) continue
 
-        const itemEnd = item.startTime + item.duration;
-        const newItemEnd = startTime + duration;
+      const itemEnd = item.startTime + item.duration
+      const newItemEnd = startTime + duration
 
-        if (startTime < itemEnd && newItemEnd > item.startTime) {
-            return true;
-        }
+      if (startTime < itemEnd && newItemEnd > item.startTime) {
+        return true
+      }
     }
-    return false;
-};
-const borderStyles = {
-  'IMAGE': {
-    selected: "border-[#ED77BE]",
-    default: "border-[#F69AD1]",
-  },
-  'VIDEO': {
-    selected: "border-[#3CB8DC]",
-    default: "border-[#A0E6F7]", 
-  },
-  'TEXT': {
-    selected: "border-[#9D7CEA]",
-    default: "border-[#C4AFEE]", 
-  },
-  'EFFECT': { 
-      selected: "border-[#DE6D1b]",
-      default: "border-[#FFCDAD]",
+    return false
   }
-};
+  const borderStyles = {
+    IMAGE: {
+      selected: 'border-[#ED77BE]',
+      default: 'border-[#F69AD1]'
+    },
+    VIDEO: {
+      selected: 'border-[#3CB8DC]',
+      default: 'border-[#68D3F3]'
+    },
+    TEXT: {
+      selected: 'border-[#9D7CEA]',
+      default: 'border-[#B398EF]'
+    },
+    EFFECT: {
+      selected: 'border-[#DE6D1b]',
+      default: 'border-[#F69AD1]'
+    }
+  }
 
-function getBorderStyle(selectedTrack: any, item: any) {
-  const typeStyles = borderStyles[item.type as keyof typeof borderStyles];
-  return selectedTrack === item.id ? typeStyles.selected : typeStyles.default;
-}
-//new
-const findValidPosition = (
-  rowId: string,
-  rawStartTime: number,
-  duration: number,
-  itemId: string,
-  snapThreshold: number = 1
-) => {
-  let startTime = Math.max(0, rawStartTime);
-  let snappedTime = startTime;
-  let isSnapped = false;
+  function getBorderStyle (selectedTrack: any, item: any) {
+    const typeStyles = borderStyles[item.type as keyof typeof borderStyles]
+    return selectedTrack === item.id ? typeStyles.selected : typeStyles.default
+  }
+  //new
+  const findValidPosition = (
+    rowId: string,
+    rawStartTime: number,
+    duration: number,
+    itemId: string,
+    snapThreshold: number = 1
+  ) => {
+    let startTime = Math.max(0, rawStartTime)
+    let snappedTime = startTime
+    let isSnapped = false
 
- 
-  for (const otherItem of itemStore) {
+    for (const otherItem of itemStore) {
       if (otherItem.id === itemId || otherItem.inRowId !== rowId) {
-          continue;
+        continue
       }
 
-      const otherItemStart = otherItem.startTime;
-      const otherItemEnd = otherItem.startTime + otherItem.duration;
+      const otherItemStart = otherItem.startTime
+      const otherItemEnd = otherItem.startTime + otherItem.duration
 
-    
       if (Math.abs(startTime - otherItemStart) <= snapThreshold) {
-          snappedTime = otherItemStart;
-          isSnapped = true;
-          break; 
+        snappedTime = otherItemStart
+        isSnapped = true
+        break
       }
 
-    
       if (Math.abs(startTime - otherItemEnd) <= snapThreshold) {
-          snappedTime = otherItemEnd;
-          isSnapped = true;
-          break;
+        snappedTime = otherItemEnd
+        isSnapped = true
+        break
       }
 
-      
-      const newItemEnd = startTime + duration;
-      const snappedNewItemEnd = snappedTime + duration;
+      const newItemEnd = startTime + duration
+      const snappedNewItemEnd = snappedTime + duration
 
       if (Math.abs(newItemEnd - otherItemStart) <= snapThreshold) {
-          snappedTime = otherItemStart - duration;
-          isSnapped = true;
-          break;
+        snappedTime = otherItemStart - duration
+        isSnapped = true
+        break
       }
 
       if (Math.abs(newItemEnd - otherItemEnd) <= snapThreshold) {
-          snappedTime = otherItemEnd - duration;
-          isSnapped = true;
-          break;
+        snappedTime = otherItemEnd - duration
+        isSnapped = true
+        break
       }
-  }
+    }
 
-  if (isSnapped) {
-      if (!checkOverlap(rowId, snappedTime, duration, itemId, )) {
-          return snappedTime;
-      }
-    
-      let pos = snappedTime;
-      while (checkOverlap(rowId, pos, duration, itemId, ) && pos < Number.MAX_SAFE_INTEGER) {
-          pos += 0.1; 
-      }
-      return pos;
-  }
-
-  
-  if (!checkOverlap(rowId, startTime, duration, itemId, )) {
-      return startTime;
-  }
-
-  let forwardPos = startTime;
-  let backwardPos = startTime;
-  const timeIncrement = 0.1;
-  const maxAttempts = 200;
-  let attempts = 0;
-
-  while (attempts < maxAttempts) {
-      attempts++;
-
-      forwardPos += timeIncrement;
-      if (!checkOverlap(rowId, forwardPos, duration, itemId, )) {
-          return forwardPos;
+    if (isSnapped) {
+      if (!checkOverlap(rowId, snappedTime, duration, itemId)) {
+        return snappedTime
       }
 
-      backwardPos -= timeIncrement;
-      if (
-          backwardPos >= 0 &&
-          !checkOverlap(rowId, backwardPos, duration, itemId, )
+      let pos = snappedTime
+      while (
+        checkOverlap(rowId, pos, duration, itemId) &&
+        pos < Number.MAX_SAFE_INTEGER
       ) {
-          return backwardPos;
+        pos += 0.1
       }
-  }
+      return pos
+    }
 
-  const lastItem = itemStore
+    if (!checkOverlap(rowId, startTime, duration, itemId)) {
+      return startTime
+    }
+
+    let forwardPos = startTime
+    let backwardPos = startTime
+    const timeIncrement = 0.1
+    const maxAttempts = 200
+    let attempts = 0
+
+    while (attempts < maxAttempts) {
+      attempts++
+
+      forwardPos += timeIncrement
+      if (!checkOverlap(rowId, forwardPos, duration, itemId)) {
+        return forwardPos
+      }
+
+      backwardPos -= timeIncrement
+      if (
+        backwardPos >= 0 &&
+        !checkOverlap(rowId, backwardPos, duration, itemId)
+      ) {
+        return backwardPos
+      }
+    }
+
+    const lastItem = itemStore
       .filter(item => item.inRowId === rowId)
-      .sort((a, b) => (a.startTime + a.duration) - (b.startTime + b.duration))
-      .pop();
+      .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
+      .pop()
 
-  return lastItem ? lastItem.startTime + lastItem.duration : 0;
-};
-
-
-
+    return lastItem ? lastItem.startTime + lastItem.duration : 0
+  }
 
   //[todo]: implement drag from library
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
-  const handleTimeLineDragStart = (e:any , item: TrackItemType) => {
+
+  const handleTimeLineDragStart = (e, item: TrackItemType) => {
+    if (isResizing) return
     const rect = e.target.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top
     })
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
 
     const trackJson = JSON.stringify(item)
     e.dataTransfer.setData('app/json', trackJson)
@@ -226,7 +305,7 @@ const findValidPosition = (
     console.log(item.name)
 
     setTimeout(() => {
-      e.target.style.opacity = '0.8'
+      e.target.style.opacity = '0'
     }, 0)
     e.stopPropagation()
   }
@@ -275,11 +354,9 @@ const findValidPosition = (
           endTime: endTime
         }
         const spr = spriteMap.get(trackItem.id) as VisibleSprite
-        console.log('startTime:',validStartTime)
-        
+        console.log('startTime:', validStartTime)
+
         spr.time.offset = validStartTime * 1e6
-        
-        
 
         trackStore.updateTrack(updatedItems)
       }
@@ -292,80 +369,104 @@ const findValidPosition = (
 
   const handleDragOver = e => {
     e.preventDefault()
+
     e.dataTransfer.dropEffect = 'move'
   }
   useEffect(() => {
     itemStore
   }, [itemStore])
 
+  const timelineRef = useRef<HTMLDivElement>(null)
 
-
-const timelineRef = useRef<HTMLDivElement>(null);
-const trackContainerRef = useRef<HTMLDivElement>(null);
-
-const syncScroll = () => {
-  if (timelineRef.current && trackContainerRef.current) {
-    timelineRef.current.scrollLeft = trackContainerRef.current.scrollLeft;
-  }
-};
-
-return (
- 
-  <div className="relative bg-white border   w-full h-full flex flex-col ">
-    
+  return (
+    <div className='relative bg-white border   w-full h-full flex flex-col '>
       <div className='flex-1 overflow-x-scroll overflow-y-auto flex-col shrink-0 grow relative'>
-    <TimeLine duration={100}/>
+        <TimeLine duration={100} />
 
-
-  <div className="flex-1">
-    <div className="min-w-max">
-      {trackRows.map((track) => {
-       
-        return (
-          <div
-            ref={rowRef}
-            key={track.id}
-            className={` relative ml-2 h-10`}
-            style={{  width: `${1000 * 10}px` }}
-            
-            onDragOver={handleDragOver}
-            onDrop={(e) => handleDrop(e, track.id)}
-          >
-            {
-            
-            itemStore
-              .filter((item) => item.inRowId === track.id)
-              .map((item) => (
-                
+        <div className='flex-1'>
+          <div className='min-w-max'>
+            {trackRows.map(track => {
+              return (
                 <div
-                  key={item.id}
-                  draggable
-                  
-                  style={{
-                    position: "absolute",
-                    left: `${item.startTime * 10}px`,
-                    top: "1px",
-                    width: `${item.duration * 10}px`,
-                    // alignItems: 'center',
-                    // display: 'flex',
-
-                  }}
-                  onClick={()=>{setSelectedTrack(item.id), setSelectedTrackItem(item.id) }}
-                  onDragStart={(e) => handleTimeLineDragStart(e, item)}
-                  onDragEnd={handleDragEnd}
-                  className={` text-white rounded-sm  h-8 overflow-hidden flex   items-center relative border-2   ${item.type === 'IMAGE' ? 'bg-[#F69AD1] ': item.type === 'TEXT' ? 'bg-[#B398EF]' : item.type === 'EFFECT' ? 'bg-[#ffa873]' : 'bg-[#68D3F3]'  } ${getBorderStyle(selectedTrack, item)}                  `}
+                  ref={rowRef}
+                  key={track.id}
+                  className={` relative ml-2 h-10`}
+                  style={{ width: `${1000 * 10}px` }}
+                  onDragOver={handleDragOver}
+                  onDrop={e => handleDrop(e, track.id)}
                 >
-
-                  <img src={item.type === 'IMAGE' ? imageIcon : item.type === 'TEXT' ? textIcon : item.type === 'EFFECT' ? effectIcon : videoIcon  } height={16} width={16} className='ml-1'  />
+                  {itemStore
+                    .filter(item => item.inRowId === track.id)
+                    .map(item => (
+                      <div
+                        key={item.id}
+                        draggable={!isResizing}
+                        ref={trackContainerRef}
+                        style={{
+                          position: 'absolute',
+                          left: `${item.startTime * 10}px`,
+                          top: '1px',
+                          width: `${item.duration * 10}px`
+                          // alignItems: 'center',
+                          // display: 'flex',
+                        }}
+                        onClick={() => {
+                          setSelectedTrack(item.id),
+                            setSelectedTrackItem(item.id)
+                        }}
+                        onDragStart={e => {
+                          handleTimeLineDragStart(e, item)
+                        }}
+                        onDragEnd={handleDragEnd}
+                        className={` text-white rounded-sm  h-10 overflow-visible flex   items-center relative border-3   ${
+                          item.type === 'IMAGE'
+                            ? 'bg-[#F69AD1] '
+                            : item.type === 'TEXT'
+                            ? 'bg-[#B398EF]'
+                            : item.type === 'EFFECT'
+                            ? 'bg-[#ffa873]'
+                            : 'bg-[#68D3F3]'
+                        } ${getBorderStyle(
+                          selectedTrack,
+                          item
+                        )}                  `}
+                      >
+                        <div
+                          onMouseDown={e => startResize(e, item, 'left')}
+                          className='absolute left-0 top-0 h-9 w-3 flex items-center justify-center cursor-ew-resize z-20 group'
+                        >
+                          <div className='w-2 h-8 bg-yellow-400 border border-yellow-700 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
+                        </div>
+                        <div
+                          onMouseDown={e => startResize(e, item, 'right')}
+                          className='absolute right-0 top-0 h-9 w-3 flex items-center justify-center cursor-ew-resize z-20 group'
+                        >
+                          <div className='w-2 h-8 bg-yellow-300 border border-yellow-600 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
+                        </div>
+                        <img
+                          draggable={false}
+                          src={
+                            item.type === 'IMAGE'
+                              ? imageIcon
+                              : item.type === 'TEXT'
+                              ? textIcon
+                              : item.type === 'EFFECT'
+                              ? effectIcon
+                              : videoIcon
+                          }
+                          height={16}
+                          width={16}
+                          className='ml-3'
+                        />
+                      </div>
+                    ))}
                 </div>
-              ))}
+              )
+            })}
           </div>
-        );
-      })}
+        </div>
+      </div>
     </div>
-    </div>
-  </div>
-</div>
-);
+  )
 }
 export default DraggableTrack
