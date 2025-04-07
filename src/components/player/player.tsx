@@ -65,6 +65,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
 
 
+
 const Player = () => {
   const playerStore = usePlayerStore()
   const isPaused = playerStore.isPaused
@@ -133,7 +134,7 @@ const Player = () => {
 
     const endTime = startTime + hold
     const zoomBlur = createZoomBlurShader({
-      zoomCoords: [0, 1],
+      zoomCoords: [390,190],
       zoomDepth: 1.0,
       startTime: startTime,
       holdDuration: hold
@@ -390,13 +391,24 @@ const Player = () => {
   }
   const [color, setColor] = useState('#6366f1')
 
+ 
+ 
+
+
+
   return (
     <div className='flex z-0 border  '>
-      <div className='flex flex-col flex-1 bg-[#f6f6f6] justify-center items-center h-fit '>
+
+      <div className='flex flex-col flex-1 bg-[#f6f6f6] justify-center items-center h-fit max-w-[800px]'>
+  
         <div
           className='h-[380px] max-h-96 w-[780px] flex-grow mt-2'
-          ref={el => setCvsWrapEl(el)}
-        ></div>
+          // className='relative h-[380px] max-h-96 w-[780px] flex-grow mt-2 bg-gray-400'
+          ref={el => {setCvsWrapEl(el)}}
+        >
+
+           
+        </div>
 
         <div className='flex items-start mt-4'>
           <div className='flex flex-row  items-start gap-4'>
@@ -410,6 +422,7 @@ const Player = () => {
               <img src={scissorIcon} height={20} width={20} alt='Scissor' />
               Split
             </Button>
+            
             <Button
               className='absolute left-30'
               variant={'icon'}
@@ -443,7 +456,6 @@ const Player = () => {
       {selectedIcon === 'video' ? (
         <div className='bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 w-80 max-w-80 flex-none min-w-0 border-l-1 h-full'>
 
-          
         </div>
       ) : selectedIcon === 'image' ? (
         <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 border-l-1 h-full '></div>

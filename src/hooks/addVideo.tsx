@@ -51,7 +51,7 @@ import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
     spriteMap.set(trackId, spr)
     // videoStore.setClip(trackId, clip)
     spr.rect.fixedScaleCenter = true
-    spr.rect.fixedAspectRatio = true
+    // spr.rect.fixedAspectRatio = true
 
     avCanvas!.addSprite(spr)}
     return(

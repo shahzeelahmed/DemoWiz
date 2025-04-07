@@ -292,7 +292,7 @@ const DraggableTrack = () => {
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
 
   const handleTimeLineDragStart = (e, item: TrackItemType) => {
-    if (!isResizing || !selectedTrackItem) return
+    if (isResizing) return
     const rect = e.target.getBoundingClientRect()
     setDragOffset({
       x: e.clientX - rect.left,
@@ -378,7 +378,7 @@ const DraggableTrack = () => {
     itemStore
   }, [itemStore])
 
-  const timelineRef = useRef<HTMLDivElement>(null)
+
 
   return (
     <div className='relative bg-white border   w-full h-full flex flex-col '>
@@ -437,13 +437,13 @@ const DraggableTrack = () => {
                           onMouseDown={e => startResize(e, item, 'left')}
                           className='absolute left-0 top-0 h-9 w-3 flex items-center justify-center cursor-ew-resize z-20 group'
                         >
-                          <div className='w-2 h-8 bg-yellow-400 border border-yellow-700 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
+                          <div className='w-1 h-8 bg-yellow-400 border border-yellow-700 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
                         </div>
                         <div
                           onMouseDown={e => startResize(e, item, 'right')}
                           className='absolute right-0 top-0 h-9 w-3 flex items-center justify-center cursor-ew-resize z-20 group'
                         >
-                          <div className='w-2 h-8 bg-yellow-300 border border-yellow-600 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
+                          <div className='w-1 h-8 bg-yellow-300 border border-yellow-600 rounded-md group-hover:scale-110 transition-transform duration-150 shadow-sm' />
                         </div>
                         <img
                           draggable={false}
