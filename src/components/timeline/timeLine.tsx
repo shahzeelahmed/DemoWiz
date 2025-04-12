@@ -9,7 +9,8 @@ import {
 import { TimeLineProps } from '../../types/timeLine'
 import PlayheadNew from './playheadtest'
 import useTimeLineStore from '../../store/timelineStore'
-
+import {Playhead} from './playhead'
+import usePlayerStore from '@/store/playerStore'
 const TimeLine: React.FC<TimeLineProps> = ({
   duration,
   zoom = 1,
@@ -289,6 +290,11 @@ console.log(zoom)
       document.removeEventListener('mouseup', stopDragPlayhead)
     }
   }, [handleDragPlayhead, stopDragPlayhead])
+  const handleSeek = (time:number) => {
+    currentTime = time;
+    console.log('Seeked to:', time);
+  };
+
 
   return (
     <div className='time-ruler  relative '>
@@ -297,6 +303,7 @@ console.log(zoom)
       </div >
     <div className='z-30'>
       <PlayheadNew  />
+     
       </div>
       <div
         className='ticks-container ml-[7px] mt-5'

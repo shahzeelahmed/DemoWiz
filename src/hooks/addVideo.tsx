@@ -10,6 +10,7 @@ import usePlayerStore from "@/store/playerStore"
 import { Button } from "@/components/ui/button"
 import React from "react"
 import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
+import { VideoSprite } from "@/class/videoEffectTrack"
 
  const addVideoSprite =  () => {
     const avCanvas = useAVCanvasStore(state=> state.avCanvas)
@@ -19,7 +20,10 @@ import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
     const spriteToadd = async() =>{
     const stream = (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()
     const clip = new MP4Clip(stream)
-    const spr = new VisibleSprite(clip)
+    // const spr = new VisibleSprite(clip)
+    const newspr = new VideoSprite(
+      clip,             
+    );
     const { duration } = await clip.ready
     const trackId = nanoid(5)
     const rowId = nanoid(5)
@@ -45,14 +49,15 @@ import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
 
     trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
     trackStore.addTrack(newTrack)
-    // videoStore.setClip(trackId, clip)
+    const spr = newspr as VisibleSprite
     spr.time.offset = currentTime * 1e6
     console.log('duration', duration/1e6)
     spriteMap.set(trackId, spr)
-    // videoStore.setClip(trackId, clip)
     spr.rect.fixedScaleCenter = true
+    spr.rect.center
     // spr.rect.fixedAspectRatio = true
-
+    //@ts-ignore
+   
     avCanvas!.addSprite(spr)}
     return(
         <Button variant={'outline'} className='h-32 w-64 grid grid-rows-2  justify-items-center mt-2' onClick={ spriteToadd  }>
