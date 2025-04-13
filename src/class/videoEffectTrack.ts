@@ -149,11 +149,14 @@ export class VideoSprite extends BaseSprite {
     this.#holdDuration = holdDuration
     this.#zoomPositionIndex = zoomPositionIndex
   }
-  #easeInOutSine (t: number): number {
-    return -(Math.cos(Math.PI * t) - 1) / 2
+  // #easeInOutSine (t: number): number {
+  //   return -(Math.cos(Math.PI * t) - 1) / 2
+  // }
+
+  //https://easings.net/#easeInOutQuint
+  #easeInOutQuint(t: number): number {
+    return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
   }
-
-
 
 
   #updateScale (time: number): void {
