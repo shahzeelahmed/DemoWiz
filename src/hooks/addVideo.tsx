@@ -53,6 +53,8 @@ import { VideoSprite } from "@/class/videoEffectTrack"
     spr.time.offset = currentTime * 1e6
     console.log('duration', duration/1e6)
     spriteMap.set(trackId, spr)
+    spr.rect.w = 480
+    spr.rect.h = 270
     spr.rect.fixedScaleCenter = true
     spr.rect.center
     // spr.rect.fixedAspectRatio = true

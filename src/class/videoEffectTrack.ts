@@ -2,15 +2,15 @@ import { IClip, VisibleSprite } from '@webav/av-cliper'
 import { BaseSprite, changePCMPlaybackRate, Rect } from './baseSprite'
 
 export class VideoSprite extends BaseSprite {
-  //todo: implement hasEffect
-  #clip: IClip
-  #startTime: number = 0
-  #hasEffect: boolean = false
-  #endTime: number = 0
-  #holdDuration: number = 1000
-  #zoomPositionIndex: number = 8
 
-  //dimensions
+  
+    #clip: IClip;
+    #startTime: number = 0;
+    #endTime: number = 0;
+    #currentTime: number = 0;
+    #zoomDuration: number = 80000000; 
+    #maxZoom: number = 2.0
+    //dimensions
   #originalWidth: number = 0
   #originalHeight: number = 0
   #modifiedWidth: number = 0
@@ -18,75 +18,49 @@ export class VideoSprite extends BaseSprite {
   #modifiedX: number = 0
   #modifiedY: number = 0
 
-  //webgl properties
-  #gl: WebGLRenderingContext | null = null
-  #program: WebGLProgram | null = null
-  #texture: WebGLTexture | null = null
-  #vertexBuffer: WebGLBuffer | null = null
-  #canvas: OffscreenCanvas | null = null
-  #positionLocation: number = -1
-  #textureLocation: WebGLUniformLocation | null = null
+    // webgl related properties
+    #gl: WebGLRenderingContext | null = null;
+    #program: WebGLProgram | null = null;
+    #texture: WebGLTexture | null = null;
+    #vertexBuffer: WebGLBuffer | null = null;
+    #texCoordBuffer: WebGLBuffer | null = null;
+    #canvas: OffscreenCanvas | null = null;
+    #positionLocation: number = -1;
+    #textureLocation: WebGLUniformLocation | null = null;
+    #holdDuration: number = 0;
+    #zoomPositionIndex: number = 0;
+    getClip() {
+      return this.#clip;
+    }
+  
+    visible = true;
+  
+    constructor(clip: IClip, startTime: number = 1*1e6, endTime: number = 6*1e6, holdDuration: number = 6 * 1e6, zoomPositionIndex: number = 8) {
+      super();
+      this.#clip = clip;
+      this.#startTime = startTime;
+      this.#endTime = endTime;
+      this.#holdDuration = holdDuration;
+      this.ready = clip.ready.then(({ width, height, duration }) => {
+        this.rect.w = this.rect.w === 0 ? width : this.rect.w;
+        this.rect.h = this.rect.h === 0 ? height : this.rect.h;
+        this.time.duration = this.time.duration === 0 ? duration : this.time.duration;
+        this.#originalWidth = this.rect.w / 2
+        this.#originalHeight = this.rect.h / 2
+        this.#initWebGL(this.rect.w, this.rect.h);
 
-  #maxZoom: number = 2.0
-
-  #zoomDuration: number = 80000000
-
-  getClip () {
-    return this.#clip
-  }
-  #ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D | null =
-    null
-  visible = true
-
-  constructor (
-    clip: IClip,
-    startTime: number = 1 * 1e6,
-    endTime: number = 5 * 1e6,
-    holdDuration: number = 8 * 1e6,
-    zoomPositionIndex: number = 8
-  ) {
-    super()
-    this.#clip = clip
-    this.#startTime = startTime
-    this.#endTime = endTime
-    this.#holdDuration = holdDuration
-    this.#zoomPositionIndex = zoomPositionIndex
-
-    this.ready = clip.ready.then(({ width, height, duration }) => {
-      this.rect.w = this.rect.w === 0 ? width : this.rect.w
-      this.rect.h = this.rect.h === 0 ? height : this.rect.h
-      this.time.duration =
-        this.time.duration === 0 ? duration : this.time.duration
-      //original dimensions
-      this.#originalWidth = this.rect.w / 2.5
-      this.#originalHeight = this.rect.h / 2.5
-      console.log(
-        'originalWidth',
-        this.#originalWidth,
-        'originalHeight',
-        this.#originalHeight
-      )
-
-      this.#initWebGL(this.rect.w / 2, this.rect.h / 2)
-      if (!this.#ctx) return
-      super._render(this.#ctx)
-    })
-  }
-
-  #initWebGL (width: number, height: number) {
-    try {
-      this.#canvas = new OffscreenCanvas(width, height)
-      this.#gl = this.#canvas.getContext('webgl', {
-        preserveDrawingBuffer: true
-      })
-
-      if (!this.#gl) {
-        console.error('Failed to get WebGL context')
-        return
-      }
-
-      const gl = this.#gl
-
+      });
+    }
+  
+    #initWebGL(width: number, height: number) {
+      this.#canvas = new OffscreenCanvas(width, height);
+      this.#gl = this.#canvas.getContext('webgl');
+      
+      if (!this.#gl) return;
+      
+      const gl = this.#gl;
+      
+ 
       const vertexShaderSource = `
       attribute vec2 position;
       varying vec2 vUv;
@@ -105,115 +79,70 @@ export class VideoSprite extends BaseSprite {
         gl_FragColor = texture2D(inputTexture, vUv);
       }
       `
-
-      const vertexShader = gl.createShader(gl.VERTEX_SHADER)
-      const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)
-
-      if (!vertexShader || !fragmentShader) {
-        return
-      }
-
-      gl.shaderSource(vertexShader, vertexShaderSource)
-      gl.shaderSource(fragmentShader, fragmentShaderSource)
-
-      gl.compileShader(vertexShader)
-      if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
-        return
-      }
-
-      gl.compileShader(fragmentShader)
-      if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
-        return
-      }
-
-      this.#program = gl.createProgram()
-      if (!this.#program) {
-        return
-      }
-
-      gl.attachShader(this.#program, vertexShader)
-      gl.attachShader(this.#program, fragmentShader)
-      gl.linkProgram(this.#program)
-
-      if (!gl.getProgramParameter(this.#program, gl.LINK_STATUS)) {
-        console.error(
-          'WebGL program linking failed:',
-          gl.getProgramInfoLog(this.#program)
-        )
-        return
-      }
-
-     
-      this.#positionLocation = gl.getAttribLocation(this.#program, 'position')
-      if (this.#positionLocation === -1) {
-        console.error('Failed to get position attribute location')
-      }
-
       
-      this.#textureLocation = gl.getUniformLocation(
-        this.#program,
-        'inputTexture'
-      )
+      const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+      const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+      
+      if (!vertexShader || !fragmentShader) return;
+      
+      gl.shaderSource(vertexShader, vertexShaderSource);
+      gl.shaderSource(fragmentShader, fragmentShaderSource);
+      
+      gl.compileShader(vertexShader);
+      gl.compileShader(fragmentShader);
+      
+      this.#program = gl.createProgram();
+      if (!this.#program) return;
+      
+      gl.attachShader(this.#program, vertexShader);
+      gl.attachShader(this.#program, fragmentShader);
+      gl.linkProgram(this.#program);
+      
+      if (!gl.getProgramParameter(this.#program, gl.LINK_STATUS)) {
+        console.error('WebGL program linking failed:', gl.getProgramInfoLog(this.#program));
+        return;
+      }
+      
 
-      //  buffers
-      this.#vertexBuffer = gl.createBuffer()
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer)
-      gl.bufferData(
-        gl.ARRAY_BUFFER,
-        new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
-        gl.STATIC_DRAW
-      )
+      this.#vertexBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        -1, -1,
+         1, -1,
+        -1,  1,
+         1,  1
+      ]), gl.STATIC_DRAW);
+      
+      this.#texCoordBuffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, this.#texCoordBuffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
+        0, 1,
+        1, 1,
+        0, 0,
+        1, 0
+      ]), gl.STATIC_DRAW);
+      
       //texture
-      this.#texture = gl.createTexture()
-      gl.bindTexture(gl.TEXTURE_2D, this.#texture)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-      return { width, height }
-    } catch (error) {
-      console.error('Error during WebGL initialization:', error)
+      this.#texture = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, this.#texture);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     }
+  
+      setZoomParameters (
+    startTime: number = 1*1e6,
+    endTime: number = 5*1e6,
+    holdDuration: number = 8 * 1e6,
+    zoomPositionIndex: number = 4
+  ) {
+    this.#startTime = startTime
+    this.#endTime = endTime || startTime + 2 * this.#zoomDuration + holdDuration
+    this.#holdDuration = holdDuration
+    this.#zoomPositionIndex = zoomPositionIndex
   }
-
-  #renderWithWebGL (video: VideoFrame | ImageBitmap): ImageBitmap | null {
-    if (!this.#gl || !this.#program || !this.#canvas) {
-      return null
-    }
-
-    const gl = this.#gl
-    const { width, height } = this.#canvas
-
-    try {
-      gl.viewport(0, 0, width, height)
-      gl.clearColor(0, 0, 0, 0)
-      gl.clear(gl.COLOR_BUFFER_BIT)
-
-      gl.useProgram(this.#program)
-
-      gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer)
-      gl.enableVertexAttribArray(this.#positionLocation)
-      gl.vertexAttribPointer(this.#positionLocation, 2, gl.FLOAT, false, 0, 0)
-
-      if (this.#textureLocation) gl.uniform1i(this.#textureLocation, 0)
-
-      gl.activeTexture(gl.TEXTURE0)
-      gl.bindTexture(gl.TEXTURE_2D, this.#texture)
-
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
-
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-
-      return this.#canvas.transferToImageBitmap()
-    } catch (error) {
-      console.error('Error during WebGL rendering:', error)
-      return null
-    }
-  }
-
- //[todo]: make focal point relatve to the canvas dimensions 
-  #getFocalPoint (index: number): { x: number; y: number } {
+    #getFocalPoint (index: number): { x: number; y: number } {
     const positions = [
       { x: 0, y: 0 }, 
       { x: 0.5, y: 0 }, 
@@ -233,42 +162,17 @@ export class VideoSprite extends BaseSprite {
     return -(Math.cos(Math.PI * t) - 1) / 2
   }
 
-  #lastVf: VideoFrame | ImageBitmap | null = null
-  #lastAudio: Float32Array[] = []
-  #ticking = false
-
-  #update (time: number) {
-    if (this.#ticking) return
-    this.#ticking = true
-    this.#clip
-      .tick(time * this.time.playbackRate)
-      .then(({ video, audio }) => {
-        if (video != null) {
-          this.#lastVf?.close()
-          this.#lastVf = video ?? null
-        }
-        this.#lastAudio = audio ?? []
-        if (audio != null && this.time.playbackRate !== 1) {
-          this.#lastAudio = audio.map(pcm =>
-            changePCMPlaybackRate(pcm, this.time.playbackRate)
-          )
-        }
-      })
-      .finally(() => {
-        this.#ticking = false
-      })
-  }
-
-  preFrame (time: number) {
-    this.#update(time)
-  }
-
   #updateScale (time: number) {
     const totalDuration = 2 * this.#zoomDuration + this.#holdDuration
 
+//this fixes zoom returning to original size
     if (time < this.#startTime || time > this.#endTime) {
-      return
+      this.#modifiedHeight = this.rect.h
+      this.#modifiedWidth = this.rect.w
+      console.log('mod height and mod width', this.#modifiedHeight, this.#modifiedWidth)
+      return 
     }
+  
 
     const totalAnimationTime = this.#endTime - this.#startTime
     const progress = (time - this.#startTime) / totalAnimationTime
@@ -292,107 +196,171 @@ export class VideoSprite extends BaseSprite {
       zoomFactor =
         this.#maxZoom - (this.#maxZoom - 1.0) * this.#easeInOutSine(t)
     }
+//working
 
-    offsetX = (0.5 - focalPoint.x) * this.#originalWidth * (zoomFactor - 1)
-    offsetY = (0.5 - focalPoint.y) * this.#originalHeight * (zoomFactor - 1)
+    // offsetX = (0.5 - focalPoint.x) * this.#originalWidth * (zoomFactor - 1)
+    // offsetY = (0.5 - focalPoint.y) * this.#originalHeight * (zoomFactor - 1)
+
+        offsetX = (0.5 - focalPoint.x) * this.#modifiedWidth * (zoomFactor - 1)
+    offsetY = (0.5 - focalPoint.y) * this.#modifiedHeight * (zoomFactor - 1)
+
+
     //this should be modified height if applicable
-    this.rect.w = this.#originalWidth * zoomFactor
-    this.rect.h = this.#originalHeight * zoomFactor
+    // this.rect.w = this.#originalWidth * zoomFactor
+    // this.rect.h = this.#originalHeight * zoomFactor
+
+     this.rect.w = this.#modifiedWidth * zoomFactor
+    this.rect.h = this.#modifiedHeight * zoomFactor
 
     //[todo]: manage coords
     // this.rect.x = offsetX;
     // this.rect.y = offsetY;
   }
 
-  #lastTime = -1
-  #processedFrame: ImageBitmap | null = null
-
-  render (
-    ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-    time: number
-  ): { audio: Float32Array[] } {
-    this.animate(time)
-    super._render(ctx)
-    this.#modifiedHeight = this.rect.h
-    this.#modifiedWidth = this.rect.w
-    this.#updateScale(time)
-    this.#ctx = ctx
-    this.#lastTime = time
-    const { w, h } = this.rect
-    if (this.#lastTime !== time) this.#update(time)
-    this.#lastTime = time
-
-    const audio = this.#lastAudio
-    this.#lastAudio = []
-    const video = this.#lastVf
-
-    if (video != null && this.visible) {
-      if (this.#processedFrame) {
-        this.#processedFrame.close()
-        this.#processedFrame = null
+    #renderWithWebGL (video: VideoFrame | ImageBitmap): ImageBitmap | null {
+          if (!this.#gl || !this.#program || !this.#canvas) {
+            return null
+          }
+      
+          const gl = this.#gl
+          const { width, height } = this.#canvas
+      
+          try {
+            gl.viewport(0, 0, width, height)
+            gl.clearColor(0, 0, 0, 0)
+            gl.clear(gl.COLOR_BUFFER_BIT)
+      
+            gl.useProgram(this.#program)
+            this.#positionLocation = gl.getAttribLocation(this.#program, 'position')
+      if (this.#positionLocation === -1) {
+        console.error('Failed to get position attribute location')
       }
 
-      this.#processedFrame = this.#renderWithWebGL(video)
+            gl.bindBuffer(gl.ARRAY_BUFFER, this.#vertexBuffer)
+            gl.enableVertexAttribArray(this.#positionLocation)
+            gl.vertexAttribPointer(this.#positionLocation, 2, gl.FLOAT, false, 0, 0)
+      
+            if (this.#textureLocation) gl.uniform1i(this.#textureLocation, 0)
+      
+            gl.activeTexture(gl.TEXTURE0)
+            gl.bindTexture(gl.TEXTURE_2D, this.#texture)
+      
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, video)
+      
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+      
+            return this.#canvas.transferToImageBitmap()
+          } catch (error) {
+            console.error('Error during WebGL rendering:', error)
+            return null
+          }
+        }
+  
+    #lastVf: VideoFrame | ImageBitmap | null = null;
+    #lastAudio: Float32Array[] = [];
+    #ticking = false;
+  
+    #update(time: number) {
+      if (this.#ticking) return;
+      this.#ticking = true;
+      this.#clip
+        .tick(time * this.time.playbackRate)
+        .then(({ video, audio }) => {
+          if (video != null) {
+            this.#lastVf?.close();
+            this.#lastVf = video ?? null;
+          }
+          this.#lastAudio = audio ?? [];
+          if (audio != null && this.time.playbackRate !== 1) {
+            this.#lastAudio = audio.map((pcm) => changePCMPlaybackRate(pcm, this.time.playbackRate));
+          }
+        })
+        .finally(() => {
+          this.#ticking = false;
+        });
+    }
+  
+    preFrame(time: number) {
+      this.#update(time);
+    }
+  
+    #lastTime = -1;
+    #processedFrame: ImageBitmap | null = null;
+  
+    render(
+      ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
+      time: number
+    ): { audio: Float32Array[] } {
+      this.#currentTime = time;
+      this.animate(time);
+      super._render(ctx);
+  
+      const { w, h } = this.rect;
+ 
+      if (this.#lastTime !== time) this.#update(time);
+      this.#lastTime = time;
+      this.#updateScale(time)
+  
+      const audio = this.#lastAudio;
+      this.#lastAudio = [];
+      const video = this.#lastVf;
+  
+      if (video != null) {
+      
+        
+        if (this.#processedFrame) {
+          this.#processedFrame.close();
+          this.#processedFrame = null;
+        }
+        
+      
+          this.#processedFrame = this.#renderWithWebGL(video);
+          if (this.#processedFrame) {
+            ctx.drawImage(this.#processedFrame, -w / 2, -h / 2, w, h);
+          } else {
+            ctx.drawImage(video, -w / 2, -h / 2, w, h);
+          }
+        
+      }
+  
+      return { audio };
+    }
+    
 
-      if (this.#processedFrame) {
-        // ctx.drawImage(this.#processedFrame, -w/2 + x, -h/2 + y, w, h);
-        ctx.drawImage(this.#processedFrame, -w / 2, -h / 2, w, h)
-      } else {
-        // ctx.drawImage(video, -w/2 + x, -h/2 + y, w, h);
-        ctx.drawImage(video, -w / 2, -h / 2, w, h)
+    copyStateTo<T extends BaseSprite>(target: T): void {
+      super.copyStateTo(target);
+      if ((target as any).visible !== undefined) {
+        (target as any).visible = this.visible;
+      }
+      if (target instanceof VideoSprite) {
+        target.#startTime = this.#startTime;
+        target.#endTime = this.#endTime;
       }
     }
+  
+    #destroyed = false;
+    destroy(): void {
+      if (this.#destroyed) return;
+      this.#destroyed = true;
+    //important: cleanup
+      super.destroy();
+      this.#lastVf?.close();
+      this.#lastVf = null;
+      this.#processedFrame?.close();
+      this.#processedFrame = null;
+      
 
-    return { audio }
-  }
-
-  setZoomParameters (
-    startTime: number,
-    endTime: number,
-    holdDuration: number = 8 * 1e6,
-    zoomPositionIndex: number = 8
-  ) {
-    this.#startTime = startTime
-    this.#endTime = endTime || startTime + 2 * this.#zoomDuration + holdDuration
-    this.#holdDuration = holdDuration
-    this.#zoomPositionIndex = zoomPositionIndex
-  }
-
-  copyStateTo<T extends BaseSprite> (target: T): void {
-    super.copyStateTo(target)
-    if ((target as any).visible !== undefined) {
-      ;(target as any).visible = this.visible
-    }
-    if (target instanceof VideoSprite) {
-      target.#startTime = this.#startTime
-      target.#endTime = this.#endTime
-      target.#holdDuration = this.#holdDuration
-      target.#zoomPositionIndex = this.#zoomPositionIndex
-      // target.#originalWidth = this.#originalWidth;
-      // target.#originalHeight = this.#originalHeight;
+      if (this.#gl) {
+        const gl = this.#gl;
+        gl.deleteTexture(this.#texture);
+        gl.deleteBuffer(this.#vertexBuffer);
+        gl.deleteBuffer(this.#texCoordBuffer);
+        gl.deleteProgram(this.#program);
+      }
+      
+      this.#gl = null;
+      this.#canvas = null;
+      this.#clip.destroy();
     }
   }
-
-  #destroyed = false
-  destroy (): void {
-    if (this.#destroyed) return
-    this.#destroyed = true
-
-    super.destroy()
-    this.#lastVf?.close()
-    this.#lastVf = null
-    this.#processedFrame?.close()
-    this.#processedFrame = null
-
-    if (this.#gl) {
-      const gl = this.#gl
-      gl.deleteTexture(this.#texture)
-      gl.deleteBuffer(this.#vertexBuffer)
-      gl.deleteProgram(this.#program)
-    }
-
-    this.#gl = null
-    this.#canvas = null
-    this.#clip.destroy()
-  }
-}
+  
