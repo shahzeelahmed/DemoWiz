@@ -6,15 +6,15 @@ export class VideoSprite extends BaseSprite {
   #startTime: number = 0
   #endTime: number = 0
   #currentTime: number = 0
-  #zoomDuration: number = 80000000
+  #zoomDuration: number = 10*1e6
   #maxZoom: number = 2.0
+  #focalPoints: { x: number; y: number }[] = []
+  focalPoint: { x: number; y: number } = { x: 1, y: 0.5 }
   //dimensions
   #originalWidth: number = 0
-  #originalHeight: number = 0
-  #modifiedWidth: number = 0
   #modifiedHeight: number = 0
-  #modifiedX: number = 0
-  #modifiedY: number = 0
+  #modifiedWidth: number = 0
+  #originalHeight: number = 0
   #originalX: number = 0
   #originalY: number = 0
 
@@ -28,7 +28,6 @@ export class VideoSprite extends BaseSprite {
   #positionLocation: number = -1
   #textureLocation: WebGLUniformLocation | null = null
   #holdDuration: number = 0
-  #zoomPositionIndex: number = 0
   getClip () {
     return this.#clip
   }
@@ -38,8 +37,8 @@ export class VideoSprite extends BaseSprite {
   constructor (
     clip: IClip,
     startTime: number = 1 * 1e6,
-    endTime: number = 6 * 1e6,
-    holdDuration: number = 6 * 1e6,
+    endTime: number = 10 * 1e6,
+    holdDuration: number = 3 * 1e6,
     zoomPositionIndex: number = 8
   ) {
     super()
@@ -54,6 +53,12 @@ export class VideoSprite extends BaseSprite {
         this.time.duration === 0 ? duration : this.time.duration
       this.#originalX = this.rect.x
       this.#originalY = this.rect.y
+      this.#focalPoints = [
+        { x: 0.25, y: 0.25 },
+        { x: 0.75, y: 0.25 },
+        {x:0.5,y:0.5}
+      ]; 
+      this.focalPoint = this.#getFocalPoint(8);
       this.#originalWidth = this.rect.w / 2
       this.#originalHeight = this.rect.h / 2
       this.#initWebGL(this.rect.w, this.rect.h)
@@ -140,14 +145,14 @@ export class VideoSprite extends BaseSprite {
 
   setZoomParameters (
     startTime: number = 1 * 1e6,
-    endTime: number = 5 * 1e6,
-    holdDuration: number = 8 * 1e6,
+    endTime: number = 15 * 1e6,
+    holdDuration: number = 5 * 1e6,
     zoomPositionIndex: number = 4
   ) {
     this.#startTime = startTime
     this.#endTime = endTime || startTime + 2 * this.#zoomDuration + holdDuration
     this.#holdDuration = holdDuration
-    this.#zoomPositionIndex = zoomPositionIndex
+
   }
   // #easeInOutSine (t: number): number {
   //   return -(Math.cos(Math.PI * t) - 1) / 2
@@ -159,39 +164,48 @@ export class VideoSprite extends BaseSprite {
   }
 
 
+
   #updateScale (time: number): void {
-    const totalDuration = 2 * this.#zoomDuration + this.#holdDuration
+
+
+    const totalDuration = 2 * this.#zoomDuration + this.#holdDuration;
 
     if (time < this.#startTime || time > this.#endTime) {
-      this.#originalX = this.rect.x
-      this.#originalY = this.rect.y
-      this.#originalWidth = this.rect.w
-      this.#originalHeight = this.rect.h
-      return
+      this.#originalX = this.rect.x;
+      this.#originalY = this.rect.y;
+      this.#originalWidth = this.rect.w;
+      this.#originalHeight = this.rect.h;
+      return;
     }
-
-    const totalAnimationTime = this.#endTime - this.#startTime
+    
+    const totalAnimationTime = this.#endTime - this.#startTime;
     const progress = Math.max(
       0,
       Math.min(1, (time - this.#startTime) / totalAnimationTime)
-    )
-
-    let zoomFactor = 1.0
-    const zoomInDurationRelative = this.#zoomDuration / totalDuration
-    const holdDurationRelative = this.#holdDuration / totalDuration
-
+    );
+    
+    let zoomFactor = 1.0;
+    const zoomInDurationRelative = this.#zoomDuration / totalDuration;
+    const holdDurationRelative = this.#holdDuration / totalDuration; // Use holdDuration here!
+    
     if (progress < zoomInDurationRelative) {
-      const t = progress / zoomInDurationRelative
-      zoomFactor = 1.0 + (this.#maxZoom - 1.0) * this.#easeInOutQuint(t)
+      const t = progress / zoomInDurationRelative;
+      zoomFactor = 1.0 + (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
+      console.log('zoomIn:', zoomFactor);
     } else if (progress < zoomInDurationRelative + holdDurationRelative) {
-      zoomFactor = this.#maxZoom
+      zoomFactor = this.#maxZoom;
+      console.log('hold:', zoomFactor);
     } else {
       const t =
         (progress - zoomInDurationRelative - holdDurationRelative) /
-        zoomInDurationRelative
+        zoomInDurationRelative;
       zoomFactor =
-        this.#maxZoom - (this.#maxZoom - 1.0) * this.#easeInOutQuint(t)
+        this.#maxZoom - (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
+      console.log('zoomOut:', zoomFactor);
     }
+    
+
+
     zoomFactor = Math.max(1.0, zoomFactor)
 
     const finalWidth = this.#originalWidth * zoomFactor
@@ -208,6 +222,60 @@ export class VideoSprite extends BaseSprite {
     this.rect.x = newRectX
     this.rect.y = newRectY
   }
+  // #updateScale(time: number): void {
+  //   const totalDuration = 2 * this.#zoomDuration + this.#holdDuration;
+  
+  //   if (time < this.#startTime || time > this.#endTime) {
+  //     this.#originalX = this.rect.x;
+  //     this.#originalY = this.rect.y;
+  //     this.#originalWidth = this.rect.w;
+  //     this.#originalHeight = this.rect.h;
+  //     return;
+  //   }
+  // this.#modifiedHeight = this.#originalHeight
+  // this.#modifiedWidth = this.#originalWidth
+  //   const totalAnimationTime = this.#endTime - this.#startTime;
+  //   const progress = Math.max(
+  //     0,
+  //     Math.min(1, (time - this.#startTime) / totalAnimationTime)
+  //   );
+  
+  //   let zoomFactor = 1.0;
+  //   const zoomInDurationRelative = this.#zoomDuration / totalDuration;
+  //   const holdDurationRelative = this.#holdDuration / totalDuration;
+  
+  //   if (progress < zoomInDurationRelative) {
+  //     const t = progress / zoomInDurationRelative;
+  //     zoomFactor = 1.0 + (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
+  //   } else if (progress < zoomInDurationRelative + holdDurationRelative) {
+  //     zoomFactor = this.#maxZoom;
+  
+  //     const holdProgress = (progress - zoomInDurationRelative) / holdDurationRelative;
+  //     const focalPointIndex = Math.floor(holdProgress * this.#focalPoints.length) % this.#focalPoints.length;
+  //     this.focalPoint = this.#focalPoints[focalPointIndex];
+  //   } else {
+  //     const t =
+  //       (progress - zoomInDurationRelative - holdDurationRelative) /
+  //       this.#zoomDuration;
+  //     zoomFactor = this.#maxZoom - (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
+  //     this.focalPoint = { x: 0.5, y: 0.5 }; 
+  //   }
+  
+  //   zoomFactor = Math.max(1.0, zoomFactor);
+  
+  //   const finalWidth = this.#modifiedWidth * zoomFactor;
+  //   const finalHeight = this.#modifiedHeight * zoomFactor;
+  
+  //   const newRectX =
+  //     this.#originalX + this.focalPoint.x * this.#modifiedWidth * (1 - zoomFactor);
+  //   const newRectY =
+  //     this.#originalY + this.focalPoint.y * this.#modifiedHeight * (1 - zoomFactor);
+  
+  //   this.rect.w = this.#originalWidth;
+  //   this.rect.h = this.#originalHeight;
+  //   this.rect.x = newRectX;
+  //   this.rect.y = newRectY;
+  // }
 
   #getFocalPoint (index: number): { x: number; y: number } {
     const positions = [
