@@ -49,23 +49,14 @@ import scissorIcon from '@/frappe-ui/icons/scissor.svg'
 import playIcon from '@/frappe-ui/icons/play.svg'
 import pauseIcon from '@/frappe-ui/icons/pause.svg'
 import chevLeft from '@/frappe-ui/icons/chevLeft.svg'
-
 import { Textarea } from '../ui/textarea'
 import useSpriteStore from '@/store/spriteStore'
 import { useAVCanvasStore } from '@/store/avCanvasStore'
-import { TrackItem } from '../tracks/trackItem'
-import TextTrackConfig from '../tracks/textTrack'
-import { randInt } from 'three/src/math/MathUtils'
-import { ImageClip } from '@/class/imageTrack'
 import { NumberInputWithUnit } from '../ui/numberinput'
-
 import { Checkbox } from '../ui/checkbox'
-
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
 import { SplitButton } from '../shared/buttons'
-
-
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
@@ -553,7 +544,7 @@ const Player = React.memo(() => {
               defaultValue={selectedTrackItem.config?.fontSize ?? 40}
               min={1}
               step={1}
-              max={130}
+              max={180}
               className={cn('border-none ')}
               onValueChange={e => {
                 updateTextClip(selectedTrackItem, 'fontSize', e)
@@ -750,11 +741,11 @@ const Player = React.memo(() => {
         </div>
       ) : selectedIcon === 'TEXT' ? (
         <div
-        style={{
-          scrollbarWidth: 'none'
-        }}
-        className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '
-      ></div>
+          style={{ scrollbarWidth: 'none' }}
+          className="overflow-y-auto bg-white text-[#525252] text-[20px] flex flex-col gap-6 p-6 top-0 w-80 max-w-80 z-0 max-h-108 min-w-0 border-l-1"
+        >
+
+        </div>
       ) : null  }{' '}
     </div>
   )

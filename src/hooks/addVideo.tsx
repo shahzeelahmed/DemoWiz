@@ -51,6 +51,7 @@ import { VideoSprite } from "@/class/videoEffectTrack"
     trackStore.addTrack(newTrack)
     const spr = newspr as VisibleSprite
     spr.time.offset = currentTime * 1e6
+    spr.time.duration = duration / 1e6
     console.log('duration', duration/1e6)
     spriteMap.set(trackId, spr)
     spr.rect.w = 480

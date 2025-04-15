@@ -77,50 +77,7 @@ const TimeLine: React.FC<TimeLineProps> = React.memo(({
   } = getTickConfig(zoom)
   const totalTicks = Math.ceil(duration * 100)
 
-  // const drawRuler = useCallback(() => {
-  //   const canvas = canvasRef.current
-  //   if (!canvas) return
-
-  //   const ctx = canvas.getContext('2d')
-  //   if (!ctx) return
-
-  //   const dpr = window.devicePixelRatio || 1
-
-  //   canvas.width = totalWidth * dpr
-  //   canvas.height = CONSTANTS.rulerHeight * dpr
-  //   canvas.style.width = `${totalWidth}px`
-  //   canvas.style.height = `${CONSTANTS.rulerHeight}px`
-
-  //   ctx.scale(dpr, dpr)
-
-  //   ctx.clearRect(0, 0, totalWidth, CONSTANTS.rulerHeight)
-
-  //   ctx.font = '11px Arial, sans-serif'
-  //   ctx.textAlign = 'center'
-  //   ctx.textBaseline = 'top'
-
-  //   for (let i = 0; i <= totalTicks; i++) {
-  //     const x = i * tickSpacing
-
-  //     if (i % largeTickInterval === 0) {
-  //       ctx.fillStyle = '#3e3e3e'
-  //       ctx.fillRect(x, 20, 1, 10)
-
-  //       ctx.fillStyle = '#4e4e4e'
-  //       ctx.fillText(timeFormatter(i), x, 4)
-  //     } else if (i % smallTickInterval === 0) {
-  //       ctx.fillStyle = '#6f6f6f'
-  //       ctx.fillRect(x, 25, 1, 5)
-  //     }
-  //   }
-  // }, [
-  //   totalWidth,
-  //   totalTicks,
-  //   tickSpacing,
-  //   timeFormatter,
-  //   largeTickInterval,
-  //   smallTickInterval
-  // ])
+ 
   const drawRuler = useCallback(() => {
     const canvas = canvasRef.current
     if (!canvas) return

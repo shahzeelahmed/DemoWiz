@@ -3,8 +3,7 @@ import textIcon from './icons/text.svg'
 import filterIcon from './icons/magic-wand-svgrepo-com.svg'
 import videoIcon from './icons/video.svg'
 import imageIcon from './icons/image.svg'
-import Slider from '../components/ui/slider'
-import fileIcon from './icons/fileUpload.svg'
+
 import {
   Tooltip,
   TooltipContent,
@@ -12,9 +11,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import useSidebarStore from '@/store/sideBarStore'
-import { Button } from '@/components/ui/button'
 import AddVideoSprite from '@/hooks/addVideo'
-import { Textarea } from '@/components/ui/textarea'
 import AddTextSprite from '@/hooks/addText'
 import AddImageSprite from '@/hooks/addImage'
 import AddEffect from '@/hooks/addEffect'
