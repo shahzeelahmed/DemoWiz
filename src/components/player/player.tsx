@@ -544,7 +544,7 @@ const Player = React.memo(() => {
               defaultValue={selectedTrackItem.config?.fontSize ?? 40}
               min={1}
               step={1}
-              max={130}
+              max={180}
               className={cn('border-none ')}
               onValueChange={e => {
                 updateTextClip(selectedTrackItem, 'fontSize', e)
@@ -741,11 +741,11 @@ const Player = React.memo(() => {
         </div>
       ) : selectedIcon === 'TEXT' ? (
         <div
-        style={{
-          scrollbarWidth: 'none'
-        }}
-        className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '
-      ></div>
+          style={{ scrollbarWidth: 'none' }}
+          className="overflow-y-auto bg-white text-[#525252] text-[20px] flex flex-col gap-6 p-6 top-0 w-80 max-w-80 z-0 max-h-108 min-w-0 border-l-1"
+        >
+
+        </div>
       ) : null  }{' '}
     </div>
   )
