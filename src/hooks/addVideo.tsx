@@ -36,11 +36,11 @@ import { VideoSprite } from "@/class/videoEffectTrack"
         type: 'VIDEO',
         isVisible: true,
         isMuted: false,
-        duration: duration / 1e6,
+        duration: duration /1e6,
         height: 480,
         width: 720,
         startTime: currentTime,
-        endTime: currentTime + duration,
+        endTime: currentTime + duration/1e6,
         inRowId: rowId,
         volume: 1,
         fps: 30
@@ -51,8 +51,8 @@ import { VideoSprite } from "@/class/videoEffectTrack"
     trackStore.addTrack(newTrack)
     const spr = newspr as VisibleSprite
     spr.time.offset = currentTime * 1e6
-    spr.time.duration = duration / 1e6
-    console.log('duration', duration/1e6)
+    spr.time.duration = duration 
+    console.log('video duration', duration/1e6 )
     spriteMap.set(trackId, spr)
     spr.rect.w = 480
     spr.rect.h = 270

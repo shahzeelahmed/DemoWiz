@@ -59,6 +59,8 @@ export class ImageClip implements IClip {
 
     this.#cvsEl = document.createElement("canvas");
     this.#ctx = this.#cvsEl.getContext("2d")!;
+    this.#cvsEl = new OffscreenCanvas(this.#cvsEl.width*2,this.#cvsEl.height*2)
+  this.#gl = this.#cvsEl.getContext('webgl')
     // this.#gl = this.#cvsEl.getContext("webgl")!;
 this.#getRandomColors()
     this.#imageEl = new Image();
@@ -253,10 +255,9 @@ if (this.#useGradient) {
     return [rgb1, rgb2];
   }
   
-
   #createGradient(color1:any,color2:any): void {
-    this.#cvsEl = new OffscreenCanvas(this.#cvsEl.width,this.#cvsEl.height)
-    this.#gl = this.#cvsEl.getContext('webgl')
+   
+    
 
     if (!this.#gl) {
       console.log("WebGL not supported");

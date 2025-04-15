@@ -87,7 +87,7 @@ const DraggableTrack = React.memo(() => {
       const sprite = spriteMap.get(selectedTrackItem.id)
       if (sprite) {
         sprite.time.offset = Math.round(newStart * 1e6)
-        sprite.time.duration = Math.round(newDuration * 1e6)
+        sprite.time.duration = Math.round(newDuration *1e6)
       }
     }
 
@@ -101,7 +101,7 @@ const DraggableTrack = React.memo(() => {
 
       const sprite = spriteMap.get(selectedTrackItem.id)
       if (sprite) {
-        sprite.time.duration = Math.round(newDuration *1e6 )
+        sprite.time.duration = Math.round(newDuration*1e6 )
       }
     }
 

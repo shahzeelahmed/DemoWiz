@@ -70,6 +70,7 @@ const addImageSprite = () => {
     spr.rect.fixedScaleCenter = true
     spr.rect.fixedAspectRatio = true
     spr.time.duration = 5 * 1e6
+    console.log('image duration', spr.time.duration)
     avCanvas!.addSprite(spr)
 
     

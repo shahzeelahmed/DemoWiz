@@ -126,7 +126,7 @@ export default function PlayheadNew () {
       const newX = Math.min(Math.max(event.clientX - rect.left, 0), 1000)
       setPosition(newX)
       playerStore.setCurrentTime(newX)
-      console.log('newX', newX)
+      // console.log('newX', newX)
       const time = convertPixelsToSeconds(zoom,newX)
       playerStore.setCurrentTime(time)
     }

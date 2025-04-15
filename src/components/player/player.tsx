@@ -381,7 +381,7 @@ const Player = React.memo(() => {
       await avCanvas.addSprite(newSprite)
     }
   }
-  const [color, setColor] = useState('#6366f1')
+  const [color, setColor] = useState('#ffffff')
 
  
  
