@@ -23,7 +23,7 @@ import videoIcon from '@/frappe-ui/icons/video.svg'
 import useSpriteStore from '@/store/spriteStore'
 import { VisibleSprite } from '@webav/av-cliper'
 
-const DraggableTrack = () => {
+const DraggableTrack = React.memo(() => {
   const trackStore = useTrackStateStore()
   const setSelectedTrack = useTrackStateStore(state => state.selectTrack)
   const setSelectedTrackItem = useTrackStateStore(
@@ -101,7 +101,7 @@ const DraggableTrack = () => {
 
       const sprite = spriteMap.get(selectedTrackItem.id)
       if (sprite) {
-        sprite.time.duration = Math.round(newDuration * 1e6)
+        sprite.time.duration = Math.round(newDuration )
       }
     }
 
@@ -381,7 +381,7 @@ const DraggableTrack = () => {
 
 
   return (
-    <div className='relative bg-white border   w-full h-full flex flex-col '>
+    <div className='relative bg-white border-l-1   w-full h-full flex flex-col '>
       <div className='flex-1 overflow-x-scroll overflow-y-auto flex-col shrink-0 grow relative'>
         <TimeLine duration={100} />
 
@@ -420,7 +420,7 @@ const DraggableTrack = () => {
                           handleTimeLineDragStart(e, item)
                         }}
                         onDragEnd={handleDragEnd}
-                        className={` text-white rounded-sm  h-10 overflow-visible flex   items-center relative border-3   ${
+                        className={` text-white rounded-sm  h-10 overflow-visible flex   items-center relative border-4   ${
                           item.type === 'IMAGE'
                             ? 'bg-[#F69AD1] '
                             : item.type === 'TEXT'
@@ -470,5 +470,5 @@ const DraggableTrack = () => {
       </div>
     </div>
   )
-}
-export default DraggableTrack
+})
+export default DraggableTrack;
