@@ -101,7 +101,7 @@ const DraggableTrack = React.memo(() => {
 
       const sprite = spriteMap.get(selectedTrackItem.id)
       if (sprite) {
-        sprite.time.duration = Math.round(newDuration )
+        sprite.time.duration = Math.round(newDuration *1e6 )
       }
     }
 

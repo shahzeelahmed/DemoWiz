@@ -49,23 +49,14 @@ import scissorIcon from '@/frappe-ui/icons/scissor.svg'
 import playIcon from '@/frappe-ui/icons/play.svg'
 import pauseIcon from '@/frappe-ui/icons/pause.svg'
 import chevLeft from '@/frappe-ui/icons/chevLeft.svg'
-
 import { Textarea } from '../ui/textarea'
 import useSpriteStore from '@/store/spriteStore'
 import { useAVCanvasStore } from '@/store/avCanvasStore'
-import { TrackItem } from '../tracks/trackItem'
-import TextTrackConfig from '../tracks/textTrack'
-import { randInt } from 'three/src/math/MathUtils'
-import { ImageClip } from '@/class/imageTrack'
 import { NumberInputWithUnit } from '../ui/numberinput'
-
 import { Checkbox } from '../ui/checkbox'
-
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
 import { SplitButton } from '../shared/buttons'
-
-
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
