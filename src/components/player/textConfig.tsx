@@ -14,7 +14,7 @@ import { TextTrack, TrackItemType } from "@/types/trackType"
 import { VisibleSprite } from "@webav/av-cliper"
 
 
-const TextEditBar=  () =>{
+const TextEditBar = React.memo(() => {
     const trackId = useTrackStateStore(state => state.selectedTrackId)
     const clip = useTrackStateStore(state => state.selectedTrackItem as TrackItemType) 
     const currentTime = usePlayerStore(state=>state.currentTime)
@@ -51,7 +51,7 @@ const TextEditBar=  () =>{
         }
       
        
-      };
+      
    
       const handleChange = (key:any, value:any) => {
         if (clip.type === 'TEXT'){
@@ -61,7 +61,7 @@ const TextEditBar=  () =>{
       };
     
 
-
+    
 return(
     <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 h-fit w-80 max-w-80 flex-none min-w-0'>
           <div className='grid grid-rows-2 gap-1'></div>
@@ -119,7 +119,7 @@ return(
             />
           </div>
         </div>
-)
-} 
+)})
 
-export default TextEditBar
+
+export default TextEditBar;

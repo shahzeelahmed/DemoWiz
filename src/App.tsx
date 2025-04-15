@@ -1,5 +1,5 @@
 import './App.css'
-import React, { useEffect, useRef, useState } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import Playhead from './components/timeline/playheadtest'
 import DraggableTrack from './components/tracks/draggable'
 import { AVCanvas } from '@webav/av-canvas'
@@ -30,7 +30,8 @@ import TimeLine from './components/timeline/timeLine'
 import usePlayerStore from './store/playerStore'
 import SideBar from './frappe-ui/sideBar'
 
-export default function App () {
+
+const App = React.memo(() => {
   const [avCanvas, setAvCanvas] = useState<AVCanvas | null>(null)
   const [playing, setPlaying] = useState(false)
   const rowStore = useTrackStateStore()
@@ -45,74 +46,36 @@ export default function App () {
 
  
 
-  return (
-    <div className='relative h-lvh w-full flex border-2'>
-     
-     
-    <img src={appIcon} height={32} width={32} alt="App Icon" className='absolute left-1 top-1 bottom-1  z-10 rounded-sm rounded-tr-md ' />
-    <Button className="absolute  rounded-lg right-2 top-2 z-10 h-7 w-24" >
-      <ExportIcon /> EXPORT
-    </Button>
 
- 
-    <div className='relative z-0 mt-10'>
-      <SideBar />
+    return (
+      <div className='relative h-lvh w-full flex '>
+        <img
+          src={appIcon}
+          height={32}
+          width={32}
+          alt="App Icon"
+          className='absolute left-1 top-1 bottom-1 z-10 rounded-sm rounded-tr-md'
+        />
+        <Button className="absolute rounded-lg right-2 top-1 z-10 h-8 w-24">
+          <ExportIcon /> EXPORT
+        </Button>
   
-  </div>
-
-  <div className="flex-1 flex flex-col overflow-hidden relative z-20 mt-10">
-    <Player />
- 
-    <div className="w-full h-full relative">
-      <div className=' flex justify-items-start flex-row w-screen h-full z-50 pointer-events-auto'>
-        <DraggableTrack />
+        <div className='relative z-0 mt-10'>
+          <SideBar />
+        </div>
+  
+        <div className="flex-1 flex flex-col overflow-hidden relative z-20 mt-10">
+          <Player />
+  
+          <div className="w-full h-full relative">
+            <div className='flex justify-items-start flex-row w-screen h-full z-50 pointer-events-auto'>
+              <DraggableTrack />
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
-
-
-
-
-
-
-
-
-  //   <div className='flex h-lvh z-0  '>
-    
-  //   <SideBar />
-  
-  //   <div className="flex-1 flex flex-col overflow-hidden">
-  //   <Player />
- 
+    );
+  })
+  export default App
   
   
-  // <div className=" w-full h-full ">
-
-    
-  //     <div className='ml-2 z-10 absolute '>
-      
-  //     </div>
-  //     <div className='w-full h-full z-10  '>
-  //               <DraggableTrack />
-  //               </div>
-  //           </div>
-  //     </div>
-  //   </div>
-//   <div className='relative h-lvh flex'>
-//   <div className='absolute z-10'>
-//     <SideBar />
-//   </div>
-//   <div className="flex flex-col overflow-hidden ml-[var(--sidebar-width)]">
-//     <Player />
-//     <div className="w-full h-full relative">
-//       <div className=' w-full h-full z-10'>
-//         <DraggableTrack />
-//       </div>
-//     </div>
-//   </div>
-// </div>
-
-
-  )
-}

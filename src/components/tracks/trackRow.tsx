@@ -9,7 +9,7 @@ import { TrackItemType } from "../../types/trackType";
     MEDIA: 'media',
     NON_MEDIA: 'non-media'
   };
-const trackRow = () =>{
+const trackRow = React.memo(() =>{
     const store = useTrackStateStore()
     const rows = store.trackLines
     const addTrackRow = (row: TrackRow) => {

@@ -9,9 +9,9 @@ import {
 import { TimeLineProps } from '../../types/timeLine'
 import PlayheadNew from './playheadtest'
 import useTimeLineStore from '../../store/timelineStore'
-import {Playhead} from './playhead'
+
 import usePlayerStore from '@/store/playerStore'
-const TimeLine: React.FC<TimeLineProps> = ({
+const TimeLine: React.FC<TimeLineProps> = React.memo(({
   duration,
   zoom = 1,
   currentTime = 0,
@@ -328,6 +328,6 @@ console.log(zoom)
       `}</style>
     </div>
   )
-}
+})
 
-export default TimeLine
+export default TimeLine;

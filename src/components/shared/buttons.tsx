@@ -95,7 +95,24 @@ interface buttonProps {
   export const SubtleButton = (props: buttonProps) => (
     <Button variant='subtle' {...props} />
   )
-  
+
+
+  export const SplitButton = React.memo((props: buttonProps) => (
+    <Button {...props}>Split</Button>
+  ));
+
+  export const DeleteButton = React.memo((props: buttonProps) => (
+    <Button {...props}>Delete</Button>
+  ));
+
+  export const ExportButton = React.memo((props: buttonProps) => (
+    <Button {...props}>Export</Button>
+  ));
+
+  export const UploadButton = React.memo((props: buttonProps) => (
+    <Button {...props}>Upload</Button>
+  ));
+
   const ButtonTest = () => {
     return (
       <div className='space-y-8 p-6 bg-[#ffffff] rounded-sm '>
@@ -120,3 +137,5 @@ interface buttonProps {
     )
   }
   
+
+

@@ -63,10 +63,11 @@ import { Checkbox } from '../ui/checkbox'
 
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
+import { SplitButton } from '../shared/buttons'
 
 
 
-const Player = () => {
+const Player = React.memo(() => {
   const playerStore = usePlayerStore()
   const isPaused = playerStore.isPaused
   const [time, setTime] = useState(0)
@@ -422,7 +423,21 @@ const Player = () => {
               <img src={scissorIcon} height={20} width={20} alt='Scissor' />
               Split
             </Button>
+            <SplitButton
+             onClick={async () => {
+              await handleSplit()
+            }}
+            label='split'
+            >
+              
+               className='absolute left-4'
+              variant={'icon'}
+             
             
+              <img src={scissorIcon} height={20} width={20} alt='Scissor' />
+              Split
+
+            </SplitButton>
             <Button
               className='absolute left-30'
               variant={'icon'}
@@ -744,4 +759,6 @@ const Player = () => {
     </div>
   )
 }
-export default Player
+)
+
+export default Player;

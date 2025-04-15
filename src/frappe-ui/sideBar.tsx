@@ -18,7 +18,7 @@ import { Textarea } from '@/components/ui/textarea'
 import AddTextSprite from '@/hooks/addText'
 import AddImageSprite from '@/hooks/addImage'
 import AddEffect from '@/hooks/addEffect'
-const SideBar = () => {
+const SideBar = React.memo(() => {
   const sliderRef = useRef<HTMLInputElement>(null)
   const sidebarStore = useSidebarStore()
   const selectedIcon = sidebarStore.selectedIcon
@@ -171,5 +171,5 @@ const SideBar = () => {
         </div>) : null}
     </div>
   )
-}
+})
 export default SideBar

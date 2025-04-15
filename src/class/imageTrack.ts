@@ -166,7 +166,7 @@ this.#getRandomColors()
       }
     }
 if (this.#useGradient) {
-      this.#createGradient(this.#cvsEl.width,this.#cvsEl.height,this.#color1,this.#color2 );
+      this.#createGradient(this.#color1,this.#color2 );
     }
     return {
       state: "success",
@@ -254,8 +254,8 @@ if (this.#useGradient) {
   }
   
 
-  #createGradient(width:number,height:number,color1:any,color2:any): void {
-    this.#cvsEl = new OffscreenCanvas(width, height)
+  #createGradient(color1:any,color2:any): void {
+    this.#cvsEl = new OffscreenCanvas(this.#cvsEl.width,this.#cvsEl.height)
     this.#gl = this.#cvsEl.getContext('webgl')
 
     if (!this.#gl) {
