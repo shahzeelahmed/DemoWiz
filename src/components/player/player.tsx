@@ -394,8 +394,7 @@ const Player = React.memo(() => {
       <div className='flex flex-col flex-1 bg-[#f6f6f6] justify-center items-center h-fit max-w-[800px]'>
   
         <div
-          className='h-[380px] max-h-96 w-[780px] flex-grow mt-2'
-          // className='relative h-[380px] max-h-96 w-[780px] flex-grow mt-2 bg-gray-400'
+          className='h-[380px] max-h-96 w-[780px] flex-grow mt-2 tablet-canvas'
           ref={el => {setCvsWrapEl(el)}}
         >
 
