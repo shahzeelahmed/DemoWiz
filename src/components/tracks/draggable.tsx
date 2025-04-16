@@ -306,9 +306,8 @@ const DraggableTrack = React.memo(() => {
 
     console.log(item.name)
 
-    setTimeout(() => {
-      e.target.style.opacity = '0'
-    }, 0)
+   
+    e.target.style.opacity = '1'
     e.stopPropagation()
   }
 
