@@ -10,7 +10,7 @@ import {
 import { cn } from '@/components/ui/lib/utils';
 import { Range, Root, Thumb, Track } from '@radix-ui/react-slider';
 import Color from 'color';
-import React from 'react';
+import React, { memo } from 'react';
 import { PipetteIcon } from 'lucide-react';
 import {
   type ChangeEventHandler,
@@ -65,7 +65,7 @@ export type ColorPickerProps = HTMLAttributes<HTMLDivElement> & {
   onChange?: (value: Parameters<typeof Color.rgb>[0]) => void;
 };
 
-export const ColorPicker = ({
+const ColorPickerComponent = ({
   value,
   defaultValue = '#000000',
   onChange,
@@ -110,14 +110,6 @@ export const ColorPicker = ({
   //     onChange([rgba[0], rgba[1], rgba[2], alpha / 100]);
   //   }
   // }, [hue, saturation, lightness, alpha, onChange]);
-useEffect(()=>{
-  if (onChange) {
-    const color = Color.hsl(hue, saturation, lightness).alpha(alpha / 100);
-    const rgba = color.rgb().array();
-    const hex = color.hex()
-    onChange(hex);
-  }
-},[onchange,hue,saturation,lightness,alpha])
   return (
 
     <ColorPickerContext.Provider
@@ -144,8 +136,7 @@ useEffect(()=>{
 };
 
 export type ColorPickerSelectionProps = HTMLAttributes<HTMLDivElement>;
-
-export const ColorPickerSelection = ({
+const ColorPickerSelectionComponent = ({
   className,
   ...props
 }: ColorPickerSelectionProps) => {
@@ -227,7 +218,7 @@ export const ColorPickerSelection = ({
 
 export type ColorPickerHueProps = HTMLAttributes<HTMLDivElement>;
 
-export const ColorPickerHue = ({
+const ColorPickerHueComponent = ({
   className,
   ...props
 }: ColorPickerHueProps) => {
@@ -251,8 +242,7 @@ export const ColorPickerHue = ({
 };
 
 export type ColorPickerAlphaProps = HTMLAttributes<HTMLDivElement>;
-
-export const ColorPickerAlpha = ({
+const ColorPickerAlphaComponent = ({
   className,
   ...props
 }: ColorPickerAlphaProps) => {
@@ -284,7 +274,7 @@ export const ColorPickerAlpha = ({
 
 export type ColorPickerEyeDropperProps = ComponentProps<typeof Button>;
 
-export const ColorPickerEyeDropper = ({
+const ColorPickerEyeDropperComponent = ({
   className,
   ...props
 }: ColorPickerEyeDropperProps) => {
@@ -324,7 +314,7 @@ export type ColorPickerOutputProps = ComponentProps<typeof SelectTrigger>;
 
 const formats = ['hex', 'rgb', 'css', 'hsl'];
 
-export const ColorPickerOutput = ({
+const ColorPickerOutputComponent = ({
   className,
   ...props
 }: ColorPickerOutputProps) => {
@@ -348,7 +338,7 @@ export const ColorPickerOutput = ({
 
 type PercentageInputProps = ComponentProps<typeof Input>;
 
-const PercentageInput = ({ className, ...props }: PercentageInputProps) => {
+const PercentageInputComponent = ({ className, ...props }: PercentageInputProps) => {
   return (
     <div className="relative">
       <Input
@@ -366,9 +356,9 @@ const PercentageInput = ({ className, ...props }: PercentageInputProps) => {
   );
 };
 
-export type ColorPickerFormatProps = HTMLAttributes<HTMLDivElement>;
 
-export const ColorPickerFormat = ({
+export type ColorPickerFormatProps = HTMLAttributes<HTMLDivElement>;
+const ColorPickerFormatComponent = ({
   className,
   ...props
 }: ColorPickerFormatProps) => {
@@ -502,3 +492,12 @@ export const ColorPickerFormat = ({
 
   return null;
 };
+
+export const ColorPicker = memo(ColorPickerComponent);
+export const ColorPickerSelection = memo(ColorPickerSelectionComponent);
+export const ColorPickerHue = memo(ColorPickerHueComponent);
+export const ColorPickerAlpha = memo(ColorPickerAlphaComponent);
+export const ColorPickerEyeDropper = memo(ColorPickerEyeDropperComponent);
+export const ColorPickerOutput = memo(ColorPickerOutputComponent);
+export const PercentageInput = memo(PercentageInputComponent);
+export const ColorPickerFormat = memo(ColorPickerFormatComponent);
