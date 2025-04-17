@@ -189,7 +189,7 @@ const ColorPickerSelectionComponent = ({
     <div
       ref={containerRef}
       className={cn(
-        'relative aspect-[4/3] w-full cursor-crosshair rounded',
+        'relative aspect-[4/3] w-full  rounded',
         className
       )}
       style={{
