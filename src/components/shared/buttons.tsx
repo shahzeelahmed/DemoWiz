@@ -98,7 +98,7 @@ interface buttonProps {
 
 
   export const SplitButton = React.memo((props: buttonProps) => (
-    <Button {...props}>Split</Button>
+    <Button {...props}></Button>
   ));
 
   export const DeleteButton = React.memo((props: buttonProps) => (

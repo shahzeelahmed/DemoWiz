@@ -167,7 +167,7 @@ export default function PlayheadNew () {
     }
   }, [])
   return (
-    <div className="relative w-full h-1 bg-gray-200 rounded-sm z-10">
+    <div className="relative w-full h-1  rounded-sm z-10">
   <div
     ref={playheadRef}
     className="absolute w-4 h-6 bg-gray-400 rounded-[4px] cursor-grab z-20 flex items-center justify-center"

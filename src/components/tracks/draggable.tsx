@@ -391,7 +391,7 @@ const DraggableTrack = React.memo(() => {
                 <div
                   ref={rowRef}
                   key={track.id}
-                  className={` relative ml-2 h-10`}
+                  className={` relative ml-2 h-10 m-1`}
                   style={{ width: `${1000 * 10}px` }}
                   onDragOver={handleDragOver}
                   onDrop={e => handleDrop(e, track.id)}

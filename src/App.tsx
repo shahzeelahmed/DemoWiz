@@ -56,8 +56,9 @@ const App = React.memo(() => {
           alt="App Icon"
           className='absolute left-1 top-1 bottom-1 z-10 rounded-sm rounded-tr-md'
         />
-        <Button className="absolute rounded-lg right-2 top-1 z-10 h-8 w-24">
-          <ExportIcon /> EXPORT
+        <Button className="absolute bg-black text-white rounded-lg right-2 top-1  w-24 h-8 cursor-pointer hover:-translate-y-[0.5px]">
+         <ExportIcon/>
+           EXPORT
         </Button>
   
         <div className='relative z-0 mt-10'>
@@ -68,7 +69,7 @@ const App = React.memo(() => {
           <Player />
   
           <div className="w-full h-full relative">
-            <div className='flex justify-items-start flex-row w-screen h-full z-50 pointer-events-auto'>
+            <div className='flex justify-items-start flex-row w-screen h-full z-50 '>
               <DraggableTrack />
             </div>
           </div>

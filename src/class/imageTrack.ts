@@ -59,7 +59,7 @@ export class ImageClip implements IClip {
 
     this.#cvsEl = document.createElement("canvas");
     this.#ctx = this.#cvsEl.getContext("2d")!;
-    this.#cvsEl = new OffscreenCanvas(this.#cvsEl.width*2,this.#cvsEl.height*2)
+    this.#cvsEl = new OffscreenCanvas(this.#cvsEl.width*3,this.#cvsEl.height*3)
   this.#gl = this.#cvsEl.getContext('webgl')
     // this.#gl = this.#cvsEl.getContext("webgl")!;
 this.#getRandomColors()

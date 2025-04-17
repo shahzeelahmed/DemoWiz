@@ -1,5 +1,6 @@
 //[todo]: implement videoEffect and textEffect]
 import { IClip, ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
+
 import { cn } from '../ui/lib/utils'
 import {
   useState,
@@ -9,7 +10,7 @@ import {
   FormEvent,
   FormEventHandler
 } from 'react'
-
+import DeleteIcon from '@/frappe-ui/icons/delete'
 import usePlayerStore from '../../store/playerStore'
 import { AVCanvas } from '@webav/av-canvas'
 import React from 'react'
@@ -21,8 +22,7 @@ import {
   TrackType,
   VideoTrack
 } from '../../types/trackType'
-import { TrackRowList } from '../../types/trackRowTypes'
-import { loadFile } from '../../utils/helpers'
+import SplitIcon from '@/frappe-ui/icons/scissor'
 import { nanoid, random } from 'nanoid'
 import { createZoomBlurShader } from '../../effects/createMotionBlur'
 import useVideoStore from '@/store/videoStore'
@@ -36,6 +36,7 @@ import {
   SelectTrigger,
   SelectValue
 } from '../ui/select'
+
 import useSidebarStore from '@/store/sideBarStore'
 import { TextClip } from '@/class/textTrack'
 import { TextTrack } from '@/types/trackType'
@@ -44,10 +45,9 @@ import { useTextStore } from '@/store/textStore'
 import BoldIcon from './icons/bold'
 import UnderLineIcon from './icons/underline'
 import ItalicIcon from './icons/italic'
-import deleteIcon from '@/frappe-ui/icons/delete.svg'
 import scissorIcon from '@/frappe-ui/icons/scissor.svg'
-import playIcon from '@/frappe-ui/icons/play.svg'
-import pauseIcon from '@/frappe-ui/icons/pause.svg'
+import PlayIcon from '@/frappe-ui/icons/play'
+import PauseIcon from '@/frappe-ui/icons/pause'
 import chevLeft from '@/frappe-ui/icons/chevLeft.svg'
 import { Textarea } from '../ui/textarea'
 import useSpriteStore from '@/store/spriteStore'
@@ -56,7 +56,9 @@ import { NumberInputWithUnit } from '../ui/numberinput'
 import { Checkbox } from '../ui/checkbox'
 import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover'
 import { ColorPicker, ColorPickerFormat, ColorPickerHue, ColorPickerOutput, ColorPickerSelection } from '../ui/kibo-ui/color-picker'
-import { SplitButton } from '../shared/buttons'
+import ExportIcon from '@/frappe-ui/icons/export'
+
+
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
@@ -389,73 +391,54 @@ const Player = React.memo(() => {
 
 
   return (
-    <div className='flex z-0 border  '>
+    <div className='flex border  '>
 
-      <div className='flex flex-col flex-1 bg-[#f6f6f6] justify-center items-center h-fit max-w-[800px]'>
+      <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start h-fit max-w-[800px]'>
   
         <div
-          className='h-[380px] max-h-96 w-[780px] flex-grow mt-2 tablet-canvas'
+          className='h-[380px] max-h-96 w-[780px] flex-grow mt-2 tablet-canvas self-center'
           ref={el => {setCvsWrapEl(el)}}
         >
 
            
         </div>
 
-        <div className='flex items-start mt-4'>
-          <div className='flex flex-row  items-start gap-4'>
-            <Button
-              className='absolute left-4'
-              variant={'icon'}
-              onClick={async () => {
-                await handleSplit()
-              }}
-            >
-              <img src={scissorIcon} height={20} width={20} alt='Scissor' />
-              Split
-            </Button>
-            <SplitButton
-             onClick={async () => {
-              await handleSplit()
-            }}
-            label='split'
-            >
-              
-               className='absolute left-4'
-              variant={'icon'}
-             
-            
-              <img src={scissorIcon} height={20} width={20} alt='Scissor' />
-              Split
-
-            </SplitButton>
-            <Button
-              className='absolute left-30'
-              variant={'icon'}
+        <div className='flex flex-row items-start mt-2 w-full'>
+         
+          <div className='flex flex-row items-start gap-4 mb-1'>
+          <Button className="bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838]  font-medium  cursor-pointer ml-3 h-8"
+          
+          variant={'default'}
+          onClick={async () => {
+            await handleSplit()
+          }}
+        >
+<SplitIcon />
+          Split
+        </Button>
+          <Button className="bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838] font-medium h-8 cursor-pointer"
+           variant="default"
+ 
               onClick={() => {
+                
                 selectedTrack ? deleteClip(selectedTrack) : null
               }}
             >
-              <img src={deleteIcon} height={20} width={20} alt='Delete' />
+           <DeleteIcon />
               Delete
             </Button>
+
+            {isPaused ? <PlayIcon className='ml-40' viewBox='0 0 14 14' cursor='pointer' onClick={()=>{
+              avCanvas!.play({ start: currentTime * 1e6 })
+              playerStore.setPaused(false)
+            }} /> : <PauseIcon   className='ml-40' viewBox='0 0 14 14' cursor='pointer' onClick={()=>{
+              avCanvas!.pause()
+              playerStore.setPaused(true)
+            }}/>}
+           
           </div>
-          <div className='flex flex-row flex-grow items-center  gap-2 '>
-            <img
-              src={isPaused ? playIcon : pauseIcon}
-              height={28}
-              width={28}
-              onClick={() => {
-                if (avCanvas == null) return
-                if (isPaused === false) {
-                  avCanvas.pause()
-                  playerStore.setPaused(true)
-                } else {
-                  avCanvas.play({ start: currentTime * 1e6 })
-                  playerStore.setPaused(false)
-                }
-              }}
-            />
-          </div>
+         
+          
         </div>
       </div>
       {selectedIcon === 'video' ? (
@@ -470,8 +453,10 @@ const Player = React.memo(() => {
           style={{
             scrollbarWidth: 'none'
           }}
-          className=' overflow-y-auto bg-white text-[#525252] p-2 text-[24px] flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 border-l-1 '
+          
+          className='border-l-1  overflow-y-auto bg-white text-[#525252] p-2 text-[24px]  flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 '
         >
+          <h3 className='text-sm font-medium text-[#2e2e2e]'>Select a track to edit properties</h3>
           <h3 className='text-sm font-medium text-[#2e2e2e]'>Style</h3>
 
           <div className='flex gap-4'>
@@ -738,14 +723,8 @@ const Player = React.memo(() => {
             add effect
           </Button>
         </div>
-      ) : selectedIcon === 'TEXT' ? (
-        <div
-          style={{ scrollbarWidth: 'none' }}
-          className="overflow-y-auto bg-white text-[#525252] text-[20px] flex flex-col gap-6 p-6 top-0 w-80 max-w-80 z-0 max-h-108 min-w-0 border-l-1"
-        >
-
-        </div>
-      ) : null  }{' '}
+      ) :
+       null  }{' '}
     </div>
   )
 }

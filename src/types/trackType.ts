@@ -62,7 +62,15 @@ export interface VideoTrack extends MediaTrack, PositionableTrack {
   volume: number
   fps?: number
 }
-
+export interface Transition {
+  id: string;
+  type: string; 
+  trackId1: string;
+  trackId2: string; 
+  startTime: number; 
+  duration: number; 
+  parameters?: Record<string, any>; 
+}
 export interface AudioTrack extends MediaTrack {
   type: 'AUDIO'
   volume: number

@@ -214,7 +214,7 @@ export const ColorPickerSelection = ({
       {...props}
     >
       <div
-        className="pointer-events-none absolute h-4 w-4 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2"
+        className=" absolute h-4 w-4 rounded-full border-2 border-white -translate-x-1/2 -translate-y-1/2"
         style={{
           left: `${position.x * 100}%`,
           top: `${position.y * 100}%`,

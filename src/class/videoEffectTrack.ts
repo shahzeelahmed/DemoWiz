@@ -222,61 +222,7 @@ export class VideoSprite extends BaseSprite {
     this.rect.x = newRectX
     this.rect.y = newRectY
   }
-  // #updateScale(time: number): void {
-  //   const totalDuration = 2 * this.#zoomDuration + this.#holdDuration;
-  
-  //   if (time < this.#startTime || time > this.#endTime) {
-  //     this.#originalX = this.rect.x;
-  //     this.#originalY = this.rect.y;
-  //     this.#originalWidth = this.rect.w;
-  //     this.#originalHeight = this.rect.h;
-  //     return;
-  //   }
-  // this.#modifiedHeight = this.#originalHeight
-  // this.#modifiedWidth = this.#originalWidth
-  //   const totalAnimationTime = this.#endTime - this.#startTime;
-  //   const progress = Math.max(
-  //     0,
-  //     Math.min(1, (time - this.#startTime) / totalAnimationTime)
-  //   );
-  
-  //   let zoomFactor = 1.0;
-  //   const zoomInDurationRelative = this.#zoomDuration / totalDuration;
-  //   const holdDurationRelative = this.#holdDuration / totalDuration;
-  
-  //   if (progress < zoomInDurationRelative) {
-  //     const t = progress / zoomInDurationRelative;
-  //     zoomFactor = 1.0 + (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
-  //   } else if (progress < zoomInDurationRelative + holdDurationRelative) {
-  //     zoomFactor = this.#maxZoom;
-  
-  //     const holdProgress = (progress - zoomInDurationRelative) / holdDurationRelative;
-  //     const focalPointIndex = Math.floor(holdProgress * this.#focalPoints.length) % this.#focalPoints.length;
-  //     this.focalPoint = this.#focalPoints[focalPointIndex];
-  //   } else {
-  //     const t =
-  //       (progress - zoomInDurationRelative - holdDurationRelative) /
-  //       this.#zoomDuration;
-  //     zoomFactor = this.#maxZoom - (this.#maxZoom - 1.0) * this.#easeInOutQuint(t);
-  //     this.focalPoint = { x: 0.5, y: 0.5 }; 
-  //   }
-  
-  //   zoomFactor = Math.max(1.0, zoomFactor);
-  
-  //   const finalWidth = this.#modifiedWidth * zoomFactor;
-  //   const finalHeight = this.#modifiedHeight * zoomFactor;
-  
-  //   const newRectX =
-  //     this.#originalX + this.focalPoint.x * this.#modifiedWidth * (1 - zoomFactor);
-  //   const newRectY =
-  //     this.#originalY + this.focalPoint.y * this.#modifiedHeight * (1 - zoomFactor);
-  
-  //   this.rect.w = this.#originalWidth;
-  //   this.rect.h = this.#originalHeight;
-  //   this.rect.x = newRectX;
-  //   this.rect.y = newRectY;
-  // }
-
+ 
   #getFocalPoint (index: number): { x: number; y: number } {
     const positions = [
       {x:0, y:0},
