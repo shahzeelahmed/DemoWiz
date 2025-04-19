@@ -63,6 +63,7 @@ import {
   ColorPickerSelection
 } from '../ui/kibo-ui/color-picker'
 import ExportIcon from '@/frappe-ui/icons/export'
+import { FrappeColorPicker } from '../ui/frappColorPicker'
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
@@ -359,6 +360,7 @@ const Player = React.memo(() => {
     if (!sprite) return
     sprite.flip = flipVideo
   }
+
   //adapted from videoclip demo
   const handleSplit = async () => {
     if (!selectedTrackItem || !avCanvas) return
@@ -406,8 +408,12 @@ const Player = React.memo(() => {
       await avCanvas.addSprite(newSprite)
     }
   }
-  const [color, setColor] = useState('#ffffff')
+  const [selectedColor, setSelectedColor] = useState('#ffffff'); // Default color
 
+  const handleColorChange = (newColor: string) => {
+    setSelectedColor(newColor); 
+    console.log('color:', newColor); 
+  };
   return (
     <div className='flex border  '>
       <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start border-r h-fit max-w-[800px]'>
@@ -743,38 +749,28 @@ const Player = React.memo(() => {
                   width={20}
                   className='border-none w-24 h-10'
                 />
-                <Popover>
-                  <PopoverTrigger>
+                <Popover >
+                  <PopoverTrigger >
                     <Button
                       variant='outline'
                       className='flex items-center gap-2'
                     >
                       <span
                         className='h-4 w-4 rounded-full border'
-                        style={{ backgroundColor: color }}
+                        style={{ backgroundColor: selectedColor }}
                       />
-                      <span>{color}</span>
+                      <span style={{ minWidth: 72, fontFamily: 'monospace', display: 'inline-block' }}>{selectedColor}</span>
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className='w-auto p-4 z-50'>
-                    <ColorPicker
-                      color={color}
-                      defaultValue={color}
-                      onChange={val => {
-                        setColor(val as string),
-                        console.log('color',val)
-                          updateTextClip(
-                            selectedTrackItem,
-                            'color',
-                            val as string
-                          )
-                      }}
-                    >
-                      <ColorPickerSelection />
-                      <ColorPickerFormat />
-                      <ColorPickerHue />
-                      <ColorPickerOutput />
-                    </ColorPicker>
+                  <PopoverContent className='w-auto z-50'>
+                  
+                    <FrappeColorPicker
+                    
+                    value={selectedColor}
+                    onChange={(color) =>{updateTextClip(selectedTrackItem, 'color', selectedColor);setSelectedColor(color); }}
+                    
+                    />
+                   
                   </PopoverContent>
                 </Popover>
               </div>

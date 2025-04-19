@@ -36,13 +36,14 @@ interface ColorPickerContextValue {
   lightness: number;
   alpha: number;
   mode: string;
-  val:number;
+  val: number;
   setHue: (hue: number) => void;
-  setValue: (value:number)=>void
+  setValue: (value: number) => void;
   setSaturation: (saturation: number) => void;
   setLightness: (lightness: number) => void;
   setAlpha: (alpha: number) => void;
   setMode: (mode: string) => void;
+  onChange?: (value: any) => void;
 }
 
 const ColorPickerContext = createContext<ColorPickerContextValue | undefined>(
@@ -126,6 +127,7 @@ const ColorPickerComponent = ({
         setLightness,
         setAlpha,
         setMode,
+        onChange, // Pass onChange from props to context
       }}
     >
       <div className={cn('grid w-full gap-4', className)} {...props} />
@@ -374,20 +376,24 @@ const ColorPickerFormatComponent = ({
     setSaturation,
     setLightness,
     setAlpha,
+    onChange: contextOnChange,
   } = useColorPicker();
   const color = Color.hsl(hue, saturation, lightness, alpha / 100);
-
+  
   if (mode === 'hex') {
-    const hex = color.hex();
+    let hex = color.hex();
 
     const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
       try {
         const newColor = Color(event.target.value);
-        setValue(newColor.value())
+        setValue(newColor.value());
         setHue(newColor.hue());
         setSaturation(newColor.saturationl());
         setLightness(newColor.lightness());
         setAlpha(newColor.alpha() * 100);
+        if (contextOnChange) {
+          contextOnChange(newColor.hex());
+        }
       } catch (error) {
         console.error('Invalid hex color:', error);
       }
@@ -402,10 +408,10 @@ const ColorPickerFormatComponent = ({
         {...props}
       >
     
-        <Input
+        <input
           type="text"
-          value={hex}
-          onChange={(e)=>{hex}}
+          value={color.hex()}
+          onChange={(e)=>{ console.log('hex',e.target.value);handleChange(e)}}
           className="h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none"
         />
         <PercentageInput value={alpha} />
@@ -419,6 +425,22 @@ const ColorPickerFormatComponent = ({
       .array()
       .map((value) => Math.round(value));
 
+    // Handler to update individual RGB values
+    const handleRGBChange = (index: number, newValue: string) => {
+      const numericValue = Math.max(0, Math.min(255, Number(newValue.replace(/[^\d]/g, ''))));
+      let [r, g, b] = rgb;
+      if (index === 0) r = numericValue;
+      if (index === 1) g = numericValue;
+      if (index === 2) b = numericValue;
+      setHue(Color.rgb(r, g, b).hue());
+      setSaturation(Color.rgb(r, g, b).saturationl());
+      setLightness(Color.rgb(r, g, b).lightness());
+      if (contextOnChange) {
+        contextOnChange([r, g, b, alpha]);
+      }
+    };
+
+
     return (
       <div
         className={cn('-space-x-px flex items-center shadow-sm', className)}
@@ -427,9 +449,11 @@ const ColorPickerFormatComponent = ({
         {rgb.map((value, index) => (
           <Input
             key={index}
-            type="text"
+            type="number"
+            min={0}
+            max={255}
             value={value}
-            readOnly
+            onChange={(e) => handleRGBChange(index, e.target.value)}
             className={cn(
               'h-8 rounded-r-none bg-secondary px-2 text-xs shadow-none',
               index && 'rounded-l-none',
