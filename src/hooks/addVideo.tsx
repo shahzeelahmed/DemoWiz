@@ -35,6 +35,7 @@ import { VideoSprite } from "@/class/videoEffectTrack"
         index: 0,
         type: 'VIDEO',
         isVisible: true,
+        opacity: 1,
         isMuted: false,
         duration: duration /1e6,
         height: 480,
@@ -63,7 +64,9 @@ import { VideoSprite } from "@/class/videoEffectTrack"
    
     avCanvas!.addSprite(spr)}
     return(
-        <Button variant={'outline'} className='h-32 w-64 grid grid-rows-2  justify-items-center mt-2' onClick={ spriteToadd  }>
+        <Button variant={'outline'} 
+        className='h-32 w-64 grid grid-rows-2 bg-[#e9e9e9] shadow-none border-none justify-items-center mt-2' 
+        onClick={ spriteToadd  }>
         <img className='self-end' src={fileIcon} alt='video' height={32} width={32} /> 
         <h3 className='text-sm self-start text-[#6e6e6e]'> Upload a Video</h3>
 

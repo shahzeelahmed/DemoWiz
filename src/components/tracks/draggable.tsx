@@ -412,8 +412,14 @@ const DraggableTrack = React.memo(() => {
                           // display: 'flex',
                         }}
                         onClick={() => {
-                          setSelectedTrack(item.id),
-                            setSelectedTrackItem(item.id)
+                          if (selectedTrack === item.id) {
+                            setSelectedTrack(null);
+                            setSelectedTrackItem(null);
+                          
+                          } else {
+                            setSelectedTrack(item.id);
+                            setSelectedTrackItem(item.id);
+                          }
                         }}
                         onDragStart={e => {
                           handleTimeLineDragStart(e, item)

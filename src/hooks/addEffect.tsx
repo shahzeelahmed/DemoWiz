@@ -48,8 +48,10 @@ const AddEffect = () => {
   
 
 return (
-    <Button variant={'outline'} className='h-20
-     w-32 grid grid-rows-2  justify-items-center mt-2' onClick={ async() =>  addEffectToClip(currentTime ,5000)}>
+    <Button variant={'outline'} 
+    className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 text-[#5e5e5e] "
+
+     onClick={ async() =>  addEffectToClip(currentTime ,5000)}>
     
     <h3 className='text-sm self-start text-[#9e9e9e]'> Zoom Effect</h3>
     </Button>

@@ -25,7 +25,7 @@ const addSprite = async (content:string) => {
   
   const testConfig :TextConfig = {
     content: content,
-    fontSize: 58,
+    fontSize: 100,
     fontFamily: "Arial",
     fontStyle: "normal",
     animationType: "none",
@@ -111,7 +111,8 @@ return (
 
     <div className="flex flex-col gap-2">
       <textarea
-        className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 text-[#5e5e5e] "
+
+      className="border rounded-md p-2 w-full bg-[#f6f6f6] min-h-2 mt-2 text-[#2e2e2e] "
         placeholder="Enter Text Here..."
         value={textValue}
         onChange={(e) => setTextValue(e.target.value)}
