@@ -317,6 +317,8 @@ const Player = React.memo(() => {
         ...textClip.textConfig,
         [propertyKey]: newValue
       }
+      sprite!.rect.w = textClip.meta.width
+      sprite!.rect.h = textClip.meta.height
       clip.config = {
         ...clip.config,
         [propertyKey]: newValue
@@ -404,6 +406,16 @@ const Player = React.memo(() => {
         trackStore.addTrack([clipObj])
       }
       const newSprite = new VisibleSprite(clip)
+      if (clip instanceof TextClip) {
+
+        // initial dimensions of the clip
+        newSprite.rect.w = clip.meta.width
+        newSprite.rect.h = clip.meta.height
+        clip.onMetaChange(meta => {
+          newSprite.rect.w = meta.width
+          newSprite.rect.h = meta.height
+        });
+      }
       newSprite.time.offset = sprsOffset[i]
       newSprite.time.duration = sprsDuration[i]
       spriteMap.set(clipObj.id, newSprite)
@@ -418,9 +430,10 @@ const Player = React.memo(() => {
     <div className='flex border  '>
       <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start border-r max-w-[800px]'>
         <div
+        ref={el => setCvsWrapEl(el)}
           className='h-[380px] mt-2 tablet-canvas self-center'
           style={{ aspectRatio: aspectRatio.replace(':', '/') }}
-          ref={el => setCvsWrapEl(el)}
+          
         ></div>
 
         <div className='flex flex-row items-start mt-2 w-full'>
@@ -468,9 +481,11 @@ const Player = React.memo(() => {
               />
             )}
 
-            <Select onValueChange={setAspectRatio} defaultValue={aspectRatio}>
-              <SelectTrigger className='ml-2 h-8 w-20'>
-                <SelectValue placeholder='16:9' />
+<div className='justify-end self-end ml-20'>
+
+            <Select  onValueChange={setAspectRatio} defaultValue={aspectRatio} >
+              <SelectTrigger  className='ml-2 h-8 w-20'>
+                <SelectValue placeholder='16:9'  />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value='16:9'>16:9</SelectItem>
@@ -478,6 +493,7 @@ const Player = React.memo(() => {
                 <SelectItem value='1:1'>1:1</SelectItem>
               </SelectContent>
             </Select>
+            </div>
           </div>
         </div>
       </div>
@@ -558,20 +574,18 @@ const Player = React.memo(() => {
                   <SelectValue placeholder='Arial' />
                 </SelectTrigger>
                 <SelectContent className='font-medium bg-[#f6f6f6]'>
-                  <SelectItem value='Arial'>Arial</SelectItem>
-                  <SelectItem value='otetoro'>Otetoro</SelectItem>
-                  <SelectItem value='sans-serif'>Sans Serif</SelectItem>
-                  <SelectItem value='Verdana'>Verdana</SelectItem>
-                  <SelectItem value='Tahoma'>Tahoma</SelectItem>
-                  <SelectItem value='Trebuchet MS'>Trebuchet MS</SelectItem>
-                  <SelectItem value='Georgia'>Georgia</SelectItem>
-                  <SelectItem value='Times New Roman'>
-                    Times New Roman
-                  </SelectItem>
-                  <SelectItem value='Impact'>Impact</SelectItem>
-                  <SelectItem value='Comic Sans MS'>Comic Sans MS</SelectItem>
-                  <SelectItem value='Courier New'>Courier New</SelectItem>
-                  <SelectItem value='Inter'>Inter</SelectItem>
+                  <SelectItem value='Arial' style={{ fontFamily: 'Arial' }}>Arial</SelectItem>
+                  <SelectItem value='otetoro' style={{ fontFamily: 'otetoro' }}>Otetoro</SelectItem>
+                  <SelectItem value='sans-serif' style={{ fontFamily: 'sans-serif' }}>Sans Serif</SelectItem>
+                  <SelectItem value='Verdana' style={{ fontFamily: 'Verdana' }}>Verdana</SelectItem>
+                  <SelectItem value='Tahoma' style={{ fontFamily: 'Tahoma' }}>Tahoma</SelectItem>
+                  <SelectItem value='Trebuchet MS' style={{ fontFamily: 'Trebuchet MS' }}>Trebuchet MS</SelectItem>
+                  <SelectItem value='Georgia' style={{ fontFamily: 'Georgia' }}>Georgia</SelectItem>
+                  <SelectItem value='Times New Roman' style={{ fontFamily: 'Times New Roman' }}>Times New Roman</SelectItem>
+                  <SelectItem value='Impact' style={{ fontFamily: 'Impact' }}>Impact</SelectItem>
+                  <SelectItem value='Comic Sans MS' style={{ fontFamily: 'Comic Sans MS' }}>Comic Sans MS</SelectItem>
+                  <SelectItem value='Courier New' style={{ fontFamily: 'Courier New' }}>Courier New</SelectItem>
+                  <SelectItem value='Inter' style={{ fontFamily: 'Inter' }}>Inter</SelectItem>
                 </SelectContent>
               </Select>
               <span className='text-xs text-[#5e5e5e] w-10 text-right'>
