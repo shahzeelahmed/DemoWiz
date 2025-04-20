@@ -63,7 +63,7 @@ import {
   ColorPickerSelection
 } from '../ui/kibo-ui/color-picker'
 import ExportIcon from '@/frappe-ui/icons/export'
-import { FrappeColorPicker } from '../ui/frappColorPicker'
+import { FrappeColorPicker } from '../ui/frappeColorPicker'
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
@@ -333,30 +333,32 @@ const Player = React.memo(() => {
       trackStore.updateTrack(itemToUpdate)
 
       sprite!.preFrame(currentTime * 1e6)
-      
     }
-    
   }
   const updateVideoOpacity = (id: string, newValue: number) => {
-    const sprite = spriteMap.get(id);
-    if (!sprite) return;
-    sprite.opacity = newValue;
-    const currentTrack = trackStore.tracks.find((track: any) => track.id === id && track.type === 'VIDEO') as VideoTrack;
-    if (!currentTrack) return;
+    const sprite = spriteMap.get(id)
+    if (!sprite) return
+    sprite.opacity = newValue
+    const currentTrack = trackStore.tracks.find(
+      (track: any) => track.id === id && track.type === 'VIDEO'
+    ) as VideoTrack
+    if (!currentTrack) return
 
-    
     const updatedTrack = {
       ...currentTrack,
-      opacity: newValue,
-    };
+      opacity: newValue
+    }
     console.log('updatedTrack opacity', updatedTrack.opacity)
-    const itemToUpdate: VideoTrack[] = [updatedTrack];
-    trackStore.updateTrack(itemToUpdate);
+    const itemToUpdate: VideoTrack[] = [updatedTrack]
+    trackStore.updateTrack(itemToUpdate)
 
-    sprite.preFrame(currentTime * 1e6);
-  };
-  const flipVideo=(id:string,flipVideo: "horizontal" | "vertical" | null) =>{
-    const sprite= spriteMap.get(id)
+    sprite.preFrame(currentTime * 1e6)
+  }
+  const flipVideo = (
+    id: string,
+    flipVideo: 'horizontal' | 'vertical' | null
+  ) => {
+    const sprite = spriteMap.get(id)
     if (!sprite) return
     sprite.flip = flipVideo
   }
@@ -408,20 +410,17 @@ const Player = React.memo(() => {
       await avCanvas.addSprite(newSprite)
     }
   }
-  const [selectedColor, setSelectedColor] = useState('#ffffff'); // Default color
+  const [strokeColor, setStrokeColor] = useState('#ffffff')
+  const [textColor, setTextColor] = useState('#ffffff')
+  const [aspectRatio, setAspectRatio] = useState('16:9')
 
-  const handleColorChange = (newColor: string) => {
-    setSelectedColor(newColor); 
-    console.log('color:', newColor); 
-  };
   return (
     <div className='flex border  '>
-      <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start border-r h-fit max-w-[800px]'>
+      <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start border-r max-w-[800px]'>
         <div
-          className='h-[380px] max-h-96 w-[780px] flex-grow mt-2 tablet-canvas self-center'
-          ref={el => {
-            setCvsWrapEl(el)
-          }}
+          className='h-[380px] mt-2 tablet-canvas self-center'
+          style={{ aspectRatio: aspectRatio.replace(':', '/') }}
+          ref={el => setCvsWrapEl(el)}
         ></div>
 
         <div className='flex flex-row items-start mt-2 w-full'>
@@ -468,322 +467,374 @@ const Player = React.memo(() => {
                 }}
               />
             )}
+
+            <Select onValueChange={setAspectRatio} defaultValue={aspectRatio}>
+              <SelectTrigger className='ml-2 h-8 w-20'>
+                <SelectValue placeholder='16:9' />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value='16:9'>16:9</SelectItem>
+                <SelectItem value='2:3'>2:3</SelectItem>
+                <SelectItem value='1:1'>1:1</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
       {selectedTrackItem?.type === 'VIDEO' ? (
         <div className='bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 w-80 max-w-80 flex-none min-w-0  h-full'>
-           <Slider
-                  min={0}
-                  max={1}
-                  defaultValue={[selectedTrackItem.opacity as number]}
-                  value={[selectedTrackItem.opacity as number ]}
-                  step={0.01}
-                  onValueChange={val => {
-                    
-                    updateVideoOpacity(selectedTrackItem.id,val[0])
-                    console.log('opacity and val',selectedTrackItem.opacity,val[0])
-                   
-                  }}
-                  className='w-[180px]'
-                />
-
+          <Slider
+            min={0}
+            max={1}
+            defaultValue={[selectedTrackItem.opacity as number]}
+            value={[selectedTrackItem.opacity as number]}
+            step={0.01}
+            onValueChange={val => {
+              updateVideoOpacity(selectedTrackItem.id, val[0])
+              console.log('opacity and val', selectedTrackItem.opacity, val[0])
+            }}
+            className='w-[180px]'
+          />
         </div>
-      
-      
       ) : selectedTrackItem?.type === 'IMAGE' ? (
         <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 h-full '></div>
-      ) : // ) : selectedIcon === 'text' && selectedTrackItem?.type === 'TEXT' ? (
-      selectedTrackItem?.type === 'TEXT' ? (
+      ) : selectedTrackItem?.type === 'TEXT' ? (
         <div
-          style={{
-            scrollbarWidth: 'none'
-          }}
-          className='  overflow-y-auto bg-white text-[#525252] p-2 text-[24px]  flex flex-col gap-3  top-0 w-80 max-w-80 z-0 max-h-108  min-w-0 '
+          style={{ scrollbarWidth: 'none' }}
+          className='overflow-y-auto bg-white text-[#525252] p-4 text-[16px] flex flex-col gap-6 top-0 w-80 max-w-80 z-0 max-h-108 min-w-0'
         >
-        
-            <div>
-            
-              <h3 className='text-sm font-medium text-[#2e2e2e]'>Style</h3>
-              <div className='flex gap-4'>
-                <Button
-                  className={
-                    
-                    `
-                    
-                    border-none ${
-                    selectedTrackItem.config.bold === true
-                      ? `bg-[#d2d2d2]`
-                      : `bg-[#f6f6f6]`
-                  } shadow-none  hover:bg-[#e9e9e9]`}
-                  onClick={() => {
-                    const toggleBold = !selectedTrackItem.config.bold
-                    updateTextClip(selectedTrackItem, 'bold', toggleBold)
-                  }}
-                >
-                  <BoldIcon />
-                </Button>
-                <Button
-                  className={`border-none ${
-                    selectedTrackItem.config.italic === true
-                      ? `bg-[#d2d2d2]`
-                      : `bg-[#f6f6f6]`
-                  } shadow-none hover:bg-[#e9e9e9] `}
-                  onClick={() => {
-                    const toggleItalic = !selectedTrackItem.config.italic
-                    updateTextClip(selectedTrackItem, 'italic', toggleItalic)
-                  }}
-                >
-                  <ItalicIcon />
-                </Button>
-              </div>
-              <div className='flex flex-row justify-between'>
-                <h3 className='text-sm font-medium  mt-2 text-[#2e2e2e] e] '>
-                  Typography
-                </h3>
-              </div>
-              <div className='flex flex-row justify-between'>
-                <h3 className='text-xs font-medium  mt-1 text-[#5e5e5e]'>
-                  Family
-                </h3>
-                <h3 className='text-xs font-medium  mt-1 mr-16 text-[#5e5e5e]'>
-                  Size
-                </h3>
-              </div>
-              <div className='flex flex-row gap-1'>
-                <Select
-                  onValueChange={value =>
-                    updateTextClip(selectedTrackItem, 'fontFamily', value)
-                  }
-                >
-                  <SelectTrigger className='bg-white border-none w-[200px]'>
-                    <SelectValue placeholder='Arial' />
-                  </SelectTrigger>
-                  <SelectContent className='font-medium bg-[#f6f6f6]'>
-                    <SelectItem value='Arial'> Arial</SelectItem>
-                    <SelectItem value='otetoro'> Otetoro</SelectItem>
-                    <SelectItem value='sans-serif'>Sans Serif</SelectItem>
-                    <SelectItem value='Verdana'>Verdana</SelectItem>
-                    <SelectItem value='Tahoma'>Tahoma</SelectItem>
-                    <SelectItem value='Trebuchet MS'>Trebuchet MS</SelectItem>
-                    <SelectItem value='Georgia'>Georgia</SelectItem>
-                    <SelectItem value='Times New Roman'>
-                      Times New Roman
-                    </SelectItem>
-                    <SelectItem value='Impact'>Impact</SelectItem>
-                    <SelectItem value='Comic Sans MS'>Comic Sans MS</SelectItem>
-                    <SelectItem value='Courier New'>Courier New</SelectItem>
-                    <SelectItem value='Inter'>Inter</SelectItem>
-                  </SelectContent>
-                </Select>
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>Style</h3>
+            <div className='flex gap-2 mb-2'>
+              <Button
+                className={`border-none ${
+                  selectedTrackItem.config.bold
+                    ? 'bg-[#d2d2d2]'
+                    : 'bg-[#f6f6f6]'
+                } shadow-none hover:bg-[#e9e9e9]`}
+                onClick={() =>
+                  updateTextClip(
+                    selectedTrackItem,
+                    'bold',
+                    !selectedTrackItem.config.bold
+                  )
+                }
+              >
+                <BoldIcon />
+              </Button>
+              <Button
+                className={`border-none ${
+                  selectedTrackItem.config.italic
+                    ? 'bg-[#d2d2d2]'
+                    : 'bg-[#f6f6f6]'
+                } shadow-none hover:bg-[#e9e9e9]`}
+                onClick={() =>
+                  updateTextClip(
+                    selectedTrackItem,
+                    'italic',
+                    !selectedTrackItem.config.italic
+                  )
+                }
+              >
+                <ItalicIcon />
+              </Button>
+            </div>
+            <hr className='my-2 border-gray-200' />
+          </section>
 
-                <NumberInputWithUnit
-                  unit='px'
-                  defaultValue={selectedTrackItem.config?.fontSize ?? 40}
-                  min={1}
-                  step={1}
-                  max={180}
-                  className={cn('border-none ')}
-                  onValueChange={e => {
-                    updateTextClip(selectedTrackItem, 'fontSize', e)
-                  }}
-                />
-              </div>
-              <div className='flex flex-row items-center justify-between '>
-                <h3 className='text-xs font-medium mt-0 text-[#5e5e5e]'>
-                  Color
-                </h3>
-              </div>
-              <h3 className='text-sm font-medium text-[#2e2e2e]'>Stroke</h3>
-              <div className='grid grid-cols-2 justify-between gap-2 mt-1'>
-                <h3 className='text-xs font-medium text-[#5e5e5e]'>
-                  Show Stroke
-                </h3>
-                <Checkbox
-                  checked={selectedTrackItem.config.showStroke}
-                  className='mt-1'
-                  onCheckedChange={() => {
-                    const toggleStroke = !selectedTrackItem.config.showStroke
-                    updateTextClip(
-                      selectedTrackItem,
-                      'showStroke',
-                      toggleStroke
-                    )
-                  }}
-                />
-                <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>
-                  Color
-                </h3>
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
+              Typography
+            </h3>
+            <div className='flex flex-row items-center gap-2 mb-2'>
+              <span className='text-xs text-[#5e5e5e] w-12'>Family</span>
+              <Select
+                onValueChange={value =>
+                  updateTextClip(selectedTrackItem, 'fontFamily', value)
+                }
+                value={selectedTrackItem.config.fontFamily}
+              >
+                <SelectTrigger className='bg-white border-none w-[120px]'>
+                  <SelectValue placeholder='Arial' />
+                </SelectTrigger>
+                <SelectContent className='font-medium bg-[#f6f6f6]'>
+                  <SelectItem value='Arial'>Arial</SelectItem>
+                  <SelectItem value='otetoro'>Otetoro</SelectItem>
+                  <SelectItem value='sans-serif'>Sans Serif</SelectItem>
+                  <SelectItem value='Verdana'>Verdana</SelectItem>
+                  <SelectItem value='Tahoma'>Tahoma</SelectItem>
+                  <SelectItem value='Trebuchet MS'>Trebuchet MS</SelectItem>
+                  <SelectItem value='Georgia'>Georgia</SelectItem>
+                  <SelectItem value='Times New Roman'>
+                    Times New Roman
+                  </SelectItem>
+                  <SelectItem value='Impact'>Impact</SelectItem>
+                  <SelectItem value='Comic Sans MS'>Comic Sans MS</SelectItem>
+                  <SelectItem value='Courier New'>Courier New</SelectItem>
+                  <SelectItem value='Inter'>Inter</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className='text-xs text-[#5e5e5e] w-10 text-right'>
+                Size
+              </span>
+              <NumberInputWithUnit
+                unit='px'
+                defaultValue={selectedTrackItem.config?.fontSize ?? 40}
+                min={1}
+                step={1}
+                max={180}
+                className={cn('border-none w-16')}
+                onValueChange={e =>
+                  updateTextClip(selectedTrackItem, 'fontSize', e)
+                }
+              />
+            </div>
+            <hr className='my-2 border-gray-200' />
+          </section>
 
-                <h3 className='text-xs font-medium text-[#5e5e5e] mt-2'>
-                  Width
-                </h3>
-                <NumberInputWithUnit
-                  unit='px'
-                  max={50}
-                  min={0}
-                  onValueChange={val => {
-                    updateTextClip(selectedTrackItem, 'strokeWidth', val)
-                  }}
-                />
-              </div>
-              <h3 className='text-sm font-medium text-[#2e2e2e]'>Shadow</h3>
-              <div className='grid grid-cols-2 gap-2 justify-between mt-1'>
-                <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>
-                  Show Shadow
-                </h3>
-                <Checkbox
-                  checked={selectedTrackItem.config.showShadow}
-                  onCheckedChange={() => {
-                    const toggleStroke = !selectedTrackItem.config.showShadow
-                    updateTextClip(
-                      selectedTrackItem,
-                      'showShadow',
-                      toggleStroke
-                    )
-                  }}
-                />
-                <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] '>
-                  Width
-                </h3>
-              </div>
-              <div className='flex flex-row justify-between'>
-                <h3 className=' text-xs  text-[#5e5e5e]'>Offset X</h3>
-                <h3 className=' text-xs  text-[#5e5e5e]'>Offset Y</h3>
-                <h3 className=' text-xs  text-[#5e5e5e]'>Blur</h3>
-              </div>
-              <div className='flex flex-row justify-between'>
-                <NumberInputWithUnit
-                  unit='px'
-                  max={20}
-                  min={-20}
-                  onValueChange={val => {
-                    updateTextClip(selectedTrackItem, 'shadowOffsetX', val)
-                  }}
-                />
-                <NumberInputWithUnit
-                  unit='px'
-                  max={20}
-                  min={-20}
-                  onValueChange={val => {
-                    updateTextClip(selectedTrackItem, 'shadowOffsetY', val)
-                  }}
-                />
-                <NumberInputWithUnit
-                  unit='px'
-                  max={20}
-                  min={0}
-                  onValueChange={val => {
-                    updateTextClip(selectedTrackItem, 'shadowBlur', val)
-                  }}
-                />
-              </div>
-              <h3 className='text-sm font-medium  mt-2 text-[#2e2e2e] mr-8'>
-                Others
-              </h3>
-              <h3 className='text-xs mt-1 text-[#5e5e5e]'>Opacity</h3>
-              <div className='flex flex-row gap-1'>
-                <Slider
-                  min={0}
-                  max={1}
-                  defaultValue={[selectedTrackItem.config.opacity as number]}
-                  value={[selectedTrackItem.config.opacity as number]}
-                  step={0.01}
-                  onValueChange={val => {
-                    updateTextClip(selectedTrackItem, 'opacity', val)
-                  }}
-                  className='w-[180px]'
-                />
-                <span className='ml-5 text-xs font-black '>
-                  {' '}
-                  {selectedTrackItem.config.opacity as number}
-                </span>
-              </div>
-              <div className='flex flex-row justify-between'>
-                <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e]'>
-                  Animation
-                </h3>
-                <h3 className='text-xs font-medium  mt-2 text-[#5e5e5e] mr-8'>
-                  Duration
-                </h3>
-              </div>
-              <div className='flex flex-row gap-1 '>
-                <Select
-                  onValueChange={value =>
-                    updateTextClip(selectedTrackItem, 'animationType', value)
-                  }
-                >
-                  <SelectTrigger className='bg-white border-none w-[200px]'>
-                    <SelectValue placeholder='None' />
-                  </SelectTrigger>
-
-                  <SelectContent className='font-medium  bg-[#f6f6f6]'>
-                    <SelectItem value='None'> None</SelectItem>
-                    <SelectItem value='typewriter'> typewriter</SelectItem>
-                    <SelectItem value='slide'>slide</SelectItem>
-                    <SelectItem value='fade'>fade</SelectItem>
-                    <SelectItem value='blur'>blur</SelectItem>
-                    <SelectItem value='pop'>pop</SelectItem>
-                    <SelectItem value='bounce'>bounce</SelectItem>
-                    <SelectItem value='reveal'>reveal</SelectItem>
-                  </SelectContent>
-                </Select>
-                <NumberInputWithUnit
-                  unit='sec'
-                  onValueChange={val => {
-                    updateTextClip(
-                      selectedTrackItem,
-                      'animationDuration',
-                      val * 1e6
-                    )
-                  }}
-                  value={
-                    (selectedTrackItem.config.animationDuration as number) / 1e6
-                  }
-                  defaultValue={
-                    (selectedTrackItem.config.animationDuration as number) / 1e6
-                  }
-                  min={0}
-                  max={5}
-                  step={0.5}
-                  width={20}
-                  className='border-none w-24 h-10'
-                />
-                <Popover >
-                  <PopoverTrigger >
-                    <Button
-                      variant='outline'
-                      className='flex items-center gap-2'
-                    >
-                      <span
-                        className='h-4 w-4 rounded-full border'
-                        style={{ backgroundColor: selectedColor }}
-                      />
-                      <span style={{ minWidth: 72, fontFamily: 'monospace', display: 'inline-block' }}>{selectedColor}</span>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className='w-auto z-50'>
-                  
-                    <FrappeColorPicker
-                    
-                    value={selectedColor}
-                    onChange={(color) =>{updateTextClip(selectedTrackItem, 'color', selectedColor);setSelectedColor(color); }}
-                    
+          <section>
+            <div className='flex items-center gap-4 mb-2'>
+              <span className='text-xs font-medium text-[#5e5e5e]'>Color</span>
+              <Popover>
+                <PopoverTrigger>
+                  <Button
+                    variant='outline'
+                    className='flex items-center gap-2 p-1'
+                  >
+                    <span
+                      className='h-4 w-4 rounded-full border'
+                      style={{ backgroundColor: textColor }}
                     />
-                   
-                  </PopoverContent>
-                </Popover>
+                    <span
+                      style={{
+                        minWidth: 72,
+                        fontFamily: 'monospace',
+                        display: 'inline-block'
+                      }}
+                    >
+                      {textColor}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto z-50'>
+                  <FrappeColorPicker
+                    value={textColor}
+                    onChange={color => {
+                      updateTextClip(selectedTrackItem, 'color', color)
+                      setTextColor(color)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <hr className='my-2 border-gray-200' />
+          </section>
+
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
+              Stroke
+            </h3>
+            <div className='flex items-center gap-4 mb-2'>
+              <Checkbox
+                checked={selectedTrackItem.config.showStroke}
+                className='mr-2'
+                onCheckedChange={() =>
+                  updateTextClip(
+                    selectedTrackItem,
+                    'showStroke',
+                    !selectedTrackItem.config.showStroke
+                  )
+                }
+              />
+              <span className='text-xs text-[#5e5e5e]'>Show Stroke</span>
+              <span className='text-xs text-[#5e5e5e] ml-4'>Width</span>
+              <NumberInputWithUnit
+                unit='px'
+                max={50}
+                min={0}
+                className='w-14'
+                onValueChange={val =>
+                  updateTextClip(selectedTrackItem, 'strokeWidth', val)
+                }
+              />
+            </div>
+            <div className='flex items-center gap-4 mb-2'>
+              <span className='text-xs text-[#5e5e5e]'>Color</span>
+              <Popover>
+                <PopoverTrigger>
+                  <Button
+                    variant='outline'
+                    className='flex items-center gap-2 p-1'
+                  >
+                    <span
+                      className='h-4 w-4 rounded-full border'
+                      style={{ backgroundColor: strokeColor }}
+                    />
+                    <span
+                      style={{
+                        minWidth: 72,
+                        fontFamily: 'monospace',
+                        display: 'inline-block'
+                      }}
+                    >
+                      {strokeColor}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto z-50'>
+                  <FrappeColorPicker
+                    value={strokeColor}
+                    onChange={color => {
+                      updateTextClip(selectedTrackItem, 'strokeColor', color)
+                      setStrokeColor(color)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <hr className='my-2 border-gray-200' />
+          </section>
+
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
+              Shadow
+            </h3>
+            <div className='flex items-center gap-4 mb-2'>
+              <Checkbox
+                checked={selectedTrackItem.config.showShadow}
+                className='mr-2'
+                onCheckedChange={() =>
+                  updateTextClip(
+                    selectedTrackItem,
+                    'showShadow',
+                    !selectedTrackItem.config.showShadow
+                  )
+                }
+              />
+              <span className='text-xs text-[#5e5e5e]'>Show Shadow</span>
+            </div>
+            <div className='flex flex-row justify-between gap-2 mb-2'>
+              <div className='flex flex-col items-center'>
+                <span className='text-xs text-[#5e5e5e]'>Offset X</span>
+                <NumberInputWithUnit
+                  unit='px'
+                  max={20}
+                  min={-20}
+                  className='w-12'
+                  onValueChange={val =>
+                    updateTextClip(selectedTrackItem, 'shadowOffsetX', val)
+                  }
+                />
+              </div>
+              <div className='flex flex-col items-center'>
+                <span className='text-xs text-[#5e5e5e]'>Offset Y</span>
+                <NumberInputWithUnit
+                  unit='px'
+                  max={20}
+                  min={-20}
+                  className='w-12'
+                  onValueChange={val =>
+                    updateTextClip(selectedTrackItem, 'shadowOffsetY', val)
+                  }
+                />
+              </div>
+              <div className='flex flex-col items-center'>
+                <span className='text-xs text-[#5e5e5e]'>Blur</span>
+                <NumberInputWithUnit
+                  unit='px'
+                  max={20}
+                  min={0}
+                  className='w-12'
+                  onValueChange={val =>
+                    updateTextClip(selectedTrackItem, 'shadowBlur', val)
+                  }
+                />
               </div>
             </div>
-       
+            <hr className='my-2 border-gray-200' />
+          </section>
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
+              Animation
+            </h3>
+            <div className='flex flex-row items-center gap-2 mb-2'>
+              <Select
+                defaultValue='none'
+                value={selectedTrackItem.config.animationType as string}
+                onValueChange={value =>
+                  updateTextClip(selectedTrackItem, 'animationType', value)
+                }
+              >
+                <SelectTrigger className='bg-white border-none w-[120px]'>
+                  <SelectValue placeholder='None' />
+                </SelectTrigger>
+                <SelectContent className='font-medium bg-[#f6f6f6]'>
+                  <SelectItem value='None'>None</SelectItem>
+                  <SelectItem value='typewriter'>Typewriter</SelectItem>
+                  <SelectItem value='slide'>Slide</SelectItem>
+                  <SelectItem value='fade'>Fade</SelectItem>
+                  <SelectItem value='blur'>Blur</SelectItem>
+                  <SelectItem value='pop'>Pop</SelectItem>
+                  <SelectItem value='bounce'>Bounce</SelectItem>
+                  <SelectItem value='reveal'>Reveal</SelectItem>
+                </SelectContent>
+              </Select>
+              <span className='text-xs text-[#5e5e5e] ml-2'>Duration</span>
+              <NumberInputWithUnit
+                unit='sec'
+                onValueChange={val =>
+                  updateTextClip(
+                    selectedTrackItem,
+                    'animationDuration',
+                    val * 1e6
+                  )
+                }
+                value={
+                  (selectedTrackItem.config.animationDuration as number) / 1e6
+                }
+                defaultValue={
+                  (selectedTrackItem.config.animationDuration as number) / 1e6
+                }
+                min={0}
+                max={5}
+                step={0.5}
+                width={20}
+                className='border-none w-14 h-8'
+              />
+            </div>
+          </section>
+
+          <section>
+            <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
+              Others
+            </h3>
+            <div className='flex items-center gap-4 mb-2'>
+              <span className='text-xs text-[#5e5e5e]'>Opacity</span>
+              <Slider
+                min={0}
+                max={1}
+                defaultValue={[selectedTrackItem.config.opacity as number]}
+                value={[selectedTrackItem.config.opacity as number]}
+                step={0.01}
+                onValueChange={val =>
+                  updateTextClip(selectedTrackItem, 'opacity', val)
+                }
+                className='w-[120px]'
+              />
+              <span className='ml-2 text-xs font-black'>
+                {selectedTrackItem.config.opacity as number}
+              </span>
+            </div>
+            <hr className='my-2 border-gray-200' />
+          </section>
         </div>
       ) : selectedTrackItem?.type === 'EFFECT' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3  w-80 h-full'>
-         
-        </div>
+        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3  w-80 h-full'></div>
       ) : (
         <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 justify-start w-80 h-full'>
-          <h3 className='text-sm font-medium text-[#4e4e4e] self-center'>Select a clip to edit properties</h3>
+          <h3 className='text-sm font-medium text-[#4e4e4e] self-center'>
+            Select a clip to edit properties
+          </h3>
         </div>
       )}{' '}
     </div>

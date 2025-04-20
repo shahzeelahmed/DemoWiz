@@ -86,17 +86,6 @@ const addSprite = async (content:string) => {
     spr.time.offset = currentTime * 1e6
     spr.time.duration = 5 * 1e6
    
-    
-    // spr.setAnimation(
-    //   {
-    //     '0%': { x: 400, y: 200 },
-    //     '25%': { x: 400, y: 220 },
-    //     '50%': { x: 400, y: 230 },
-    //     '75%': { x: 400, y: 240  },
-    //     '100%': { x: 400, y: 300 },
-    //   },
-    //   { duration: 1e6, iterCount: 1 },
-    // );
     spriteMap.set(itemToAdd[0].id, spr)
     spr.rect.fixedScaleCenter = true
     // spr.rect.fixedAspectRatio = true

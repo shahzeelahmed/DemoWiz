@@ -5,15 +5,15 @@ export class VideoSprite extends BaseSprite {
   #clip: IClip
   #startTime: number = 0
   #endTime: number = 0
+  #holdTime:number =0
   #currentTime: number = 0
+  
   #zoomDuration: number = 10*1e6
   #maxZoom: number = 2.0
   #focalPoints: { x: number; y: number }[] = []
   focalPoint: { x: number; y: number } = { x: 1, y: 0.5 }
   //dimensions
   #originalWidth: number = 0
-  #modifiedHeight: number = 0
-  #modifiedWidth: number = 0
   #originalHeight: number = 0
   #originalX: number = 0
   #originalY: number = 0
@@ -36,16 +36,16 @@ export class VideoSprite extends BaseSprite {
 
   constructor (
     clip: IClip,
-    startTime: number = 1 * 1e6,
-    endTime: number = 10 * 1e6,
-    holdDuration: number = 3 * 1e6,
-    zoomPositionIndex: number = 8
+    // startTime: number = 0 * 1e6,
+    // endTime: number = 10 * 1e6,
+    // holdDuration: number = 3 * 1e6,
+    // zoomPositionIndex: number = 8
   ) {
     super()
     this.#clip = clip
-    this.#startTime = startTime
-    this.#endTime = endTime
-    this.#holdDuration = holdDuration
+    // this.#startTime = startTime
+    // this.#endTime = endTime
+    // this.#holdDuration = holdDuration
     this.ready = clip.ready.then(({ width, height, duration }) => {
       this.rect.w = this.rect.w === 0 ? width : this.rect.w
       this.rect.h = this.rect.h === 0 ? height : this.rect.h

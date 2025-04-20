@@ -112,8 +112,8 @@ const NumberInputWithUnit = React.forwardRef<
           onChange={handleChange}
           onBlur={handleBlur}
           className={cn(
-            'w-8 border-0 bg-white p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex justify-center items-center content-center',
-            'text-base font-semibold text-center mr-2 tabular-nums'
+            'w-6 border-0 bg-white p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex justify-center items-center content-center',
+            'text-sm font-medium  text-center mr-2 tabular-nums'
           )}
           disabled={disabled}
           min={min}

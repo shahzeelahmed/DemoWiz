@@ -1,4 +1,5 @@
 import { ImageClip } from "@/class/imageTrack"
+import { VideoSprite } from "@/class/videoSprite"
 import { Button } from "@/components/ui/button"
 import { createZoomBlurShader } from "@/effects/createMotionBlur"
 import { useAVCanvasStore } from "@/store/avCanvasStore"
@@ -16,19 +17,19 @@ import React from "react"
 
 const AddEffect = () => {
     const trackId = useTrackStateStore(state=>state.selectedTrackId)
-    const avCanvas = useAVCanvasStore(state=> state.avCanvas)
-    const spriteMap = useSpriteStore(state=> state.sprite)
     const trackStore = useTrackStateStore()
     const currentTime = usePlayerStore(state=> state.currentTime)
 
-    const addEffectToClip = async ( startTime:number,hold:number) => {
+    const addEffectToClip = async ( startTime:number,hold:number,videoId:string) => {
         const { sprite } = useSpriteStore.getState();
         const { applyEffect} = useEffectsStore.getState();
         if(!trackId ){
             console.warn('no track id');
             return
         }
+
         const currentSprite = sprite.get(trackId);
+        
         if (!currentSprite) return console.warn(`sprite with id ${trackId} not found`);
         const endTime = startTime + hold  
         const trackItem = trackStore.selectedTrackItem;

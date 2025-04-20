@@ -10,7 +10,7 @@ import usePlayerStore from "@/store/playerStore"
 import { Button } from "@/components/ui/button"
 import React from "react"
 import fileIcon from '@/frappe-ui/icons/fileUpload.svg'
-import { VideoSprite } from "@/class/videoEffectTrack"
+import { VideoSprite } from "@/class/videoSprite"
 
  const addVideoSprite =  () => {
     const avCanvas = useAVCanvasStore(state=> state.avCanvas)
