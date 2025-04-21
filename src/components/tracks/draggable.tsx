@@ -309,6 +309,7 @@ const DraggableTrack = React.memo(() => {
   //[todo]: implement drag from library
   const handleLibraryDragStart = (e: React.DragEvent, item: TrackItemType) => {}
 
+
   const handleTimeLineDragStart = (e, item: TrackItemType) => {
     if (isResizing) return
     const rect = e.target.getBoundingClientRect()
