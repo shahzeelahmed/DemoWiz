@@ -7,7 +7,7 @@ import React, {
   useState
 } from 'react'
 
-import { TrackItemType, VideoTrack } from '../../types/trackType'
+import { TrackItemType, VideoTrack, EffectTrack } from '../../types/trackType'
 import { useTrackStateStore } from '../../store/trackStore'
 import { nanoid } from 'nanoid'
 import { randInt } from 'three/src/math/MathUtils.js'
@@ -22,6 +22,7 @@ import textIcon from '@/frappe-ui/icons/text.svg'
 import videoIcon from '@/frappe-ui/icons/video.svg'
 import useSpriteStore from '@/store/spriteStore'
 import { VisibleSprite } from '@webav/av-cliper'
+import { VideoSprite } from '@/class/videoSprite'
 
 const DraggableTrack = React.memo(() => {
   const trackStore = useTrackStateStore()
@@ -40,7 +41,7 @@ const DraggableTrack = React.memo(() => {
   const playerStore = usePlayerStore()
   const totalDuration = playerStore.duration
   const [zoom, setZoom] = useState(1)
-  const spriteMap = useSpriteStore(state => state.sprite)
+  const { sprite: spriteMap, setSprite } = useSpriteStore.getState()
   const trackContainerRef = useRef<HTMLDivElement>(null)
 
   let isResizing = false
@@ -83,11 +84,20 @@ const DraggableTrack = React.memo(() => {
       selectedTrackItem.startTime = newStart
       selectedTrackItem.duration = newDuration
       selectedTrackItem.endTime = newStart + newDuration
-      //update sprite
-      const sprite = spriteMap.get(selectedTrackItem.id)
-      if (sprite) {
-        sprite.time.offset = Math.round(newStart * 1e6)
-        sprite.time.duration = Math.round(newDuration *1e6)
+      if (selectedTrackItem.type === 'EFFECT') {
+        const eff = selectedTrackItem as EffectTrack
+        if (eff.startTime != null && eff.endTime != null && eff.duration != null) {
+          const spr = spriteMap.get(eff.id)
+          if (spr instanceof VideoSprite) {
+            spr.setZoomParameters(
+              Math.round(eff.startTime * 1e6),
+              Math.round(eff.endTime * 1e6),
+              Math.round(eff.duration * 1e6),
+              eff.positionIndex ?? 0
+            )
+            setSprite(eff.id, spr)
+          }
+        }
       }
     }
 
@@ -95,13 +105,22 @@ const DraggableTrack = React.memo(() => {
       let newEnd = initialEndTime + deltaTime
       newEnd = Math.max(initialStartTime + 0.1, newEnd)
       const newDuration = newEnd - initialStartTime
-
       selectedTrackItem.duration = newDuration
       selectedTrackItem.endTime = newEnd
-
-      const sprite = spriteMap.get(selectedTrackItem.id)
-      if (sprite) {
-        sprite.time.duration = Math.round(newDuration*1e6 )
+      if (selectedTrackItem.type === 'EFFECT') {
+        const eff = selectedTrackItem as EffectTrack
+        if (eff.startTime != null && eff.endTime != null && eff.duration != null) {
+          const spr = spriteMap.get(eff.id)
+          if (spr instanceof VideoSprite) {
+            spr.setZoomParameters(
+              Math.round(eff.startTime * 1e6),
+              Math.round(eff.endTime * 1e6),
+              Math.round(eff.duration * 1e6),
+              eff.positionIndex ?? 0
+            )
+            setSprite(eff.id, spr)
+          }
+        }
       }
     }
 
@@ -113,6 +132,22 @@ const DraggableTrack = React.memo(() => {
     resizeType = null
 
     trackStore.updateTrack([selectedTrackItem])
+    const { sprite: spriteMap, setSprite } = useSpriteStore.getState()
+    if (selectedTrackItem.type === 'EFFECT') {
+      const eff = selectedTrackItem as EffectTrack
+      if (eff.startTime != null && eff.endTime != null && eff.duration != null) {
+        const spr = spriteMap.get(eff.id)
+        if (spr instanceof VideoSprite) {
+          spr.setZoomParameters(
+            Math.round(eff.startTime * 1e6),
+            Math.round(eff.endTime * 1e6),
+            Math.round(eff.duration * 1e6),
+            eff.positionIndex ?? 0
+          )
+          setSprite(eff.id, spr)
+        }
+      }
+    }
     document.removeEventListener('mousemove', handleResize)
     document.removeEventListener('mouseup', stopResize)
   }
@@ -158,10 +193,11 @@ const DraggableTrack = React.memo(() => {
 
       if (item.inRowId !== trackId) continue
 
-      const itemEnd = item.startTime + item.duration
+      const itemStart = item.startTime ?? 0
+      const itemEnd = itemStart + (item.duration ?? 0)
       const newItemEnd = startTime + duration
 
-      if (startTime < itemEnd && newItemEnd > item.startTime) {
+      if (startTime < itemEnd && newItemEnd > itemStart) {
         return true
       }
     }
@@ -207,8 +243,8 @@ const DraggableTrack = React.memo(() => {
         continue
       }
 
-      const otherItemStart = otherItem.startTime
-      const otherItemEnd = otherItem.startTime + otherItem.duration
+      const otherItemStart = otherItem.startTime ?? 0
+      const otherItemEnd = otherItemStart + (otherItem.duration ?? 0)
 
       if (Math.abs(startTime - otherItemStart) <= snapThreshold) {
         snappedTime = otherItemStart
@@ -285,7 +321,7 @@ const DraggableTrack = React.memo(() => {
       .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
       .pop()
 
-    return lastItem ? lastItem.startTime + lastItem.duration : 0
+    return lastItem ? (lastItem.startTime ?? 0) + (lastItem.duration ?? 0) : 0
   }
 
   //[todo]: implement drag from library
@@ -317,15 +353,19 @@ const DraggableTrack = React.memo(() => {
     const trackRow = trackRows.find(tr => tr.id === rowId)
     if (!trackRow) return
     const trackString = e.dataTransfer.getData('app/json')
-
     const trackItem = JSON.parse(trackString) as TrackItemType
 
-    const rowRect = rowRef.current.getBoundingClientRect()
+   
+    if (trackRow.acceptsType && trackRow.acceptsType !== trackItem.type) return
+
+    const rowRect = rowRef.current!.getBoundingClientRect()
 
     const dropX = e.clientX - rowRect.left - dragOffset.x
-
     let rawStartTime = dropX / 10
-    let endTime = rawStartTime + trackItem.duration
+    const dur = trackItem.duration ?? 0
+    const maxStart = rowRect.width / 10 - dur
+    rawStartTime = Math.max(0, Math.min(rawStartTime, maxStart))
+    const endTime = rawStartTime + dur
 
     const existingItemIndex = itemStore.findIndex(
       item => item.id === trackItem.id
@@ -333,34 +373,33 @@ const DraggableTrack = React.memo(() => {
     console.log('index:', existingItemIndex)
 
     if (existingItemIndex >= 0) {
-      const existingItemIndex = itemStore.findIndex(
-        item => item.id === trackItem.id
+      const validStartTime = findValidPosition(
+        rowId,
+        rawStartTime,
+        dur,
+        trackItem.id
       )
-
-      if (existingItemIndex >= 0) {
-        const validStartTime = findValidPosition(
-          rowId,
-          rawStartTime,
-          trackItem.duration,
-          trackItem.id
-        )
-        console.log('valid::', validStartTime)
-        console.log('raw:', rawStartTime)
-
-        const updatedItems = [...itemStore]
-        updatedItems[existingItemIndex] = {
-          ...updatedItems[existingItemIndex],
-          inRowId: rowId,
-          startTime: validStartTime,
-          endTime: endTime
-        }
-        const spr = spriteMap.get(trackItem.id) as VisibleSprite
-        console.log('startTime:', validStartTime)
-
-        spr.time.offset = validStartTime * 1e6
-
-        trackStore.updateTrack(updatedItems)
+      const updatedItems = [...itemStore]
+      const item = updatedItems[existingItemIndex]
+      updatedItems[existingItemIndex] = {
+        ...item,
+        inRowId: rowId,
+        startTime: validStartTime,
+        endTime: validStartTime + dur
       }
+      const spr = spriteMap.get(trackItem.id)
+      if (trackItem.type === 'EFFECT' && spr instanceof VideoSprite) {
+        spr.setZoomParameters(
+          Math.round(validStartTime * 1e6),
+          Math.round((validStartTime + dur) * 1e6),
+          Math.round(dur * 1e6),
+          trackItem.positionIndex ?? 0
+        )
+        setSprite(trackItem.id, spr)
+      } else if (spr) {
+        spr.time.offset = validStartTime * 1e6
+      }
+      trackStore.updateTrack(updatedItems)
     }
   }
   const handleDragEnd = e => {
@@ -376,8 +415,6 @@ const DraggableTrack = React.memo(() => {
   useEffect(() => {
     itemStore
   }, [itemStore])
-
-
 
   return (
     <div className='relative bg-white border-l-1   w-full h-full flex flex-col '>
@@ -405,9 +442,9 @@ const DraggableTrack = React.memo(() => {
                         ref={trackContainerRef}
                         style={{
                           position: 'absolute',
-                          left: `${item.startTime * 10}px`,
+                          left: `${(item.startTime ?? 0) * 10}px`,
                           top: '1px',
-                          width: `${item.duration * 10}px`
+                          width: `${(item.duration ?? 0) * 10}px`
                           // alignItems: 'center',
                           // display: 'flex',
                         }}
