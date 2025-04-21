@@ -37,7 +37,6 @@ const DraggableTrack = React.memo(() => {
   const timeLinetracks = trackStore.tracks
   const itemStore = trackStore.tracks
   const rowRef = useRef<HTMLDivElement | null>(null)
-  const [duration, setDuration] = useState(0)
   const playerStore = usePlayerStore()
   const totalDuration = playerStore.duration
   const [zoom, setZoom] = useState(1)
@@ -84,6 +83,11 @@ const DraggableTrack = React.memo(() => {
       selectedTrackItem.startTime = newStart
       selectedTrackItem.duration = newDuration
       selectedTrackItem.endTime = newStart + newDuration
+      const sprite = spriteMap.get(selectedTrackItem.id)
+      
+        sprite!.time.offset = Math.round(newStart * 1e6)
+        sprite!.time.duration = Math.round(newDuration *1e6)
+      
       if (selectedTrackItem.type === 'EFFECT') {
         const eff = selectedTrackItem as EffectTrack
         if (eff.startTime != null && eff.endTime != null && eff.duration != null) {
@@ -107,6 +111,11 @@ const DraggableTrack = React.memo(() => {
       const newDuration = newEnd - initialStartTime
       selectedTrackItem.duration = newDuration
       selectedTrackItem.endTime = newEnd
+     
+      const sprite = spriteMap.get(selectedTrackItem.id)
+     
+        sprite!.time.duration = Math.round(newDuration*1e6 )
+
       if (selectedTrackItem.type === 'EFFECT') {
         const eff = selectedTrackItem as EffectTrack
         if (eff.startTime != null && eff.endTime != null && eff.duration != null) {
@@ -152,33 +161,6 @@ const DraggableTrack = React.memo(() => {
     document.removeEventListener('mouseup', stopResize)
   }
 
-  useEffect(() => {
-    const getDuration = () => {
-      if (itemStore && itemStore.length > 0) {
-        let maxEndTime = 0
-
-        for (const item of itemStore) {
-          if (
-            item &&
-            typeof item.endTime === 'number' &&
-            item.endTime > maxEndTime
-          ) {
-            maxEndTime = item.endTime
-          }
-        }
-
-        setDuration(maxEndTime)
-        playerStore.setDuration(maxEndTime)
-        console.log('maxDur', maxEndTime)
-      } else {
-        setDuration(0)
-        playerStore.setDuration(0)
-        console.log('error')
-      }
-    }
-
-    getDuration()
-  }, [itemStore, duration])
   //[todo]: add snap condition for snapping to grid
 
   //new
@@ -193,11 +175,11 @@ const DraggableTrack = React.memo(() => {
 
       if (item.inRowId !== trackId) continue
 
-      const itemStart = item.startTime ?? 0
-      const itemEnd = itemStart + (item.duration ?? 0)
+      // const itemStart = item.startTime ?? 0
+      // const itemEnd = itemStart + (item.duration ?? 0)
       const newItemEnd = startTime + duration
 
-      if (startTime < itemEnd && newItemEnd > itemStart) {
+      if (startTime < item.endTime && newItemEnd > item.startTime) {
         return true
       }
     }
@@ -321,7 +303,7 @@ const DraggableTrack = React.memo(() => {
       .sort((a, b) => a.startTime + a.duration - (b.startTime + b.duration))
       .pop()
 
-    return lastItem ? (lastItem.startTime ?? 0) + (lastItem.duration ?? 0) : 0
+      return lastItem ? lastItem.startTime + lastItem.duration : 0
   }
 
   //[todo]: implement drag from library
@@ -342,6 +324,9 @@ const DraggableTrack = React.memo(() => {
 
     console.log(item.name)
 
+    setTimeout(() => {
+      e.target.style.opacity = '0'
+    }, 0)
    
     e.target.style.opacity = '1'
     e.stopPropagation()
@@ -353,19 +338,15 @@ const DraggableTrack = React.memo(() => {
     const trackRow = trackRows.find(tr => tr.id === rowId)
     if (!trackRow) return
     const trackString = e.dataTransfer.getData('app/json')
+
     const trackItem = JSON.parse(trackString) as TrackItemType
 
-   
-    if (trackRow.acceptsType && trackRow.acceptsType !== trackItem.type) return
-
-    const rowRect = rowRef.current!.getBoundingClientRect()
+    const rowRect = rowRef.current.getBoundingClientRect()
 
     const dropX = e.clientX - rowRect.left - dragOffset.x
+
     let rawStartTime = dropX / 10
-    const dur = trackItem.duration ?? 0
-    const maxStart = rowRect.width / 10 - dur
-    rawStartTime = Math.max(0, Math.min(rawStartTime, maxStart))
-    const endTime = rawStartTime + dur
+    let endTime = rawStartTime + trackItem.duration
 
     const existingItemIndex = itemStore.findIndex(
       item => item.id === trackItem.id
@@ -373,33 +354,34 @@ const DraggableTrack = React.memo(() => {
     console.log('index:', existingItemIndex)
 
     if (existingItemIndex >= 0) {
-      const validStartTime = findValidPosition(
-        rowId,
-        rawStartTime,
-        dur,
-        trackItem.id
+      const existingItemIndex = itemStore.findIndex(
+        item => item.id === trackItem.id
       )
-      const updatedItems = [...itemStore]
-      const item = updatedItems[existingItemIndex]
-      updatedItems[existingItemIndex] = {
-        ...item,
-        inRowId: rowId,
-        startTime: validStartTime,
-        endTime: validStartTime + dur
-      }
-      const spr = spriteMap.get(trackItem.id)
-      if (trackItem.type === 'EFFECT' && spr instanceof VideoSprite) {
-        spr.setZoomParameters(
-          Math.round(validStartTime * 1e6),
-          Math.round((validStartTime + dur) * 1e6),
-          Math.round(dur * 1e6),
-          trackItem.positionIndex ?? 0
+
+      if (existingItemIndex >= 0) {
+        const validStartTime = findValidPosition(
+          rowId,
+          rawStartTime,
+          trackItem.duration,
+          trackItem.id
         )
-        setSprite(trackItem.id, spr)
-      } else if (spr) {
+        console.log('valid::', validStartTime)
+        console.log('raw:', rawStartTime)
+
+        const updatedItems = [...itemStore]
+        updatedItems[existingItemIndex] = {
+          ...updatedItems[existingItemIndex],
+          inRowId: rowId,
+          startTime: validStartTime,
+          endTime: endTime
+        }
+        const spr = spriteMap.get(trackItem.id) as VisibleSprite
+        console.log('startTime:', validStartTime)
+
         spr.time.offset = validStartTime * 1e6
+
+        trackStore.updateTrack(updatedItems)
       }
-      trackStore.updateTrack(updatedItems)
     }
   }
   const handleDragEnd = e => {
@@ -412,9 +394,22 @@ const DraggableTrack = React.memo(() => {
 
     e.dataTransfer.dropEffect = 'move'
   }
-  useEffect(() => {
-    itemStore
-  }, [itemStore])
+  // useEffect(() => {
+  //   const getDuration = () => {
+  //     if (itemStore && itemStore.length > 0) {
+  //       let maxEndTime = 0
+  //       for (const item of itemStore) {
+  //         if (item && typeof item.endTime === 'number' && item.endTime > maxEndTime) {
+  //           maxEndTime = item.endTime
+  //         }
+  //       }
+  //       playerStore.setDuration(maxEndTime)
+  //     } else {
+  //       playerStore.setDuration(0)
+  //     }
+  //   }
+  //   getDuration()
+  // }, [itemStore])
 
   return (
     <div className='relative bg-white border-l-1   w-full h-full flex flex-col '>
