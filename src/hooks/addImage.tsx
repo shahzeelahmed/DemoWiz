@@ -80,7 +80,7 @@ const addImageSprite = () => {
 }
 return (
     <Button variant={'outline'} 
-    className='h-32 w-64 grid grid-rows-2 bg-[#e9e9e9] shadow-none border-none justify-items-center mt-2' 
+    className='h-32 w-64 grid grid-rows-2 bg-[#f6f6f6]  justify-items-center mt-2' 
 
     onClick={ spriteToadd}>
     <img className='self-end' src={fileIcon} alt='video' height={32} width={32} /> 

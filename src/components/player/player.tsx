@@ -4,11 +4,7 @@ import { IClip, ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
 import { cn } from '../ui/lib/utils'
 import {
   useState,
-  useCallback,
   useEffect,
-  useRef,
-  FormEvent,
-  FormEventHandler
 } from 'react'
 import DeleteIcon from '@/frappe-ui/icons/delete'
 import usePlayerStore from '../../store/playerStore'
@@ -28,7 +24,6 @@ import { createZoomBlurShader } from '../../effects/createMotionBlur'
 import useVideoStore from '@/store/videoStore'
 import { Button } from '../ui/button'
 import Slider from '../ui/slider'
-import { Input } from '../ui/input'
 import {
   Select,
   SelectContent,
@@ -264,9 +259,10 @@ const Player = React.memo(() => {
   }
   const deleteClip = async (id: string) => {
     const spriteToDelete = spriteMap.get(id) as VisibleSprite
+    trackStore.removetrack(id)
     if (!spriteToDelete) return
     spriteMap.delete(id)
-    trackStore.removetrack(id)
+    
     avCanvas!.removeSprite(spriteToDelete)
   }
   const updateClip = async (
@@ -406,16 +402,7 @@ const Player = React.memo(() => {
         trackStore.addTrack([clipObj])
       }
       const newSprite = new VisibleSprite(clip)
-      if (clip instanceof TextClip) {
 
-        // initial dimensions of the clip
-        newSprite.rect.w = clip.meta.width
-        newSprite.rect.h = clip.meta.height
-        clip.onMetaChange(meta => {
-          newSprite.rect.w = meta.width
-          newSprite.rect.h = meta.height
-        });
-      }
       newSprite.time.offset = sprsOffset[i]
       newSprite.time.duration = sprsDuration[i]
       spriteMap.set(clipObj.id, newSprite)
@@ -483,8 +470,8 @@ const Player = React.memo(() => {
 
 <div className='justify-end self-end ml-20'>
 
-            <Select  onValueChange={setAspectRatio} defaultValue={aspectRatio} >
-              <SelectTrigger  className='ml-2 h-8 w-20'>
+            <Select   onValueChange={setAspectRatio} defaultValue={aspectRatio}  >
+              <SelectTrigger  className='ml-2 h-8 w-20 bg-[#efefef] focus: ring-0'>
                 <SelectValue placeholder='16:9'  />
               </SelectTrigger>
               <SelectContent>
@@ -843,7 +830,9 @@ const Player = React.memo(() => {
           </section>
         </div>
       ) : selectedTrackItem?.type === 'EFFECT' ? (
-        <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3  w-80 h-full'></div>
+        <div className=' bg-white text-[#525252] p-4 flex flex-col gap-3 w-80 h-full'>
+         
+        </div>
       ) : (
         <div className=' bg-white text-[#525252] text-[24px] p-4 flex flex-col gap-3 justify-start w-80 h-full'>
           <h3 className='text-sm font-medium text-[#4e4e4e] self-center'>

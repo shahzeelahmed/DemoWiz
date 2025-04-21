@@ -95,6 +95,7 @@ export interface TransitionTrack extends BaseTrack {
 export interface EffectTrack extends BaseTrack {
   type: 'EFFECT'
   effectType: string
+  positionIndex?: number
 }
 
 export type TrackItemType =

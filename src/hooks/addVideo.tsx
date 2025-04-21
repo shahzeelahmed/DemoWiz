@@ -65,7 +65,7 @@ import { VideoSprite } from "@/class/videoSprite"
     avCanvas!.addSprite(spr)}
     return(
         <Button variant={'outline'} 
-        className='h-32 w-64 grid grid-rows-2 bg-[#e9e9e9] shadow-none border-none justify-items-center mt-2' 
+        className='h-32 w-64 grid grid-rows-2 bg-[#f6f6f6] justify-items-center mt-2' 
         onClick={ spriteToadd  }>
         <img className='self-end' src={fileIcon} alt='video' height={32} width={32} /> 
         <h3 className='text-sm self-start text-[#6e6e6e]'> Upload a Video</h3>
