@@ -503,18 +503,7 @@ const Player = React.memo(() => {
               <SplitIcon />
               Split
             </Button>
-            <Button
-              className='bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838]  font-medium  cursor-pointer ml-3 h-8'
-              variant={'default'}
-              onClick={async () => {
-                await (await avCanvas!.createCombinator({bitrate: 30*1e6})).output()
-                
-                .pipeTo(await createFileWriter('mp4'));
-              }}
-            >
-              <SplitIcon />
-              export
-            </Button>
+          
             <Button
               className='bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838] font-medium h-8 cursor-pointer'
               variant='default'

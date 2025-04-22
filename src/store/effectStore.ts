@@ -89,61 +89,6 @@ const useEffectsStore = create<EffectsStore>((set, get) => ({
     set({ effectsMap: new Map(effectsMap) })
   },
 
-  // applyEffect: async (trackItem: TrackItemType, effectParams:any,effectFunction:any) => {
-  //   const {currentTime,isPaused} = usePlayerStore.getState()
-  //   const { effectsMap } = get();
-  //   const {sprite} = useSpriteStore.getState()
-  //   const originalSprite = sprite.get(trackItem.id);
-  //   if (!originalSprite) return;
-  //   const originalClip =  originalSprite.getClip() as MP4Clip;
-
-  //   effectsMap.set(trackItem.id, {
-  //     hasEffect: true,
-  //     effectParams,
-  //     originalTickInterceptor: originalClip.tickInterceptor ,
-  //   });
-  //   // originalClip.tickInterceptor = async (_, tickRet) => {
-  //   //   if (tickRet.video == null) return tickRet;
-  //   //   const state = get().effectsMap.get(trackItem.id);
-  //   //   return {
-  //   //     ...tickRet,
-  //   //     video: await effectFunction(tickRet.video, state!.effectParams),
-  //   //   };
-  //   // };
-  //   originalClip.tickInterceptor = async (_, tickRet) => {
-  //
-
-  //     if (!tickRet?.video) return tickRet;
-
-  //     if (isPaused === false) {
-  //
-  //       return tickRet;
-  //   }
-  //     const state = get().effectsMap.get(trackItem.id);
-  //     if (!state) {
-  //
-  //         return tickRet;
-  //     }
-
-  //
-
-  //     try {
-
-  //         const processedVideo = await effectFunction(tickRet.video, state.effectParams);
-
-  //         return {
-  //             ...tickRet,
-  //             video: processedVideo,
-  //         };
-  //     } catch (error) {
-  //         return tickRet;
-  //     }
-  //   };
-
-  //   set({ effectsMap: new Map(effectsMap) });
-
-  // },
-
   removeEffect: async (trackItem: string) => {
     const { currentTime } = usePlayerStore.getState()
     const { sprite } = useSpriteStore.getState()
