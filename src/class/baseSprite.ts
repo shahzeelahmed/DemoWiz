@@ -377,8 +377,8 @@ export abstract class BaseSprite {
   }
 
   copyStateTo<T extends BaseSprite> (target: T) {
-    target.#animatKeyFrame = this.#animatKeyFrame
-    target.#animatOpts = this.#animatOpts
+    // target.#animatKeyFrame = this.#animatKeyFrame
+    // target.#animatOpts = this.#animatOpts
     target.zIndex = this.zIndex
     target.opacity = this.opacity
     target.flip = this.flip

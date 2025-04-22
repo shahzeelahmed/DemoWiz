@@ -39,7 +39,7 @@ const addImageSprite = () => {
         shadowOffsetY: 5,
         shadowSpread: 2,
         showBorder: false,
-        borderColor: '#007bff',
+        borderColor: '#FFFFFF',
         borderWidth: 3,
         borderRadius: 0,
     }

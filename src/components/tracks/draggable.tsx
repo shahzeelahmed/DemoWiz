@@ -377,8 +377,10 @@ const DraggableTrack = React.memo(() => {
           endTime: endTime
         }
         const spr = spriteMap.get(trackItem.id) as VisibleSprite
-        console.log('startTime:', validStartTime)
-
+        
+       
+        spr.zIndex = trackRow.index as number
+        console.log('index',spr.zIndex)
         spr.time.offset = validStartTime * 1e6
 
         trackStore.updateTrack(updatedItems)

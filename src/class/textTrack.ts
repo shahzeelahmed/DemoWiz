@@ -5,7 +5,7 @@ import { IClip } from '@webav/av-cliper'
 export class TextClip implements IClip {
   #cvsEl: HTMLCanvasElement
   #ctx: CanvasRenderingContext2D
-  ready: Promise<{ width: number; height: number; duration: number }>
+  // ready: Promise<{ width: number; height: number; duration: number }>
   #textConfig: TextConfig
   #meta: {
     width: number
@@ -17,7 +17,7 @@ export class TextClip implements IClip {
   get textConfig () {
     return this.#textConfig
   }
-
+ready;
   set textConfig (config) {
     this.#textConfig = config
     this.#updateCanvasDimensions()
@@ -47,7 +47,7 @@ export class TextClip implements IClip {
     this.ready = Promise.resolve({
       width: this.#meta.width,
       height: this.#meta.height,
-      duration: this.#meta.duration
+      duration: Infinity
     })
   }
 
@@ -245,10 +245,11 @@ async tick(time: number): Promise<{
     if (animType === "typewriter" && charCounter >= charsToShow) {
         break; 
     }
+    
   }
 
   return {
-    state: progress >= 1 ? "done" : "success",
+    state: Infinity ?  "success" : "done" ,
     video: new VideoFrame(this.#cvsEl, { timestamp: time * 1000 }), 
   };
 }

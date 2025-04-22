@@ -1,6 +1,6 @@
 //[todo]: implement videoEffect and textEffect]
 import { IClip, ImgClip, MP4Clip, VisibleSprite } from '@webav/av-cliper'
-
+import {Recorder} from 'canvas-record';
 import { cn } from '../ui/lib/utils'
 import {
   useState,
@@ -59,6 +59,7 @@ import {
 } from '../ui/kibo-ui/color-picker'
 import ExportIcon from '@/frappe-ui/icons/export'
 import { FrappeColorPicker } from '../ui/frappeColorPicker'
+import { ImageClip } from '@/class/imageTrack'
 
 const Player = React.memo(() => {
   const playerStore = usePlayerStore()
@@ -80,6 +81,7 @@ const Player = React.memo(() => {
   const spriteStore = useSpriteStore()
   const spriteMap = useSpriteStore(state => state.sprite)
   const setSelectedTrack = useTrackStateStore(state => state.selectTrack)
+  const setSelectedTrackItem = useTrackStateStore(state => state.setSelectedTrackItem)
   const selectedTrack = useTrackStateStore(state => state.selectedTrackId)
   const selectedTrackItem = useTrackStateStore(state => state.selectedTrackItem)
   const opacity = useTextStore(state => state.opacity)
@@ -105,6 +107,8 @@ const Player = React.memo(() => {
     })
     trackStore.addTrack([itemToAdd])
   }
+
+
   const addEffect = async (
     track: TrackItemType,
     startTime: number,
@@ -197,9 +201,21 @@ const Player = React.memo(() => {
       playerStore.setPaused(true)
       console.log('paused')
     })
-    cvs.on('activeSpriteChange', (s: VisibleSprite | null) => {
-      console.log('activeSpriteChange:', s)
-    })
+    cvs.on('activeSpriteChange', (spr: VisibleSprite | null) => {
+      if (!spr){
+        setSelectedTrack(null)
+          setSelectedTrackItem(null)
+        return;
+      } 
+    
+      for (const [key, value] of spriteMap.entries()) {
+        if (value === spr) {
+          setSelectedTrack(key)
+          setSelectedTrackItem(key)
+        }
+      }
+    });
+    
     return () => {
       cvs.destroy()
     }
@@ -225,7 +241,6 @@ const Player = React.memo(() => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === ' ') {
-        // Corrected: event.key === ' '
         console.log('space clicked')
         if (isPaused) {
           avCanvas?.play({ start: currentTime * 1e6 })
@@ -333,6 +348,38 @@ const Player = React.memo(() => {
       sprite!.preFrame(currentTime * 1e6)
     }
   }
+
+
+  const updateImageClip = (
+    clip: TrackItemType,
+    propertyKey: any,
+    newValue: any
+  ) => {
+    const sprite = spriteMap.get(clip.id)
+    if (clip.type === 'IMAGE') {
+      const imageConfig = sprite!.getClip() as ImageClip
+      imageConfig.imageConfig = {
+        ...imageConfig.imageConfig,
+        [propertyKey]: newValue
+      }
+      clip.config = {
+        ...clip.config,
+        [propertyKey]: newValue
+      }
+      const newConfig = clip.config
+      const itemToUpdate: ImageTrack[] = [
+        {
+          id: clip.id,
+          type: 'IMAGE',
+          config: newConfig,
+          name: ''
+        }
+      ]
+      trackStore.updateTrack(itemToUpdate)
+
+      sprite!.preFrame(currentTime * 1e6)
+    }
+  }
   const updateVideoOpacity = (id: string, newValue: number) => {
     const sprite = spriteMap.get(id)
     if (!sprite) return
@@ -360,6 +407,9 @@ const Player = React.memo(() => {
     if (!sprite) return
     sprite.flip = flipVideo
   }
+
+
+  
 
   //adapted from videoclip demo
   const handleSplit = async () => {
@@ -413,6 +463,24 @@ const Player = React.memo(() => {
   const [textColor, setTextColor] = useState('#ffffff')
   const [aspectRatio, setAspectRatio] = useState('16:9')
 
+  async function createFileWriter(
+    extName = 'mp4',
+  ): Promise<FileSystemWritableFileStream> {
+    const fileHandle = await window.showSaveFilePicker({
+      suggestedName: `WebAV-export-${Date.now()}.${extName}`,
+    });
+    return fileHandle.createWritable();
+  }
+
+
+
+
+
+
+
+
+
+  
   return (
     <div className='flex border  '>
       <div className='flex flex-col flex-1 bg-[#f8f8f8] items-start border-r max-w-[800px]'>
@@ -434,6 +502,18 @@ const Player = React.memo(() => {
             >
               <SplitIcon />
               Split
+            </Button>
+            <Button
+              className='bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838]  font-medium  cursor-pointer ml-3 h-8'
+              variant={'default'}
+              onClick={async () => {
+                await (await avCanvas!.createCombinator({bitrate: 30*1e6})).output()
+                
+                .pipeTo(await createFileWriter('mp4'));
+              }}
+            >
+              <SplitIcon />
+              export
             </Button>
             <Button
               className='bg-[#efefef] hover:bg-[#e0e0e0] text-[#383838] font-medium h-8 cursor-pointer'
@@ -500,7 +580,193 @@ const Player = React.memo(() => {
           />
         </div>
       ) : selectedTrackItem?.type === 'IMAGE' ? (
-        <div className=' bg-white text-[#525252] text-[24px] w-80 p-4 flex flex-col gap-3 h-full '></div>
+        
+           <div
+          style={{ scrollbarWidth: 'none' }}
+          className='overflow-y-auto bg-white text-[#525252] p-4 text-[16px] flex flex-col gap-6 top-0 w-80 max-w-80 z-0 max-h-108 min-w-0'
+        >
+          <section >
+          <h3 className='text-md font-semibold text-[#2e2e2e] mb-2'>Border</h3>
+          <div className='flex items-center justify-between   gap-4 mb-2'>
+             
+          <h3 className='text-sm font-medium text-[#5e5e5e]'>
+              show border
+            </h3>
+            <Checkbox
+                checked={selectedTrackItem.config.showBorder}
+                className='mr-2'
+                onCheckedChange={() =>
+                  updateImageClip(
+                    selectedTrackItem,
+                    'showBorder',
+                    !selectedTrackItem.config.showBorder
+                  )
+                }
+              />
+              </div>
+              <div className='flex items-center justify-between gap-4 mb-2'>
+              <h3 className='text-sm font-medium text-[#5e5e5e]'>border color</h3>
+              <Popover>
+                <PopoverTrigger>
+                  <Button
+                    variant='outline'
+                    className='flex items-center gap-2 p-1'
+                  >
+                    <span
+                      className='h-4 w-4 rounded-full border'
+                      style={{ backgroundColor: textColor }}
+                    />
+                    <span
+                      style={{
+                        minWidth: 72,
+                        fontFamily: 'monospace',
+                        display: 'inline-block'
+                      }}
+                    >
+                      {textColor}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto z-50'>
+                  <FrappeColorPicker
+                    value={textColor}
+                    onChange={color => {
+                      updateImageClip(selectedTrackItem, 'borderColor', color)
+                      setTextColor(color)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            
+             
+            </div>
+            <div className='flex items-center justify-between gap-4 mb-2'>
+            <h3 className='text-sm font-medium text-[#5e5e5e]'>
+                  border width</h3>
+                <NumberInputWithUnit
+                unit='px'
+                defaultValue={selectedTrackItem.config?.borderWidth ?? 3}
+                min={1}
+                step={1}
+                max={20}
+                className={cn('border-none w-16')}
+                onValueChange={e =>
+                  updateImageClip(selectedTrackItem, 'borderWidth', e)
+                }/>
+              </div>
+              <div className='flex items-center justify-between'>
+              <h3 className='text-sm font-medium text-[#5e5e5e]'>
+                border radius
+              </h3>
+              <div className='flex flex-col'>
+              <Slider
+                min={0}
+                max={1}
+                defaultValue={[selectedTrackItem.config.opacity as number]}
+                value={[selectedTrackItem.config.opacity as number]}
+                step={0.01}
+                onValueChange={val =>
+                  updateImageClip(selectedTrackItem, 'opacity', val)
+                }
+                className='w-[120px] mt-8'
+              />
+               <h3 className=' ml-2 text-xs font-black self-end pt-3'>
+                {selectedTrackItem.config.opacity as number}
+              </h3>
+              </div>
+              </div>
+          </section>
+          <section >
+          <h3 className='text-md font-semibold text-[#2e2e2e] mb-2'>Shadow</h3>
+          <div className='flex items-center justify-between   gap-4 mb-2'>
+             
+          <h3 className='text-sm font-medium text-[#5e5e5e]'>
+              show shadow
+            </h3>
+            <Checkbox
+                checked={selectedTrackItem.config.showShadow}
+                className='mr-2'
+                onCheckedChange={() =>
+                  updateImageClip(
+                    selectedTrackItem,
+                    'showShadow',
+                    !selectedTrackItem.config.showShadow
+                  )
+                }
+              />
+              </div>
+              <div className='flex items-center justify-between gap-4 mb-2'>
+              <h3 className='text-sm font-medium text-[#5e5e5e]'>
+                shadow color</h3>
+              <Popover>
+                <PopoverTrigger>
+                  <Button
+                    variant='outline'
+                    className='flex items-center gap-2 p-1'
+                  >
+                    <span
+                      className='h-4 w-4 rounded-full border'
+                      style={{ backgroundColor: textColor }}
+                    />
+                    <span
+                      style={{
+                        minWidth: 72,
+                        fontFamily: 'monospace',
+                        display: 'inline-block'
+                      }}
+                    >
+                      {textColor}
+                    </span>
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-auto z-50'>
+                  <FrappeColorPicker
+                    value={textColor}
+                    onChange={color => {
+                      updateImageClip(selectedTrackItem, 'shadowColor', color)
+                      setTextColor(color)
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
+            
+             
+            </div>
+            <div className='flex items-center justify-between gap-4 mb-2'>
+            <h3 className='text-sm font-medium text-[#5e5e5e]'>
+                
+                  shadow blur</h3>
+                <NumberInputWithUnit
+                unit='px'
+                defaultValue={selectedTrackItem.config?.shadowBlur ?? 5}
+                min={1}
+                step={1}
+                max={30}
+                className={cn('border-none w-16')}
+                onValueChange={e =>
+                  updateImageClip(selectedTrackItem, 'shadowBlur', e)
+                }/>
+              </div>
+              <div className='flex items-center justify-between gap-4 mb-2'>
+              <h3 className='text-sm font-medium text-[#5e5e5e]'>
+
+                  shadow spread</h3>
+                <NumberInputWithUnit
+                unit='px'
+                defaultValue={selectedTrackItem.config?.shadowSpread ?? 5}
+                min={1}
+                step={1}
+                max={30}
+                className={cn('border-none w-16')}
+                onValueChange={e =>
+                  updateImageClip(selectedTrackItem, 'shadowSpread', e)
+                }/>
+              </div>
+             
+             
+              </section>
+        </div>
+
       ) : selectedTrackItem?.type === 'TEXT' ? (
         <div
           style={{ scrollbarWidth: 'none' }}
@@ -542,7 +808,6 @@ const Player = React.memo(() => {
                 <ItalicIcon />
               </Button>
             </div>
-            <hr className='my-2 border-gray-200' />
           </section>
 
           <section>
@@ -563,7 +828,6 @@ const Player = React.memo(() => {
                 <SelectContent className='font-medium bg-[#f6f6f6]'>
                   <SelectItem value='Arial' style={{ fontFamily: 'Arial' }}>Arial</SelectItem>
                   <SelectItem value='otetoro' style={{ fontFamily: 'otetoro' }}>Otetoro</SelectItem>
-                  <SelectItem value='sans-serif' style={{ fontFamily: 'sans-serif' }}>Sans Serif</SelectItem>
                   <SelectItem value='Verdana' style={{ fontFamily: 'Verdana' }}>Verdana</SelectItem>
                   <SelectItem value='Tahoma' style={{ fontFamily: 'Tahoma' }}>Tahoma</SelectItem>
                   <SelectItem value='Trebuchet MS' style={{ fontFamily: 'Trebuchet MS' }}>Trebuchet MS</SelectItem>
@@ -590,11 +854,11 @@ const Player = React.memo(() => {
                 }
               />
             </div>
-            <hr className='my-2 border-gray-200' />
+        
           </section>
 
           <section>
-            <div className='flex items-center gap-4 mb-2'>
+            <div className='flex items-center gap-4 mb-2 justify-between'>
               <span className='text-xs font-medium text-[#5e5e5e]'>Color</span>
               <Popover>
                 <PopoverTrigger>
@@ -628,14 +892,14 @@ const Player = React.memo(() => {
                 </PopoverContent>
               </Popover>
             </div>
-            <hr className='my-2 border-gray-200' />
           </section>
 
           <section>
             <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
               Stroke
             </h3>
-            <div className='flex items-center gap-4 mb-2'>
+            <div className='flex items-center gap-4 mb-2 justify-between'>
+            <span className='text-xs text-[#5e5e5e]'>Show Stroke</span>
               <Checkbox
                 checked={selectedTrackItem.config.showStroke}
                 className='mr-2'
@@ -647,19 +911,22 @@ const Player = React.memo(() => {
                   )
                 }
               />
-              <span className='text-xs text-[#5e5e5e]'>Show Stroke</span>
+              
+              </div>
+              <div className='flex items-center  gap-4 mb-2'>
               <span className='text-xs text-[#5e5e5e] ml-4'>Width</span>
               <NumberInputWithUnit
                 unit='px'
                 max={50}
                 min={0}
-                className='w-14'
+                className='w-14 ml-2'
                 onValueChange={val =>
                   updateTextClip(selectedTrackItem, 'strokeWidth', val)
                 }
               />
-            </div>
-            <div className='flex items-center gap-4 mb-2'>
+              </div>
+            
+            <div className='flex items-center gap-4 mb-2 justify-between'>
               <span className='text-xs text-[#5e5e5e]'>Color</span>
               <Popover>
                 <PopoverTrigger>
@@ -693,14 +960,14 @@ const Player = React.memo(() => {
                 </PopoverContent>
               </Popover>
             </div>
-            <hr className='my-2 border-gray-200' />
           </section>
 
           <section>
             <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
               Shadow
             </h3>
-            <div className='flex items-center gap-4 mb-2'>
+            <div className='flex items-center gap-4 mb-2 justify-between'>
+            <span className='text-xs text-[#5e5e5e]'>Show Shadow</span>
               <Checkbox
                 checked={selectedTrackItem.config.showShadow}
                 className='mr-2'
@@ -712,7 +979,7 @@ const Player = React.memo(() => {
                   )
                 }
               />
-              <span className='text-xs text-[#5e5e5e]'>Show Shadow</span>
+              
             </div>
             <div className='flex flex-row justify-between gap-2 mb-2'>
               <div className='flex flex-col items-center'>
@@ -752,7 +1019,6 @@ const Player = React.memo(() => {
                 />
               </div>
             </div>
-            <hr className='my-2 border-gray-200' />
           </section>
           <section>
             <h3 className='text-xs font-semibold text-[#2e2e2e] mb-2'>
@@ -760,13 +1026,12 @@ const Player = React.memo(() => {
             </h3>
             <div className='flex flex-row items-center gap-2 mb-2'>
               <Select
-                defaultValue='none'
-                value={selectedTrackItem.config.animationType as string}
                 onValueChange={value =>
                   updateTextClip(selectedTrackItem, 'animationType', value)
                 }
+                value={selectedTrackItem.config.animationType}
               >
-                <SelectTrigger className='bg-white border-none w-[120px]'>
+                 <SelectTrigger className='bg-white border-none w-[120px]'>
                   <SelectValue placeholder='None' />
                 </SelectTrigger>
                 <SelectContent className='font-medium bg-[#f6f6f6]'>
@@ -780,7 +1045,7 @@ const Player = React.memo(() => {
                   <SelectItem value='reveal'>Reveal</SelectItem>
                 </SelectContent>
               </Select>
-              <span className='text-xs text-[#5e5e5e] ml-2'>Duration</span>
+              <span className='text-xs text-[#5e5e5e] ml-2 p-1'>Duration</span>
               <NumberInputWithUnit
                 unit='sec'
                 onValueChange={val =>
@@ -826,7 +1091,6 @@ const Player = React.memo(() => {
                 {selectedTrackItem.config.opacity as number}
               </span>
             </div>
-            <hr className='my-2 border-gray-200' />
           </section>
         </div>
       ) : selectedTrackItem?.type === 'EFFECT' ? (
@@ -839,7 +1103,7 @@ const Player = React.memo(() => {
             Select a clip to edit properties
           </h3>
         </div>
-      )}{' '}
+      )}
     </div>
   )
 })

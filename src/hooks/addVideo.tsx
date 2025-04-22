@@ -17,6 +17,7 @@ import { VideoSprite } from "@/class/videoSprite"
     const spriteMap = useSpriteStore(state=> state.sprite)
     const trackStore = useTrackStateStore()
     const currentTime = usePlayerStore(state=> state.currentTime)
+    
     const spriteToadd = async() =>{
     const stream = (await loadFile({ 'video/*': ['.mp4', '.mov'] })).stream()
     const clip = new MP4Clip(stream)
@@ -50,7 +51,12 @@ import { VideoSprite } from "@/class/videoSprite"
 
     trackStore.addRow({ id: rowId, acceptsType: 'MEDIA', trackItem: newTrack })
     trackStore.addTrack(newTrack)
-    const spr = newspr as VisibleSprite
+    const spr = newspr as unknown as VisibleSprite
+    const index = trackStore.trackLines.map((e) => {
+      e.id === rowId
+      return e.index
+    })[0]
+    spr.zIndex = index as number
     spr.time.offset = currentTime * 1e6
     spr.time.duration = duration 
     console.log('video duration', duration/1e6 )
@@ -60,7 +66,7 @@ import { VideoSprite } from "@/class/videoSprite"
     spr.rect.fixedScaleCenter = true
     spr.rect.center
     // spr.rect.fixedAspectRatio = true
-    //@ts-ignore
+
    
     avCanvas!.addSprite(spr)}
     return(

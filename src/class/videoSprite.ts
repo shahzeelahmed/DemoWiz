@@ -1,5 +1,5 @@
-import { IClip, VisibleSprite } from '@webav/av-cliper'
-import { BaseSprite, changePCMPlaybackRate, Rect } from './baseSprite'
+import { IClip } from '@webav/av-cliper'
+import { BaseSprite, changePCMPlaybackRate } from './baseSprite'
 import { EffectConfig } from '@/types/effectType'
 export class VideoSprite extends BaseSprite {
   #clip: IClip
@@ -14,6 +14,8 @@ export class VideoSprite extends BaseSprite {
   #originalHeight: number = 0
   #originalX: number = 0
   #originalY: number = 0
+
+
 
   // webgl related properties
   #gl: WebGLRenderingContext | null = null
@@ -33,16 +35,10 @@ export class VideoSprite extends BaseSprite {
 
   constructor (
     clip: IClip,
-    startTime: number = 1 * 1e6,
-    endTime: number = 10 * 1e6,
-    holdDuration: number = 3 * 1e6,
-    zoomPositionIndex: number = 8
+
   ) {
     super()
     this.#clip = clip
-    // this.#effectParams.startTime = startTime
-    // this.#effectParams.endTime = endTime
-    // this.#effectParams.holdDuration = holdDuration
     this.ready = clip.ready.then(({ width, height, duration }) => {
       this.rect.w = this.rect.w === 0 ? width : this.rect.w
       this.rect.h = this.rect.h === 0 ? height : this.rect.h
@@ -136,6 +132,18 @@ export class VideoSprite extends BaseSprite {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
   }
 
+  #roundedRect(ctx: CanvasRenderingContext2D, x: number, y: number, width: number, height: number, radius: number) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+  }
 
   setZoomParameters(
     startTime: number = 1 * 1e6,
@@ -296,30 +304,29 @@ export class VideoSprite extends BaseSprite {
     }
   }
 
-  #lastVf: VideoFrame | ImageBitmap | null = null
-  #lastAudio: Float32Array[] = []
-  #ticking = false
-
-  #update (time: number) {
-    if (this.#ticking) return
-    this.#ticking = true
+  #lastVf: VideoFrame | ImageBitmap | null = null;
+  #lastAudio: Float32Array[] = [];
+  #ticking = false;
+  #update(time: number) {
+    if (this.#ticking) return;
+    this.#ticking = true;
     this.#clip
       .tick(time * this.time.playbackRate)
       .then(({ video, audio }) => {
         if (video != null) {
-          this.#lastVf?.close()
-          this.#lastVf = video ?? null
+          this.#lastVf?.close();
+          this.#lastVf = video ?? null;
         }
-        this.#lastAudio = audio ?? []
+        this.#lastAudio = audio ?? [];
         if (audio != null && this.time.playbackRate !== 1) {
-          this.#lastAudio = audio.map(pcm =>
-            changePCMPlaybackRate(pcm, this.time.playbackRate)
-          )
+          this.#lastAudio = audio.map((pcm) =>
+            changePCMPlaybackRate(pcm, this.time.playbackRate),
+          );
         }
       })
       .finally(() => {
-        this.#ticking = false
-      })
+        this.#ticking = false;
+      });
   }
 
   preFrame (time: number) {
@@ -390,19 +397,23 @@ export class VideoSprite extends BaseSprite {
     return { audio }
   }
 
-  copyStateTo<T extends BaseSprite> (target: T): void {
-    super.copyStateTo(target)
-    if ((target as any).visible !== undefined) {
-      ;(target as any).visible = this.visible
-    }
+
+  copyStateTo<T extends BaseSprite>(target: T): void {
+    // console.log('target',target)
+    super.copyStateTo(target);
+    
     if (target instanceof VideoSprite) {
-      target.#effectParams.startTime = this.#effectParams.startTime
-      target.#effectParams.endTime = this.#effectParams.endTime
+      
+      target.visible = this.visible;
+      target.#canvas = this.#canvas;
+      target.#gl = this.#gl
     }
   }
 
+
   #destroyed = false
   destroy (): void {
+    
     if (this.#destroyed) return
     this.#destroyed = true
     //important: cleanup
@@ -425,3 +436,5 @@ export class VideoSprite extends BaseSprite {
     this.#clip.destroy()
   }
 }
+
+

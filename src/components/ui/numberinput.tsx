@@ -112,7 +112,7 @@ const NumberInputWithUnit = React.forwardRef<
           onChange={handleChange}
           onBlur={handleBlur}
           className={cn(
-            'w-6 border-0 bg-white p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex justify-center items-center content-center',
+            'w-7 border-0 bg-white p-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 flex justify-center items-center content-center',
             'text-sm font-medium  text-center mr-2 tabular-nums'
           )}
           disabled={disabled}
@@ -121,10 +121,10 @@ const NumberInputWithUnit = React.forwardRef<
           step={step}
           {...props}
         />
-        <span className='text-muted-foreground  select-none whitespace-nowrap '>
+        <span className='text-muted-foreground  select-none whitespace '>
           {unit}
         </span>
-        <div className='ml-2 flex flex-col items-center justify-between h-full '>
+        <div className=' flex flex-col items-center justify-between h-full '>
           <Button
             variant='ghost'
             size='icon'

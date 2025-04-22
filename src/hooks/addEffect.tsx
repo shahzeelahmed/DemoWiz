@@ -33,11 +33,10 @@ const AddEffect = () => {
     region: Region
   ) => {
     const { sprite, setSprite } = useSpriteStore.getState();
-    if (!trackId) return console.warn('no track id');
+    if (!trackId) return 
     const spr = sprite.get(trackId);
-    if (!spr) return console.warn(`sprite with id ${trackId} not found`);
     if (!(spr instanceof VideoSprite)) {
-      console.warn(`sprite ${trackId} is not a VideoSprite`);
+     
       return;
     }
     const videoSpr = spr as VideoSprite;
@@ -77,7 +76,7 @@ const AddEffect = () => {
       }
       store.addTrack([effect])
       const unsub = useTrackStateStore.subscribe((state) => {
-        const et = state.tracks.find(t => t.id === effectId) as EffectTrack | undefined
+        const et = state.tracks.find(t => t.id === effectId) as EffectTrack 
         if (et?.startTime != null && et.endTime != null) {
           const holdMicro = Math.round((et.endTime - et.startTime) * 1e6)
           videoSpr.setZoomParameters(
@@ -98,56 +97,67 @@ const AddEffect = () => {
   `
 
   return (
+   
+    <>
+  {!trackId ? (
+    <h3 className="text-sm text-red-700 mt-2">select a video clip to apply effect</h3>
+  ) : (
     <>
       <style>{popoverKeyframes}</style>
       <div className="relative inline-block">
         <Button
           variant="outline"
-          className="border rounded-md p-2 w-full bg-white/90 text-gray-700 mt-2 "
+          className="border rounded-md p-2 w-full bg-[#e9e9e9] text-gray-700 mt-2 h-14"
           onClick={() => setShowPicker(v => !v)}
         >
-          <h3 className='text-sm self-start text-[#9e9e9e]'>Zoom Effect</h3>
+          <h3 className="text-sm self-center text-[#9e9e9e]">Zoom Effect</h3>
         </Button>
-      {showPicker && (
-        <div
-          className="absolute z-20 bg-white/80 backdrop-blur-sm p-5 border border-gray-200 rounded-lg shadow-2xl grid grid-cols-3 gap-3 mt-1 w-64"
-          style={{ animation: 'zoomIn 0.2s ease-out forwards' }}
-        >
-          <div className="col-span-3 text-center font-sm text-[#4e4e4e] mb-2">
-            Select area you want to zoom
+        {showPicker && (
+          <div
+            className="absolute z-20 bg-white/80 backdrop-blur-sm p-5 border border-gray-200 rounded-lg shadow-2xl grid grid-cols-3 gap-3 mt-1 w-64"
+            style={{ animation: 'zoomIn 0.2s ease-out forwards' }}
+          >
+            <div className="col-span-3 text-center font-sm text-[#4e4e4e] mb-2">
+              Select area you want to zoom
+            </div>
+            {([
+              'top-left','top-center','top-right',
+              'center-left','center','center-right',
+              'bottom-left','bottom-center','bottom-right'
+            ] as Region[]).map(region => {
+              const alignMap: Record<Region, string> = {
+                'top-left': 'items-start justify-start',
+                'top-center': 'items-start justify-center',
+                'top-right': 'items-start justify-end',
+                'center-left': 'items-center justify-start',
+                'center': 'items-center justify-center',
+                'center-right': 'items-center justify-end',
+                'bottom-left': 'items-end justify-start',
+                'bottom-center': 'items-end justify-center',
+                'bottom-right': 'items-end justify-end'
+              }
+              return (
+                <button
+                  key={region}
+                  aria-label={`Zoom ${region.replace('-', ' ')}`}
+                  className={`w-12 h-12 border-2 flex ${alignMap[region]} hover:border-[#6e6e6e]`}
+                  onClick={() => { addEffectToClip(currentTime, 5000, region); setShowPicker(false); }}
+                >
+                  <span className="block w-3 h-3 bg-[#6e6e6e] rounded-full" />
+                </button>
+              )
+            })}
           </div>
-          {([
-            'top-left','top-center','top-right',
-            'center-left','center','center-right',
-            'bottom-left','bottom-center','bottom-right'
-          ] as Region[]).map(region => {
-            const alignMap: Record<Region, string> = {
-              'top-left': 'items-start justify-start',
-              'top-center': 'items-start justify-center',
-              'top-right': 'items-start justify-end',
-              'center-left': 'items-center justify-start',
-              'center': 'items-center justify-center',
-              'center-right': 'items-center justify-end',
-              'bottom-left': 'items-end justify-start',
-              'bottom-center': 'items-end justify-center',
-              'bottom-right': 'items-end justify-end'
-            }
-            return (
-              <button
-                key={region}
-                aria-label={`Zoom ${region.replace('-', ' ')}`}
-                className={`w-12 h-12 border-2 flex ${alignMap[region]} hover:border-[#6e6e6e]`}
-                onClick={() => { addEffectToClip(currentTime, 5000, region); setShowPicker(false); }}
-              >
-                <span className="block w-3 h-3 bg-[#6e6e6e] rounded-full" />
-              </button>
-            )
-          })}
-        </div>
-      )}
+        )}
       </div>
     </>
+  )}
+</>
+
   )
-}
+
+  
+  }
+
 
 export default AddEffect
