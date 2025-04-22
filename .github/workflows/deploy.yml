@@ -3,7 +3,7 @@ name: GitHub Pages
 on:
   push:
     branches:
-      - gh-pages  
+      - main  
 
 jobs:
   deploy:
@@ -16,10 +16,11 @@ jobs:
       - name: Install dependencies and build the project
         run: |
           npm install
-          npm run build  
+          npm run build 
 
       - name: GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}  
+          github_token: ${{ secrets.GITHUB_TOKEN }} 
           publish_dir: ./dist  
+          target_branch: gh-pages  
