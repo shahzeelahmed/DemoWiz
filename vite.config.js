@@ -5,6 +5,7 @@ import path from "path";
 import svgr from "vite-plugin-svgr";
 
 export default defineConfig(async () => ({
+  base: '/DemoWiz/',
   plugins: [react(), tailwindcss(),svgr()],
   worker: {
     format: 'es',
