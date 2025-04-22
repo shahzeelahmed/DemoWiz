@@ -11,10 +11,10 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip'
 import useSidebarStore from '@/store/sideBarStore'
-import AddVideoSprite from '@/hooks/addVideo'
-import AddTextSprite from '@/hooks/addText'
-import AddImageSprite from '@/hooks/addImage'
-import AddEffect from '@/hooks/addEffect'
+import AddVideoSprite from '@/lib/addVideo'
+import AddTextSprite from '@/lib/addText'
+import AddImageSprite from '@/lib/addImage'
+import AddEffect from '@/lib/addEffect'
 const SideBar = React.memo(() => {
   const sliderRef = useRef<HTMLInputElement>(null)
   const sidebarStore = useSidebarStore()
