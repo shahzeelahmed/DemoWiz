@@ -58,7 +58,7 @@ ready;
     const textHeight = this.#getLineHeight(contentList)
     this.#cvsEl.width = textWidth + xPadding * 2
     this.#cvsEl.height = textHeight + yPadding * 2
-    this.#meta.width = this.#cvsEl.width
+    this.#meta.width = this.#cvsEl.width /2
     this.#meta.height = this.#cvsEl.height
     this.#sizeListeners.forEach(fn => fn(this.#meta))
   }
@@ -70,7 +70,7 @@ async tick(time: number): Promise<{
   const contentList = this.#textConfig.content.split("\n");
   const { xPadding, yPadding } = this.#calcPadding();
 
-  let maxLineWidth = 0;
+  let maxLineWidth = -0.5;
   this.#ctx.font = `${this.#textConfig.italic ? "italic " : ""}${this.#textConfig.bold ? "bold " : ""}${this.#textConfig.fontSize}px ${this.#textConfig.fontFamily}`;
   for (const line of contentList) {
     let lineWidth = 0;
