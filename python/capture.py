@@ -71,7 +71,6 @@ class VideoRecorder:
     def start(self, x: int, y: int, w: int, h: int, fps: int):
         self._video_writer = cv2.VideoWriter(
             self._output,
-            # cv2.VideoWriter_fourcc(*'VP90'),
             cv2.VideoWriter.fourcc(*'avc1'),
             fps,
             (w, h),
